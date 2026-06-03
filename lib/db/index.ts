@@ -29,9 +29,9 @@ const ensureExplicitSslMode = (connStr: string | undefined): string | undefined 
 // Create pool with graceful fallback if DATABASE_URL is missing
 const poolConfig = {
   connectionString: ensureExplicitSslMode(connectionString) || undefined,
-  ssl: connectionString && process.env.NODE_ENV === 'production' ? {
-    rejectUnauthorized: false,
-  } : false,
+  ssl: connectionString && !connectionString.includes('localhost') && !connectionString.includes('127.0.0.1')
+    ? { rejectUnauthorized: false }
+    : false,
   // Add connection timeout to prevent hanging
   connectionTimeoutMillis: 5000,
   idleTimeoutMillis: 5000,

@@ -26,7 +26,7 @@ const COLOR_OPTIONS = [
 ]
 
 type Value = { id: number; icon: string; title: string; description: string; order: number }
-type TeamMember = { id: number; name: string; role: string; initial: string; description: string | null; email: string | null; linkedin: string | null; github: string | null; portfolio: string | null; image: string | null; order: number }
+type TeamMember = { id: number; name: string; role: string; initial: string; description: string | null; email: string | null; linkedin: string | null; github: string | null; image: string | null; order: number }
 type Project = { id: number; title: string; category: string; description: string; image: string | null; link: string | null; color: string; order: number }
 type Testimonial = { id: number; name: string; role: string; company: string | null; content: string; rating: number; image: string | null; order: number }
 
@@ -55,7 +55,7 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
   const [team, setTeam] = useState(initialTeam)
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null)
   const [showTeamForm, setShowTeamForm] = useState(false)
-  const emptyTeam = { name: '', role: '', initial: '', description: '', email: '', linkedin: '', github: '', portfolio: '', image: '' }
+  const emptyTeam = { name: '', role: '', initial: '', description: '', email: '', linkedin: '', github: '', image: '' }
   const [teamForm, setTeamForm] = useState(emptyTeam)
   const [uploading, setUploading] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
@@ -169,14 +169,13 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
     fd.set('email', teamForm.email)
     fd.set('linkedin', teamForm.linkedin)
     fd.set('github', teamForm.github)
-    fd.set('portfolio', teamForm.portfolio)
     fd.set('image', teamForm.image)
 
     if (editingMember) {
       const res = await updateTeamMember(editingMember.id, fd)
       if (res.success) {
         setTeam(team.map(t => t.id === editingMember.id
-          ? { ...t, ...teamForm, initial: teamForm.initial.toUpperCase().slice(0, 2), image: teamForm.image || null, description: teamForm.description || null, email: teamForm.email || null, linkedin: teamForm.linkedin || null, github: teamForm.github || null, portfolio: teamForm.portfolio || null }
+          ? { ...t, ...teamForm, initial: teamForm.initial.toUpperCase().slice(0, 2), image: teamForm.image || null, description: teamForm.description || null, email: teamForm.email || null, linkedin: teamForm.linkedin || null, github: teamForm.github || null }
           : t))
         setEditingMember(null)
       }
@@ -195,7 +194,7 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
 
   function startEditMember(m: TeamMember) {
     setEditingMember(m)
-    setTeamForm({ name: m.name, role: m.role, initial: m.initial, description: m.description || '', email: m.email || '', linkedin: m.linkedin || '', github: m.github || '', portfolio: m.portfolio || '', image: m.image || '' })
+    setTeamForm({ name: m.name, role: m.role, initial: m.initial, description: m.description || '', email: m.email || '', linkedin: m.linkedin || '', github: m.github || '', image: m.image || '' })
     setImagePreview(m.image)
     setShowTeamForm(false)
   }
@@ -410,12 +409,11 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
               <div className="min-w-0 flex-1">
                 <h4 className="font-medium text-black">{m.name}</h4>
                 <p className="text-xs text-[#6b7f5e]">{m.role}</p>
-                {(m.email || m.linkedin || m.github || m.portfolio) && (
+                {(m.email || m.linkedin || m.github) && (
                   <div className="mt-1 flex gap-2 text-xs text-[#84cc16]">
                     {m.email && <span>Gmail</span>}
                     {m.linkedin && <span>LinkedIn</span>}
                     {m.github && <span>GitHub</span>}
-                    {m.portfolio && <span>Portfolio</span>}
                   </div>
                 )}
               </div>
@@ -444,10 +442,6 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
               <div className="grid grid-cols-2 gap-3">
                 <div><label className="admin-label">LinkedIn URL</label><input className="admin-input text-black" value={teamForm.linkedin} onChange={(e) => setTeamForm({ ...teamForm, linkedin: e.target.value })} placeholder="https://linkedin.com/in/..." /></div>
                 <div><label className="admin-label">GitHub URL</label><input className="admin-input text-black" value={teamForm.github} onChange={(e) => setTeamForm({ ...teamForm, github: e.target.value })} placeholder="https://github.com/..." /></div>
-              </div>
-              <div>
-                <label className="admin-label">Portfolio Link</label>
-                <input className="admin-input text-black" value={teamForm.portfolio} onChange={(e) => setTeamForm({ ...teamForm, portfolio: e.target.value })} placeholder="https://portfolio.example.com" />
               </div>
               <div>
                 <label className="admin-label">Photo</label>

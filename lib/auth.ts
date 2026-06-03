@@ -47,7 +47,7 @@ export const auth = betterAuth({
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day
   },
-  ...(process.env.NODE_ENV === 'development'
+  ...(process.env.NODE_ENV === 'development' && process.env.BETTER_AUTH_URL?.startsWith('https://')
     ? {
         advanced: {
           // In dev (v0 preview iframe), force cross-site cookies so the
