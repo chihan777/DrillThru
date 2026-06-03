@@ -82,13 +82,13 @@ export function WorkSectionClient({ projects, settings: dbSettings }: Props) {
               )}
 
               {/* Grid pattern overlay */}
-              <div className="absolute inset-0 grid-pattern opacity-20" />
+              <div className="pointer-events-none absolute inset-0 grid-pattern opacity-20" />
 
               {/* Dark overlay for readability */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
               {/* Project Number */}
-              <div className="absolute top-6 left-6 font-mono text-6xl font-bold text-white/10">
+              <div className="pointer-events-none absolute top-6 left-6 font-mono text-6xl font-bold text-white/10">
                 0{index + 1}
               </div>
 
@@ -99,7 +99,7 @@ export function WorkSectionClient({ projects, settings: dbSettings }: Props) {
                   opacity: hoveredIndex === index ? 1 : 0.9,
                 }}
                 transition={{ duration: 0.3 }}
-                className="absolute inset-0 flex flex-col justify-end p-6"
+                className="relative z-10 flex h-full flex-col justify-end p-6"
               >
                 <span className="mb-2 text-xs font-medium uppercase tracking-wider text-[#84cc16]">
                   {project.category}
@@ -109,10 +109,10 @@ export function WorkSectionClient({ projects, settings: dbSettings }: Props) {
                   {project.description}
                 </p>
 
-                {/* Link Indicator */}
-                {project.link && project.link !== "#" && project.link.startsWith("http") ? (
+                {/* Link */}
+                {project.link && project.link !== "#" ? (
                   <a
-                    href={project.link}
+                    href={project.link.startsWith("http") ? project.link : `https://${project.link}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-4 inline-flex w-fit items-center gap-2 rounded-lg bg-[#84cc16] px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:bg-[#65a30d] hover:shadow-lg"
