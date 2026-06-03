@@ -29,7 +29,7 @@ const DEFAULT_SETTINGS: Record<string, string> = {
 
 function normalizeImageSrc(src: string | null | undefined) {
   if (!src) return null
-  if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) {
+  if (src.startsWith("data:") || src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) {
     return src
   }
   return `/${src}`
