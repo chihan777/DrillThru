@@ -8,6 +8,7 @@ import {
   Users,
   Sparkles,
   Briefcase,
+  MessageSquare,
 } from "lucide-react"
 import { SignOutButton } from "@/components/sign-out-button"
 import { AdminAboutForm } from "@/components/admin-about-form"
@@ -76,6 +77,13 @@ export default async function AdminAboutPage() {
             >
               <Briefcase className="h-4 w-4" />
               Services
+            </Link>
+            <Link
+              href="/admin/enquiries"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white"
+            >
+              <MessageSquare className="h-4 w-4" />
+              Enquiries
             </Link>
             <Link
               href="/admin/posts/new"

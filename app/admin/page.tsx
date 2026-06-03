@@ -16,6 +16,7 @@ import {
   Sparkles,
   TrendingUp,
   Briefcase,
+  MessageSquare,
 } from "lucide-react"
 import { AdminPostActions } from "@/components/admin-post-actions"
 import { SignOutButton } from "@/components/sign-out-button"
@@ -100,6 +101,13 @@ export default async function AdminDashboard() {
             >
               <Briefcase className="h-4 w-4" />
               Services
+            </Link>
+            <Link
+              href="/admin/enquiries"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white"
+            >
+              <MessageSquare className="h-4 w-4" />
+              Enquiries
             </Link>
             <Link
               href="/admin/posts/new"

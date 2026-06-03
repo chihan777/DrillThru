@@ -15,6 +15,7 @@ import {
   Sparkles,
   Briefcase,
   Calendar,
+  MessageSquare,
 } from "lucide-react"
 import { AdminServiceActions } from "@/components/admin-service-actions"
 import { SignOutButton } from "@/components/sign-out-button"
@@ -84,6 +85,10 @@ export default async function AdminServicesPage() {
             <Link href="/admin/services" className="flex items-center gap-3 rounded-lg bg-[#84cc16]/15 px-3 py-2.5 text-sm font-medium text-[#a3e635]">
               <Briefcase className="h-4 w-4" />
               Services
+            </Link>
+            <Link href="/admin/enquiries" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white">
+              <MessageSquare className="h-4 w-4" />
+              Enquiries
             </Link>
             <Link href="/admin/posts/new" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white">
               <Plus className="h-4 w-4" />
