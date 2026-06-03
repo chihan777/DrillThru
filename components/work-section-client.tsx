@@ -110,7 +110,7 @@ export function WorkSectionClient({ projects, settings: dbSettings }: Props) {
                 </p>
 
                 {/* Link Indicator */}
-                {project.link ? (
+                {project.link && project.link !== "#" && project.link.startsWith("http") ? (
                   <a
                     href={project.link}
                     target="_blank"
