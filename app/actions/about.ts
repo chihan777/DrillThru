@@ -6,48 +6,35 @@ import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { aboutSettings, aboutValues, aboutTeam, projects, testimonials } from "@/lib/db/schema"
 import { eq, asc } from "drizzle-orm"
-import { writeFile, mkdir } from "fs/promises"
-import path from "path"
-
-async function requireAuth() {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) throw new Error("Unauthorized")
-  return session.user.id
-}
-
 // ─── File Upload ─────────────────────────────────────────────────────────────
 
 export async function uploadImage(file: File) {
   try {
     const userId = await requireAuth()
-    console.log('Auth successful, userId:', userId)
 
-    const uploadsDir = path.join(process.cwd(), "public", "uploads")
-    console.log('Uploads directory:', uploadsDir)
-    
-    await mkdir(uploadsDir, { recursive: true })
-    console.log('Directory created/verified')
-
-    const ext = path.extname(file.name) || ".jpg"
-    const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`
-    const filePath = path.join(uploadsDir, filename)
-    console.log('File will be saved to:', filePath)
+    const MAX_SIZE = 5 * 1024 * 1024 // 5MB
+    if (file.size > MAX_SIZE) {
+      return { success: false, error: "File too large. Maximum size is 5MB." }
+    }
 
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    console.log('Buffer created, size:', buffer.length)
-    
-    await writeFile(filePath, buffer)
-    console.log('File written successfully')
+    const base64 = buffer.toString("base64")
+    const mimeType = file.type || "image/jpeg"
+    const dataUrl = `data:${mimeType};base64,${base64}`
 
-    const url = `/uploads/${filename}`
-    console.log('Returning URL:', url)
-    return { success: true, url }
+    return { success: true, url: dataUrl }
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error)
     console.error("Upload error details:", errorMsg)
     return { success: false, error: `Upload failed: ${errorMsg}` }
   }
+}
+
+async function requireAuth() {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user) throw new Error("Unauthorized")
+  return session.user.id
 }
 
 // ─── About Settings (text content: heading, subtitle, story) ────────────────
