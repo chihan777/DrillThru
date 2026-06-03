@@ -2,14 +2,14 @@
 
 import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
-import { Users, Target, Award, Rocket, Mail, Linkedin, Github } from "lucide-react"
+import { Users, Target, Award, Rocket, Mail, Linkedin, Github, ExternalLink } from "lucide-react"
 
 const ICON_MAP: Record<string, React.ElementType> = {
   Target, Users, Award, Rocket,
 }
 
 type Value = { id: number; icon: string; title: string; description: string; order: number }
-type TeamMember = { id: number; name: string; role: string; initial: string; description: string | null; email: string | null; linkedin: string | null; github: string | null; image: string | null; order: number }
+type TeamMember = { id: number; name: string; role: string; initial: string; description: string | null; email: string | null; linkedin: string | null; github: string | null; portfolio: string | null; image: string | null; order: number }
 
 interface Props {
   settings: Record<string, string>
@@ -147,6 +147,11 @@ export function AboutSectionClient({ settings: dbSettings, values, team }: Props
                       {member.github && (
                         <a href={member.github} target="_blank" rel="noopener noreferrer" className="rounded-full bg-white/20 p-2 text-white transition-colors hover:bg-[#84cc16]" onClick={(e) => e.stopPropagation()}>
                           <Github className="h-4 w-4" />
+                        </a>
+                      )}
+                      {member.portfolio && (
+                        <a href={member.portfolio} target="_blank" rel="noopener noreferrer" className="rounded-full bg-white/20 p-2 text-white transition-colors hover:bg-[#84cc16]" onClick={(e) => e.stopPropagation()}>
+                          <ExternalLink className="h-4 w-4" />
                         </a>
                       )}
                     </div>

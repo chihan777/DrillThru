@@ -118,6 +118,7 @@ export const aboutTeam = pgTable("about_team", {
   email: text("email"),
   linkedin: text("linkedin"),
   github: text("github"),
+  portfolio: text("portfolio"),
   image: text("image"),
   order: integer("order").notNull().default(0),
 });

@@ -155,6 +155,7 @@ export async function createTeamMember(formData: FormData) {
   const email = formData.get("email") as string | null
   const linkedin = formData.get("linkedin") as string | null
   const github = formData.get("github") as string | null
+  const portfolio = formData.get("portfolio") as string | null
   const image = formData.get("image") as string | null
 
   if (!name || !role || !initial) {
@@ -173,6 +174,7 @@ export async function createTeamMember(formData: FormData) {
       email: email || null,
       linkedin: linkedin || null,
       github: github || null,
+      portfolio: portfolio || null,
       image: image || null,
       order: nextOrder,
     })
@@ -195,6 +197,7 @@ export async function updateTeamMember(id: number, formData: FormData) {
   const email = formData.get("email") as string | null
   const linkedin = formData.get("linkedin") as string | null
   const github = formData.get("github") as string | null
+  const portfolio = formData.get("portfolio") as string | null
   const image = formData.get("image") as string | null
 
   if (!name || !role || !initial) {
@@ -210,6 +213,7 @@ export async function updateTeamMember(id: number, formData: FormData) {
       email: email || null,
       linkedin: linkedin || null,
       github: github || null,
+      portfolio: portfolio || null,
       image: image || null,
     }).where(eq(aboutTeam.id, id))
     revalidatePath("/")

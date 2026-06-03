@@ -11,10 +11,10 @@ const FALLBACK_VALUES = [
 ]
 
 const FALLBACK_TEAM = [
-  { id: 1, name: "Rajan Sharma", role: "Founder & Lead Developer", initial: "RS", description: "Full-stack developer with 5+ years building for the web.", email: null, linkedin: null, github: null, image: null, order: 1 },
-  { id: 2, name: "Sita Thapa", role: "UI/UX Designer", initial: "ST", description: "Crafts pixel-perfect interfaces that users love.", email: null, linkedin: null, github: null, image: null, order: 2 },
-  { id: 3, name: "Bikash Gurung", role: "Backend Engineer", initial: "BG", description: "Builds scalable APIs and database architectures.", email: null, linkedin: null, github: null, image: null, order: 3 },
-  { id: 4, name: "Anisha Karki", role: "Digital Marketer", initial: "AK", description: "SEO specialist driving organic growth for clients.", email: null, linkedin: null, github: null, image: null, order: 4 },
+  { id: 1, name: "Rajan Sharma", role: "Founder & Lead Developer", initial: "RS", description: "Full-stack developer with 5+ years building for the web.", email: null, linkedin: null, github: null, portfolio: null, image: null, order: 1 },
+  { id: 2, name: "Sita Thapa", role: "UI/UX Designer", initial: "ST", description: "Crafts pixel-perfect interfaces that users love.", email: null, linkedin: null, github: null, portfolio: null, image: null, order: 2 },
+  { id: 3, name: "Bikash Gurung", role: "Backend Engineer", initial: "BG", description: "Builds scalable APIs and database architectures.", email: null, linkedin: null, github: null, portfolio: null, image: null, order: 3 },
+  { id: 4, name: "Anisha Karki", role: "Digital Marketer", initial: "AK", description: "SEO specialist driving organic growth for clients.", email: null, linkedin: null, github: null, portfolio: null, image: null, order: 4 },
 ]
 
 export async function AboutSection() {
