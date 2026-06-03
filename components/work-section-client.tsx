@@ -115,7 +115,7 @@ export function WorkSectionClient({ projects, settings: dbSettings }: Props) {
                     href={project.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-4 flex items-center gap-2 text-sm font-medium text-[#84cc16] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                    className="mt-4 inline-flex w-fit items-center gap-2 rounded-lg bg-[#84cc16] px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:bg-[#65a30d] hover:shadow-lg"
                     onClick={(e) => e.stopPropagation()}
                   >
                     View Project
