@@ -6,16 +6,20 @@ import { eq, desc } from "drizzle-orm"
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://drillthru.com"
 
 async function getPublishedSlugs() {
-  return db
-    .select({ slug: blogPosts.slug, updatedAt: blogPosts.updatedAt })
-    .from(blogPosts)
-    .where(eq(blogPosts.published, true))
-    .orderBy(desc(blogPosts.createdAt))
+  try {
+    return await db
+      .select({ slug: blogPosts.slug, updatedAt: blogPosts.updatedAt })
+      .from(blogPosts)
+      .where(eq(blogPosts.published, true))
+      .orderBy(desc(blogPosts.createdAt))
+  } catch {
+    return []
+  }
 }
 
 async function getPublishedServiceSlugs() {
   try {
-    return db
+    return await db
       .select({ slug: servicePages.slug, updatedAt: servicePages.updatedAt })
       .from(servicePages)
       .where(eq(servicePages.published, true))
