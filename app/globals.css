@@ -302,10 +302,25 @@
 }
 
 .admin-textarea {
-  composes: admin-input;
+  background: rgba(255,255,255,0.9);
+  border: 1.5px solid #e2edcf;
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  color: #1a2e0a;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  outline: none;
   min-height: 7rem;
   resize: vertical;
   line-height: 1.6;
+}
+.admin-textarea:focus {
+  border-color: #84cc16;
+  box-shadow: 0 0 0 3px rgba(132, 204, 22, 0.15);
+}
+.admin-textarea::placeholder {
+  color: #94a388;
 }
 
 .admin-label {

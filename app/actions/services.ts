@@ -24,11 +24,16 @@ function generateSlug(title: string): string {
 
 export async function getServices() {
   const userId = await getUserId()
-  return db
-    .select()
-    .from(servicePages)
-    .where(eq(servicePages.userId, userId))
-    .orderBy(asc(servicePages.order))
+  try {
+    return await db
+      .select()
+      .from(servicePages)
+      .where(eq(servicePages.userId, userId))
+      .orderBy(asc(servicePages.order))
+  } catch (error) {
+    console.error("getServices error:", error)
+    return []
+  }
 }
 
 export async function getService(id: number) {
