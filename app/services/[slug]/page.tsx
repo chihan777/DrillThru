@@ -246,7 +246,7 @@ export default async function ServicePage({ params }: PageProps) {
             <h2 className="mb-3 text-2xl font-bold md:text-3xl">{service.ctaHeading || `Ready to get started with ${service.title}?`}</h2>
             {service.ctaDescription && <p className="mx-auto mb-6 max-w-xl text-muted-foreground">{service.ctaDescription}</p>}
             <Link
-              href={service.ctaButtonLink}
+              href={service.ctaButtonLink?.startsWith("#") ? `/${service.ctaButtonLink}` : service.ctaButtonLink || "/"}
               className="inline-flex items-center gap-2 rounded-lg bg-[#84cc16] px-8 py-3 font-semibold text-black transition-all hover:bg-[#a3e635] hover:shadow-lg hover:shadow-[#84cc16]/20"
             >
               {service.ctaButtonText}
