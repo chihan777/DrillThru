@@ -20,6 +20,7 @@ interface ServiceData {
   content: string
   icon: string
   featuredImage: string | null
+  projectLink: string | null
   seoTitle: string | null
   seoDescription: string | null
   seoKeywords: string | null
@@ -149,8 +150,21 @@ export function ServiceEditor({ service }: ServiceEditorProps) {
   const [content, setContent] = useState(service?.content ?? "")
   const [icon, setIcon] = useState(service?.icon ?? "Globe")
   const [featuredImage, setFeaturedImage] = useState(service?.featuredImage ?? "")
+  const [projectLink, setProjectLink] = useState(service?.projectLink ?? "")
+  const [imageFileName, setImageFileName] = useState("")
   const [order, setOrder] = useState(service?.order ?? 0)
   const [published, setPublished] = useState(service?.published ?? false)
+
+  const handleImageUpload = (file: File) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setFeaturedImage(reader.result)
+      }
+    }
+    reader.readAsDataURL(file)
+    setImageFileName(file.name)
+  }
 
   // SEO
   const [seoTitle, setSeoTitle] = useState(service?.seoTitle ?? "")
@@ -230,6 +244,7 @@ export function ServiceEditor({ service }: ServiceEditorProps) {
     formData.append("ctaDescription", ctaDescription)
     formData.append("ctaButtonText", ctaButtonText)
     formData.append("ctaButtonLink", ctaButtonLink)
+    formData.append("projectLink", projectLink)
     formData.append("faqs", JSON.stringify(faqs.filter((f) => f.question && f.answer)))
     formData.append("testimonials", JSON.stringify(testimonials.filter((t) => t.name && t.content)))
 
@@ -525,29 +540,77 @@ export function ServiceEditor({ service }: ServiceEditorProps) {
               <Image className="h-4 w-4 text-[#65a30d]" />
               <h3 className="text-sm font-bold text-[#1a2e0a]">Featured Image</h3>
             </div>
-            <input
-              className="admin-input mb-3 text-sm"
-              placeholder="https://example.com/image.jpg"
-              value={featuredImage}
-              onChange={(e) => setFeaturedImage(e.target.value)}
-            />
-            {featuredImage ? (
-              <div className="overflow-hidden rounded-lg border border-[#e2edcf]">
-                <img
-                  src={featuredImage.startsWith("data:") || featuredImage.startsWith("http") ? featuredImage : `/${featuredImage}`}
-                  alt="Preview"
-                  className="h-36 w-full object-cover"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
+            <div className="space-y-3">
+              <div>
+                <label className="admin-label mb-1.5 block text-[11px]">Image URL</label>
+                <input
+                  className="admin-input text-sm"
+                  placeholder="https://example.com/image.jpg"
+                  value={featuredImage}
+                  onChange={(e) => setFeaturedImage(e.target.value)}
                 />
               </div>
+              <div>
+                <label className="admin-label mb-1.5 block text-[11px]">Upload from device</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="w-full text-sm text-[#6b7f5e]"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) handleImageUpload(file)
+                  }}
+                />
+                {imageFileName && <p className="mt-2 text-[11px] text-[#6b7f5e]">Selected file: {imageFileName}</p>}
+              </div>
+            </div>
+            {featuredImage ? (
+              <div className="mt-4 overflow-hidden rounded-lg border border-[#e2edcf]">
+                <a
+                  href={projectLink || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={projectLink ? "block" : "pointer-events-none block"}
+                  aria-label={projectLink ? "View project" : "Image preview"}
+                >
+                  <img
+                    src={featuredImage.startsWith("data:") || featuredImage.startsWith("http") ? featuredImage : `/${featuredImage}`}
+                    alt="Preview"
+                    className="h-36 w-full object-cover"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
+                  />
+                </a>
+              </div>
             ) : (
-              <div className="flex h-24 items-center justify-center rounded-lg border-2 border-dashed border-[#e2edcf]">
+              <div className="mt-4 flex h-24 items-center justify-center rounded-lg border-2 border-dashed border-[#e2edcf]">
                 <div className="text-center">
                   <Image className="mx-auto mb-1 h-6 w-6 text-[#c5e091]" />
-                  <p className="text-[11px] text-[#94a388]">Paste image URL above</p>
+                  <p className="text-[11px] text-[#94a388]">Paste image URL above or upload one from your device</p>
                 </div>
               </div>
             )}
+            <div className="mt-4">
+              <label className="admin-label mb-1.5 block text-[11px]">Project Link</label>
+              <input
+                className="admin-input text-sm"
+                placeholder="https://example.com/project"
+                value={projectLink}
+                onChange={(e) => setProjectLink(e.target.value)}
+              />
+              {projectLink && (
+                <div className="mt-3 flex items-center justify-between gap-3">
+                  <span className="text-[11px] text-[#6b7f5e]">Click the image or button to open the project link.</span>
+                  <a
+                    href={projectLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-lg bg-[#84cc16] px-3 py-2 text-[11px] font-semibold text-black transition hover:bg-[#a3e635]"
+                  >
+                    View Project
+                  </a>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* SEO Lab */}

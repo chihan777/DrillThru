@@ -67,6 +67,7 @@ export default async function EditServicePage({ params }: PageProps) {
     ctaDescription: service.ctaDescription,
     ctaButtonText: service.ctaButtonText,
     ctaButtonLink: service.ctaButtonLink,
+    projectLink: service.projectLink,
     published: service.published,
     order: service.order,
     faqs: service.faqs.map((f) => ({ question: f.question, answer: f.answer })),

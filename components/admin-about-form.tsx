@@ -2,7 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Target, Users, Award, Rocket, Plus, Pencil, Trash2, Save, X, Upload, Image as ImageIcon, FolderOpen, MessageSquareQuote } from 'lucide-react'
+import {
+  Target, Users, Award, Rocket, Plus, Pencil, Trash2, Save, X, Upload,
+  Image as ImageIcon, FolderOpen, MessageSquareQuote, ChevronDown, ChevronUp,
+  Type, BookOpen, Users2, Star, Loader2,
+} from 'lucide-react'
 import {
   saveAboutSettings,
   createValue, updateValue, deleteValue,
@@ -12,10 +16,7 @@ import {
   uploadImage,
 } from '@/app/actions/about'
 
-const ICON_MAP: Record<string, React.ElementType> = {
-  Target, Users, Award, Rocket,
-}
-
+const ICON_MAP: Record<string, React.ElementType> = { Target, Users, Award, Rocket }
 const COLOR_OPTIONS = [
   { label: 'Blue/Purple', value: 'from-blue-500/20 to-purple-500/20' },
   { label: 'Orange/Red', value: 'from-orange-500/20 to-red-500/20' },
@@ -38,20 +39,47 @@ interface Props {
   testimonials: Testimonial[]
 }
 
+/* ── Collapsible Section ─────────────────────────────────────────────────── */
+function Section({ icon: Icon, title, subtitle, children, defaultOpen = false, count }: {
+  icon: React.ElementType; title: string; subtitle: string; children: React.ReactNode; defaultOpen?: boolean; count?: number
+}) {
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <div className="admin-card overflow-hidden">
+      <button type="button" onClick={() => setOpen(!open)} className="flex w-full items-center justify-between p-5 text-left transition-colors hover:bg-white/40">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#84cc16]/10">
+            <Icon className="h-4.5 w-4.5 text-[#65a30d]" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-[#1a2e0a]">{title}</h3>
+            <p className="text-xs text-[#6b7f5e]">{subtitle}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {count !== undefined && count > 0 && (
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#84cc16] px-1.5 text-[10px] font-bold text-white">{count}</span>
+          )}
+          {open ? <ChevronUp className="h-4 w-4 text-[#6b7f5e]" /> : <ChevronDown className="h-4 w-4 text-[#6b7f5e]" />}
+        </div>
+      </button>
+      {open && <div className="border-t border-[#e2edcf] p-5">{children}</div>}
+    </div>
+  )
+}
+
 export function AdminAboutForm({ settings: initialSettings, values: initialValues, team: initialTeam, projects: initialProjects, testimonials: initialTestimonials }: Props) {
   const router = useRouter()
 
-  // ── Settings State ──
   const [settings, setSettings] = useState(initialSettings)
   const [savingSettings, setSavingSettings] = useState(false)
+  const [settingsSaved, setSettingsSaved] = useState(false)
 
-  // ── Values State ──
   const [values, setValues] = useState(initialValues)
   const [editingValue, setEditingValue] = useState<Value | null>(null)
   const [showValueForm, setShowValueForm] = useState(false)
   const [valueForm, setValueForm] = useState({ icon: 'Target', title: '', description: '' })
 
-  // ── Team State ──
   const [team, setTeam] = useState(initialTeam)
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null)
   const [showTeamForm, setShowTeamForm] = useState(false)
@@ -60,7 +88,6 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
   const [uploading, setUploading] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
 
-  // ── Projects State ──
   const [projectList, setProjectList] = useState(initialProjects)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [showProjectForm, setShowProjectForm] = useState(false)
@@ -69,7 +96,6 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
   const [uploadingProject, setUploadingProject] = useState(false)
   const [projectImagePreview, setProjectImagePreview] = useState<string | null>(null)
 
-  // ── Testimonials State ──
   const [testimonialList, setTestimonialList] = useState(initialTestimonials)
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null)
   const [showTestimonialForm, setShowTestimonialForm] = useState(false)
@@ -78,554 +104,435 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
   const [uploadingTestimonial, setUploadingTestimonial] = useState(false)
   const [testimonialImagePreview, setTestimonialImagePreview] = useState<string | null>(null)
 
-  // ── Save Settings ──
   async function handleSaveSettings() {
     setSavingSettings(true)
     await saveAboutSettings(settings)
     setSavingSettings(false)
+    setSettingsSaved(true)
+    setTimeout(() => setSettingsSaved(false), 2000)
     router.refresh()
   }
 
-  // ── Values CRUD ──
-  async function handleSaveValue() {
-    const fd = new FormData()
-    fd.set('icon', valueForm.icon)
-    fd.set('title', valueForm.title)
-    fd.set('description', valueForm.description)
-
-    if (editingValue) {
-      const res = await updateValue(editingValue.id, fd)
-      if (res.success) {
-        setValues(values.map(v => v.id === editingValue.id ? { ...v, ...valueForm } : v))
-        setEditingValue(null)
-      }
-    } else {
-      const res = await createValue(fd)
-      if (res.success) {
-        setShowValueForm(false)
-        router.refresh()
-      }
-    }
-    setValueForm({ icon: 'Target', title: '', description: '' })
-  }
-
-  async function handleDeleteValue(id: number) {
-    if (!confirm('Delete this value?')) return
-    const res = await deleteValue(id)
-    if (res.success) setValues(values.filter(v => v.id !== id))
-  }
-
-  function startEditValue(v: Value) {
-    setEditingValue(v)
-    setValueForm({ icon: v.icon, title: v.title, description: v.description })
-    setShowValueForm(false)
-  }
-
-  // ── Image Upload (shared) ──
   async function doImageUpload(file: File): Promise<string | null> {
     try {
       const result = await uploadImage(file)
-      if (result.success && result.url) {
-        console.log('Upload successful:', result.url)
-        return result.url
-      } else {
-        console.error('Upload failed:', result.error)
-        alert(`Upload failed: ${result.error || 'Unknown error'}`)
-        return null
-      }
+      if (result.success && result.url) return result.url
+      alert(`Upload failed: ${result.error || 'Unknown error'}`)
+      return null
     } catch (error) {
-      console.error('Upload error:', error)
       alert(`Upload error: ${error instanceof Error ? error.message : 'Unknown error'}`)
       return null
     }
   }
 
+  // ── Values CRUD ──
+  async function handleSaveValue() {
+    const fd = new FormData()
+    fd.set('icon', valueForm.icon); fd.set('title', valueForm.title); fd.set('description', valueForm.description)
+    if (editingValue) {
+      const res = await updateValue(editingValue.id, fd)
+      if (res.success) { setValues(values.map(v => v.id === editingValue.id ? { ...v, ...valueForm } : v)); setEditingValue(null) }
+    } else {
+      const res = await createValue(fd)
+      if (res.success) { setShowValueForm(false); router.refresh() }
+    }
+    setValueForm({ icon: 'Target', title: '', description: '' })
+  }
+  async function handleDeleteValue(id: number) { if (!confirm('Delete this value?')) return; const res = await deleteValue(id); if (res.success) setValues(values.filter(v => v.id !== id)) }
+  function startEditValue(v: Value) { setEditingValue(v); setValueForm({ icon: v.icon, title: v.title, description: v.description }); setShowValueForm(false) }
+
   // ── Team CRUD ──
   async function handleTeamImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) {
-      console.log('No file selected')
-      return
-    }
-    console.log('Starting upload for file:', file.name, file.size)
-    setUploading(true)
-    const url = await doImageUpload(file)
-    setUploading(false)
-    if (url) {
-      console.log('Setting image URL:', url)
-      setTeamForm({ ...teamForm, image: url })
-      setImagePreview(url)
-    } else {
-      console.log('Upload returned null')
-    }
+    const file = e.target.files?.[0]; if (!file) return
+    setUploading(true); const url = await doImageUpload(file); setUploading(false)
+    if (url) { setTeamForm({ ...teamForm, image: url }); setImagePreview(url) }
   }
-
   async function handleSaveTeam() {
     const fd = new FormData()
-    fd.set('name', teamForm.name)
-    fd.set('role', teamForm.role)
-    fd.set('initial', teamForm.initial)
-    fd.set('description', teamForm.description)
-    fd.set('email', teamForm.email)
-    fd.set('linkedin', teamForm.linkedin)
-    fd.set('github', teamForm.github)
-    fd.set('image', teamForm.image)
-
+    fd.set('name', teamForm.name); fd.set('role', teamForm.role); fd.set('initial', teamForm.initial)
+    fd.set('description', teamForm.description); fd.set('email', teamForm.email); fd.set('linkedin', teamForm.linkedin)
+    fd.set('github', teamForm.github); fd.set('image', teamForm.image)
     if (editingMember) {
       const res = await updateTeamMember(editingMember.id, fd)
-      if (res.success) {
-        setTeam(team.map(t => t.id === editingMember.id
-          ? { ...t, ...teamForm, initial: teamForm.initial.toUpperCase().slice(0, 2), image: teamForm.image || null, description: teamForm.description || null, email: teamForm.email || null, linkedin: teamForm.linkedin || null, github: teamForm.github || null }
-          : t))
-        setEditingMember(null)
-      }
-    } else {
-      const res = await createTeamMember(fd)
-      if (res.success) { setShowTeamForm(false); router.refresh() }
-    }
+      if (res.success) { setTeam(team.map(t => t.id === editingMember.id ? { ...t, ...teamForm, initial: teamForm.initial.toUpperCase().slice(0, 2), image: teamForm.image || null, description: teamForm.description || null, email: teamForm.email || null, linkedin: teamForm.linkedin || null, github: teamForm.github || null } : t)); setEditingMember(null) }
+    } else { const res = await createTeamMember(fd); if (res.success) { setShowTeamForm(false); router.refresh() } }
     setTeamForm(emptyTeam); setImagePreview(null)
   }
-
-  async function handleDeleteTeam(id: number) {
-    if (!confirm('Delete this team member?')) return
-    const res = await deleteTeamMember(id)
-    if (res.success) setTeam(team.filter(t => t.id !== id))
-  }
-
-  function startEditMember(m: TeamMember) {
-    setEditingMember(m)
-    setTeamForm({ name: m.name, role: m.role, initial: m.initial, description: m.description || '', email: m.email || '', linkedin: m.linkedin || '', github: m.github || '', image: m.image || '' })
-    setImagePreview(m.image)
-    setShowTeamForm(false)
-  }
+  async function handleDeleteTeam(id: number) { if (!confirm('Delete this team member?')) return; const res = await deleteTeamMember(id); if (res.success) setTeam(team.filter(t => t.id !== id)) }
+  function startEditMember(m: TeamMember) { setEditingMember(m); setTeamForm({ name: m.name, role: m.role, initial: m.initial, description: m.description || '', email: m.email || '', linkedin: m.linkedin || '', github: m.github || '', image: m.image || '' }); setImagePreview(m.image); setShowTeamForm(false) }
 
   // ── Projects CRUD ──
   async function handleProjectImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setUploadingProject(true)
-    const url = await doImageUpload(file)
-    setUploadingProject(false)
-    if (url) {
-      setProjectForm({ ...projectForm, image: url })
-      setProjectImagePreview(url)
-    }
+    const file = e.target.files?.[0]; if (!file) return
+    setUploadingProject(true); const url = await doImageUpload(file); setUploadingProject(false)
+    if (url) { setProjectForm({ ...projectForm, image: url }); setProjectImagePreview(url) }
   }
-
   async function handleSaveProject() {
     const fd = new FormData()
-    fd.set('title', projectForm.title)
-    fd.set('category', projectForm.category)
-    fd.set('description', projectForm.description)
-    fd.set('image', projectForm.image)
-    fd.set('link', projectForm.link)
-    fd.set('color', projectForm.color)
-
+    fd.set('title', projectForm.title); fd.set('category', projectForm.category); fd.set('description', projectForm.description)
+    fd.set('image', projectForm.image); fd.set('link', projectForm.link); fd.set('color', projectForm.color)
     if (editingProject) {
       const res = await updateProject(editingProject.id, fd)
-      if (res.success) {
-        setProjectList(projectList.map(p => p.id === editingProject.id
-          ? { ...p, ...projectForm, image: projectForm.image || null, link: projectForm.link || null }
-          : p))
-        setEditingProject(null)
-      }
-    } else {
-      const res = await createProject(fd)
-      if (res.success) { setShowProjectForm(false); router.refresh() }
-    }
+      if (res.success) { setProjectList(projectList.map(p => p.id === editingProject.id ? { ...p, ...projectForm, image: projectForm.image || null, link: projectForm.link || null } : p)); setEditingProject(null) }
+    } else { const res = await createProject(fd); if (res.success) { setShowProjectForm(false); router.refresh() } }
     setProjectForm(emptyProject); setProjectImagePreview(null)
   }
-
-  async function handleDeleteProject(id: number) {
-    if (!confirm('Delete this project?')) return
-    const res = await deleteProject(id)
-    if (res.success) setProjectList(projectList.filter(p => p.id !== id))
-  }
-
-  function startEditProject(p: Project) {
-    setEditingProject(p)
-    setProjectForm({ title: p.title, category: p.category, description: p.description, image: p.image || '', link: p.link || '', color: p.color })
-    setProjectImagePreview(p.image)
-    setShowProjectForm(false)
-  }
+  async function handleDeleteProject(id: number) { if (!confirm('Delete this project?')) return; const res = await deleteProject(id); if (res.success) setProjectList(projectList.filter(p => p.id !== id)) }
+  function startEditProject(p: Project) { setEditingProject(p); setProjectForm({ title: p.title, category: p.category, description: p.description, image: p.image || '', link: p.link || '', color: p.color }); setProjectImagePreview(p.image); setShowProjectForm(false) }
 
   // ── Testimonials CRUD ──
   async function handleTestimonialImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setUploadingTestimonial(true)
-    const url = await doImageUpload(file)
-    setUploadingTestimonial(false)
-    if (url) {
-      setTestimonialForm({ ...testimonialForm, image: url })
-      setTestimonialImagePreview(url)
-    }
+    const file = e.target.files?.[0]; if (!file) return
+    setUploadingTestimonial(true); const url = await doImageUpload(file); setUploadingTestimonial(false)
+    if (url) { setTestimonialForm({ ...testimonialForm, image: url }); setTestimonialImagePreview(url) }
   }
-
   async function handleSaveTestimonial() {
     const fd = new FormData()
-    fd.set('name', testimonialForm.name)
-    fd.set('role', testimonialForm.role)
-    fd.set('company', testimonialForm.company)
-    fd.set('content', testimonialForm.content)
-    fd.set('rating', String(testimonialForm.rating))
-    fd.set('image', testimonialForm.image)
-
+    fd.set('name', testimonialForm.name); fd.set('role', testimonialForm.role); fd.set('company', testimonialForm.company)
+    fd.set('content', testimonialForm.content); fd.set('rating', String(testimonialForm.rating)); fd.set('image', testimonialForm.image)
     if (editingTestimonial) {
       const res = await updateTestimonial(editingTestimonial.id, fd)
-      if (res.success) {
-        setTestimonialList(testimonialList.map(t => t.id === editingTestimonial.id
-          ? { ...t, ...testimonialForm, company: testimonialForm.company || null, image: testimonialForm.image || null }
-          : t))
-        setEditingTestimonial(null)
-      }
-    } else {
-      const res = await createTestimonial(fd)
-      if (res.success) { setShowTestimonialForm(false); router.refresh() }
-    }
+      if (res.success) { setTestimonialList(testimonialList.map(t => t.id === editingTestimonial.id ? { ...t, ...testimonialForm, company: testimonialForm.company || null, image: testimonialForm.image || null } : t)); setEditingTestimonial(null) }
+    } else { const res = await createTestimonial(fd); if (res.success) { setShowTestimonialForm(false); router.refresh() } }
     setTestimonialForm(emptyTestimonial); setTestimonialImagePreview(null)
   }
-
-  async function handleDeleteTestimonial(id: number) {
-    if (!confirm('Delete this testimonial?')) return
-    const res = await deleteTestimonial(id)
-    if (res.success) setTestimonialList(testimonialList.filter(t => t.id !== id))
-  }
-
-  function startEditTestimonial(t: Testimonial) {
-    setEditingTestimonial(t)
-    setTestimonialForm({ name: t.name, role: t.role, company: t.company || '', content: t.content, rating: t.rating, image: t.image || '' })
-    setTestimonialImagePreview(t.image)
-    setShowTestimonialForm(false)
-  }
+  async function handleDeleteTestimonial(id: number) { if (!confirm('Delete this testimonial?')) return; const res = await deleteTestimonial(id); if (res.success) setTestimonialList(testimonialList.filter(t => t.id !== id)) }
+  function startEditTestimonial(t: Testimonial) { setEditingTestimonial(t); setTestimonialForm({ name: t.name, role: t.role, company: t.company || '', content: t.content, rating: t.rating, image: t.image || '' }); setTestimonialImagePreview(t.image); setShowTestimonialForm(false) }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       {/* ── Section Text Settings ── */}
-      <div className="admin-card p-6">
-        <h2 className="mb-6 text-lg font-semibold text-black">Section Text</h2>
-        <div className="space-y-4">
+      <Section icon={Type} title="Section Text" subtitle="Headings, story paragraphs, and section titles" defaultOpen>
+        <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="admin-label">Heading</label>
-            <input className="admin-input text-black" value={settings.heading ?? 'believes in Nepal'} onChange={(e) => setSettings({ ...settings, heading: e.target.value })} />
+            <label className="admin-label mb-1 block text-[11px]">Heading</label>
+            <input className="admin-input" value={settings.heading ?? 'believes in Nepal'} onChange={(e) => setSettings({ ...settings, heading: e.target.value })} />
           </div>
           <div>
-            <label className="admin-label">Subtitle</label>
-            <textarea className="admin-textarea min-h-[80px] text-black" value={settings.subtitle ?? ''} onChange={(e) => setSettings({ ...settings, subtitle: e.target.value })} placeholder="Section subtitle..." />
+            <label className="admin-label mb-1 block text-[11px]">Story Heading</label>
+            <input className="admin-input" value={settings.storyHeading ?? 'Our Story'} onChange={(e) => setSettings({ ...settings, storyHeading: e.target.value })} />
           </div>
-          <div>
-            <label className="admin-label">Story Heading</label>
-            <input className="admin-input text-black" value={settings.storyHeading ?? 'Our Story'} onChange={(e) => setSettings({ ...settings, storyHeading: e.target.value })} />
-          </div>
-          <div>
-            <label className="admin-label">Story Paragraph 1</label>
-            <textarea className="admin-textarea min-h-[80px] text-black" value={settings.storyP1 ?? ''} onChange={(e) => setSettings({ ...settings, storyP1: e.target.value })} placeholder="First paragraph..." />
-          </div>
-          <div>
-            <label className="admin-label">Story Paragraph 2</label>
-            <textarea className="admin-textarea min-h-[80px] text-black" value={settings.storyP2 ?? ''} onChange={(e) => setSettings({ ...settings, storyP2: e.target.value })} placeholder="Second paragraph..." />
-          </div>
-          <div>
-            <label className="admin-label">Story Paragraph 3</label>
-            <textarea className="admin-textarea min-h-[80px] text-black" value={settings.storyP3 ?? ''} onChange={(e) => setSettings({ ...settings, storyP3: e.target.value })} placeholder="Third paragraph..." />
-          </div>
-          <div>
-            <label className="admin-label">Team Heading</label>
-            <input className="admin-input text-black" value={settings.teamHeading ?? 'Meet the Team'} onChange={(e) => setSettings({ ...settings, teamHeading: e.target.value })} />
-          </div>
-          <div>
-            <label className="admin-label">Work Section Heading</label>
-            <input className="admin-input text-black" value={settings.workHeading ?? 'Projects that speak for themselves'} onChange={(e) => setSettings({ ...settings, workHeading: e.target.value })} />
-          </div>
-          <div>
-            <label className="admin-label">Work Section Subtitle</label>
-            <textarea className="admin-textarea min-h-[60px] text-black" value={settings.workSubtitle ?? ''} onChange={(e) => setSettings({ ...settings, workSubtitle: e.target.value })} placeholder="Work section subtitle..." />
-          </div>
-          <div>
-            <label className="admin-label">Testimonial Heading</label>
-            <input className="admin-input text-black" value={settings.testimonialHeading ?? 'Trusted by businesses across Nepal'} onChange={(e) => setSettings({ ...settings, testimonialHeading: e.target.value })} />
-          </div>
-          <button onClick={handleSaveSettings} disabled={savingSettings} className="admin-btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-sm">
-            <Save className="h-4 w-4" />{savingSettings ? 'Saving...' : 'Save Settings'}
-          </button>
         </div>
-      </div>
+        <div className="mt-4">
+          <label className="admin-label mb-1 block text-[11px]">Subtitle</label>
+          <textarea className="admin-textarea !min-h-[3.5rem]" value={settings.subtitle ?? ''} onChange={(e) => setSettings({ ...settings, subtitle: e.target.value })} placeholder="Section subtitle..." rows={2} />
+        </div>
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          <div>
+            <label className="admin-label mb-1 block text-[11px]">Story Paragraph 1</label>
+            <textarea className="admin-textarea !min-h-[5rem]" value={settings.storyP1 ?? ''} onChange={(e) => setSettings({ ...settings, storyP1: e.target.value })} placeholder="First paragraph..." rows={4} />
+          </div>
+          <div>
+            <label className="admin-label mb-1 block text-[11px]">Story Paragraph 2</label>
+            <textarea className="admin-textarea !min-h-[5rem]" value={settings.storyP2 ?? ''} onChange={(e) => setSettings({ ...settings, storyP2: e.target.value })} placeholder="Second paragraph..." rows={4} />
+          </div>
+          <div>
+            <label className="admin-label mb-1 block text-[11px]">Story Paragraph 3</label>
+            <textarea className="admin-textarea !min-h-[5rem]" value={settings.storyP3 ?? ''} onChange={(e) => setSettings({ ...settings, storyP3: e.target.value })} placeholder="Third paragraph..." rows={4} />
+          </div>
+        </div>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="admin-label mb-1 block text-[11px]">Team Heading</label>
+            <input className="admin-input" value={settings.teamHeading ?? 'Meet the Team'} onChange={(e) => setSettings({ ...settings, teamHeading: e.target.value })} />
+          </div>
+          <div>
+            <label className="admin-label mb-1 block text-[11px]">Testimonial Heading</label>
+            <input className="admin-input" value={settings.testimonialHeading ?? 'Trusted by businesses across Nepal'} onChange={(e) => setSettings({ ...settings, testimonialHeading: e.target.value })} />
+          </div>
+        </div>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="admin-label mb-1 block text-[11px]">Work Section Heading</label>
+            <input className="admin-input" value={settings.workHeading ?? 'Projects that speak for themselves'} onChange={(e) => setSettings({ ...settings, workHeading: e.target.value })} />
+          </div>
+          <div>
+            <label className="admin-label mb-1 block text-[11px]">Work Section Subtitle</label>
+            <textarea className="admin-textarea !min-h-[3.5rem]" value={settings.workSubtitle ?? ''} onChange={(e) => setSettings({ ...settings, workSubtitle: e.target.value })} placeholder="Work section subtitle..." rows={2} />
+          </div>
+        </div>
+        <div className="mt-5 flex items-center gap-3">
+          <button onClick={handleSaveSettings} disabled={savingSettings} className="flex items-center gap-2 rounded-lg bg-[#84cc16] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#65a30d] disabled:opacity-50">
+            {savingSettings ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            {savingSettings ? 'Saving...' : 'Save Settings'}
+          </button>
+          {settingsSaved && <span className="text-sm font-medium text-[#65a30d]">✓ Saved!</span>}
+        </div>
+      </Section>
 
       {/* ── Values ── */}
-      <div className="admin-card p-6">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-black">Values</h2>
-          <button onClick={() => { setShowValueForm(true); setEditingValue(null); setValueForm({ icon: 'Target', title: '', description: '' }) }} className="admin-btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm">
-            <Plus className="h-4 w-4" /> Add Value
-          </button>
-        </div>
+      <Section icon={Award} title="Values" subtitle="Core company values displayed on the about page" count={values.length}>
         <div className="space-y-3">
+          {values.length === 0 && (
+            <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#e2edcf] py-8">
+              <Award className="mb-2 h-8 w-8 text-[#c5e091]" />
+              <p className="text-sm text-[#6b7f5e]">No values added yet</p>
+            </div>
+          )}
           {values.map((v) => {
             const Icon = ICON_MAP[v.icon] || Target
             return (
-              <div key={v.id} className="flex items-center gap-4 rounded-xl border border-[#e2edcf] bg-white/50 p-4">
-                <Icon className="h-6 w-6 shrink-0 text-[#84cc16]" />
+              <div key={v.id} className="group flex items-center gap-4 rounded-xl border border-[#e2edcf] bg-white/60 p-4 transition-all hover:border-[#c5e091]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#84cc16]/10">
+                  <Icon className="h-5 w-5 text-[#84cc16]" />
+                </div>
                 <div className="min-w-0 flex-1">
-                  <h4 className="font-medium text-black">{v.title}</h4>
+                  <h4 className="text-sm font-semibold text-[#1a2e0a]">{v.title}</h4>
                   <p className="truncate text-xs text-[#6b7f5e]">{v.description}</p>
                 </div>
-                <button onClick={() => startEditValue(v)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-[#84cc16]/10 hover:text-[#84cc16]"><Pencil className="h-4 w-4" /></button>
-                <button onClick={() => handleDeleteValue(v.id)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-red-50 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
+                <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                  <button onClick={() => startEditValue(v)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-[#84cc16]/10 hover:text-[#84cc16]"><Pencil className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => handleDeleteValue(v.id)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-red-50 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
+                </div>
               </div>
             )
           })}
-          {values.length === 0 && <p className="text-center text-sm text-[#6b7f5e]">No values added yet.</p>}
-        </div>
-        {(showValueForm || editingValue) && (
-          <div className="mt-4 rounded-xl border border-[#e2edcf] bg-white/80 p-4">
-            <h3 className="mb-3 text-sm font-semibold text-black">{editingValue ? 'Edit Value' : 'New Value'}</h3>
-            <div className="space-y-3">
-              <div><label className="admin-label">Icon</label><select className="admin-input text-black" value={valueForm.icon} onChange={(e) => setValueForm({ ...valueForm, icon: e.target.value })}>{Object.keys(ICON_MAP).map(k => <option key={k} value={k}>{k}</option>)}</select></div>
-              <div><label className="admin-label">Title</label><input className="admin-input text-black" value={valueForm.title} onChange={(e) => setValueForm({ ...valueForm, title: e.target.value })} placeholder="e.g. Results-Driven" /></div>
-              <div><label className="admin-label">Description</label><textarea className="admin-textarea min-h-[60px] text-black" value={valueForm.description} onChange={(e) => setValueForm({ ...valueForm, description: e.target.value })} placeholder="Short description..." /></div>
-              <div className="flex gap-2">
-                <button onClick={handleSaveValue} className="admin-btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm"><Save className="h-3.5 w-3.5" /> Save</button>
-                <button onClick={() => { setShowValueForm(false); setEditingValue(null) }} className="admin-btn-outline inline-flex items-center gap-2 px-4 py-2 text-sm"><X className="h-3.5 w-3.5" /> Cancel</button>
+          {(showValueForm || editingValue) && (
+            <div className="rounded-xl border border-[#c5e091] bg-[#f7faf3] p-4">
+              <h3 className="mb-3 text-sm font-bold text-[#1a2e0a]">{editingValue ? 'Edit Value' : 'New Value'}</h3>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="admin-label mb-1 block text-[11px]">Icon</label><select className="admin-input" value={valueForm.icon} onChange={(e) => setValueForm({ ...valueForm, icon: e.target.value })}>{Object.keys(ICON_MAP).map(k => <option key={k} value={k}>{k}</option>)}</select></div>
+                  <div><label className="admin-label mb-1 block text-[11px]">Title</label><input className="admin-input" value={valueForm.title} onChange={(e) => setValueForm({ ...valueForm, title: e.target.value })} placeholder="e.g. Results-Driven" /></div>
+                </div>
+                <div><label className="admin-label mb-1 block text-[11px]">Description</label><textarea className="admin-textarea !min-h-[3.5rem]" value={valueForm.description} onChange={(e) => setValueForm({ ...valueForm, description: e.target.value })} placeholder="Short description..." rows={2} /></div>
+                <div className="flex gap-2">
+                  <button onClick={handleSaveValue} className="flex items-center gap-1.5 rounded-lg bg-[#1a1a1a] px-4 py-2 text-xs font-medium text-white hover:bg-black"><Save className="h-3.5 w-3.5" /> Save</button>
+                  <button onClick={() => { setShowValueForm(false); setEditingValue(null) }} className="flex items-center gap-1.5 rounded-lg border border-[#d4e4bc] px-4 py-2 text-xs font-medium text-[#1a2e0a] hover:bg-white"><X className="h-3.5 w-3.5" /> Cancel</button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+          {!showValueForm && !editingValue && (
+            <button onClick={() => { setShowValueForm(true); setEditingValue(null); setValueForm({ icon: 'Target', title: '', description: '' }) }} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#c5e091] py-3 text-sm font-medium text-[#65a30d] transition-all hover:border-[#84cc16] hover:bg-[#84cc16]/5">
+              <Plus className="h-4 w-4" /> Add Value
+            </button>
+          )}
+        </div>
+      </Section>
 
       {/* ── Team Members ── */}
-      <div className="admin-card p-6">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-black">Team Members</h2>
-          <button onClick={() => { setShowTeamForm(true); setEditingMember(null); setTeamForm(emptyTeam); setImagePreview(null) }} className="admin-btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm">
-            <Plus className="h-4 w-4" /> Add Member
-          </button>
-        </div>
+      <Section icon={Users2} title="Team Members" subtitle="People behind the company" count={team.length}>
         <div className="space-y-3">
+          {team.length === 0 && (
+            <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#e2edcf] py-8">
+              <Users2 className="mb-2 h-8 w-8 text-[#c5e091]" />
+              <p className="text-sm text-[#6b7f5e]">No team members yet</p>
+            </div>
+          )}
           {team.map((m) => (
-            <div key={m.id} className="flex items-center gap-4 rounded-xl border border-[#e2edcf] bg-white/50 p-4">
-              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-[#84cc16]/10">
+            <div key={m.id} className="group flex items-center gap-4 rounded-xl border border-[#e2edcf] bg-white/60 p-4 transition-all hover:border-[#c5e091]">
+              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-[#84cc16]/10">
                 {m.image ? <img src={m.image} alt={m.name} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-sm font-bold text-[#84cc16]">{m.initial}</div>}
               </div>
               <div className="min-w-0 flex-1">
-                <h4 className="font-medium text-black">{m.name}</h4>
-                <p className="text-xs text-[#6b7f5e]">{m.role}</p>
+                <h4 className="text-sm font-semibold text-[#1a2e0a]">{m.name}</h4>
+                <p className="text-xs text-[#65a30d]">{m.role}</p>
                 {(m.email || m.linkedin || m.github) && (
-                  <div className="mt-1 flex gap-2 text-xs text-[#84cc16]">
-                    {m.email && <span>Gmail</span>}
-                    {m.linkedin && <span>LinkedIn</span>}
-                    {m.github && <span>GitHub</span>}
+                  <div className="mt-0.5 flex gap-2 text-[10px] text-[#6b7f5e]">
+                    {m.email && <span>Email</span>}{m.linkedin && <span>LinkedIn</span>}{m.github && <span>GitHub</span>}
                   </div>
                 )}
               </div>
-              <button onClick={() => startEditMember(m)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-[#84cc16]/10 hover:text-[#84cc16]"><Pencil className="h-4 w-4" /></button>
-              <button onClick={() => handleDeleteTeam(m.id)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-red-50 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
+              <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <button onClick={() => startEditMember(m)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-[#84cc16]/10 hover:text-[#84cc16]"><Pencil className="h-3.5 w-3.5" /></button>
+                <button onClick={() => handleDeleteTeam(m.id)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-red-50 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
+              </div>
             </div>
           ))}
-          {team.length === 0 && <p className="text-center text-sm text-[#6b7f5e]">No team members added yet.</p>}
-        </div>
-        {(showTeamForm || editingMember) && (
-          <div className="mt-4 rounded-xl border border-[#e2edcf] bg-white/80 p-4">
-            <h3 className="mb-3 text-sm font-semibold text-black">{editingMember ? 'Edit Member' : 'New Team Member'}</h3>
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div><label className="admin-label">Name</label><input className="admin-input text-black" value={teamForm.name} onChange={(e) => setTeamForm({ ...teamForm, name: e.target.value })} placeholder="e.g. Rohan Sharma" /></div>
-                <div><label className="admin-label">Role</label><input className="admin-input text-black" value={teamForm.role} onChange={(e) => setTeamForm({ ...teamForm, role: e.target.value })} placeholder="e.g. Lead Developer" /></div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div><label className="admin-label">Initials</label><input className="admin-input text-black" value={teamForm.initial} onChange={(e) => setTeamForm({ ...teamForm, initial: e.target.value })} placeholder="RS" maxLength={2} /></div>
-                <div><label className="admin-label">Gmail / Email</label><input className="admin-input text-black" value={teamForm.email} onChange={(e) => setTeamForm({ ...teamForm, email: e.target.value })} placeholder="name@gmail.com" /></div>
-              </div>
-              <div>
-                <label className="admin-label">Description</label>
-                <textarea className="admin-textarea min-h-[60px] text-black" value={teamForm.description} onChange={(e) => setTeamForm({ ...teamForm, description: e.target.value })} placeholder="Short bio about this person..." />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div><label className="admin-label">LinkedIn URL</label><input className="admin-input text-black" value={teamForm.linkedin} onChange={(e) => setTeamForm({ ...teamForm, linkedin: e.target.value })} placeholder="https://linkedin.com/in/..." /></div>
-                <div><label className="admin-label">GitHub URL</label><input className="admin-input text-black" value={teamForm.github} onChange={(e) => setTeamForm({ ...teamForm, github: e.target.value })} placeholder="https://github.com/..." /></div>
-              </div>
-              <div>
-                <label className="admin-label">Photo</label>
-                <div className="mt-1 flex items-center gap-4">
-                  {imagePreview ? (
-                    <div className="relative h-20 w-20 overflow-hidden rounded-xl border border-[#e2edcf]"><img src={imagePreview} alt="Preview" className="h-full w-full object-cover" /></div>
-                  ) : (
-                    <div className="flex h-20 w-20 items-center justify-center rounded-xl border-2 border-dashed border-[#e2edcf] bg-white/50"><ImageIcon className="h-6 w-6 text-[#94a388]" /></div>
-                  )}
-                  <div className="flex-1">
-                    <label className="admin-btn-outline inline-flex cursor-pointer items-center gap-2 px-4 py-2 text-sm">
-                      <Upload className="h-3.5 w-3.5" />{uploading ? 'Uploading...' : 'Choose Image'}
+          {(showTeamForm || editingMember) && (
+            <div className="rounded-xl border border-[#c5e091] bg-[#f7faf3] p-4">
+              <h3 className="mb-3 text-sm font-bold text-[#1a2e0a]">{editingMember ? 'Edit Member' : 'New Team Member'}</h3>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="admin-label mb-1 block text-[11px]">Name</label><input className="admin-input" value={teamForm.name} onChange={(e) => setTeamForm({ ...teamForm, name: e.target.value })} placeholder="e.g. Rohan Sharma" /></div>
+                  <div><label className="admin-label mb-1 block text-[11px]">Role</label><input className="admin-input" value={teamForm.role} onChange={(e) => setTeamForm({ ...teamForm, role: e.target.value })} placeholder="e.g. Lead Developer" /></div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="admin-label mb-1 block text-[11px]">Initials (max 2)</label><input className="admin-input" value={teamForm.initial} onChange={(e) => setTeamForm({ ...teamForm, initial: e.target.value })} placeholder="RS" maxLength={2} /></div>
+                  <div><label className="admin-label mb-1 block text-[11px]">Email</label><input className="admin-input" value={teamForm.email} onChange={(e) => setTeamForm({ ...teamForm, email: e.target.value })} placeholder="name@example.com" /></div>
+                </div>
+                <div><label className="admin-label mb-1 block text-[11px]">Bio</label><textarea className="admin-textarea !min-h-[3.5rem]" value={teamForm.description} onChange={(e) => setTeamForm({ ...teamForm, description: e.target.value })} placeholder="Short bio..." rows={2} /></div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="admin-label mb-1 block text-[11px]">LinkedIn</label><input className="admin-input" value={teamForm.linkedin} onChange={(e) => setTeamForm({ ...teamForm, linkedin: e.target.value })} placeholder="https://linkedin.com/in/..." /></div>
+                  <div><label className="admin-label mb-1 block text-[11px]">GitHub</label><input className="admin-input" value={teamForm.github} onChange={(e) => setTeamForm({ ...teamForm, github: e.target.value })} placeholder="https://github.com/..." /></div>
+                </div>
+                <div>
+                  <label className="admin-label mb-1 block text-[11px]">Photo</label>
+                  <div className="flex items-center gap-4">
+                    {imagePreview ? (
+                      <div className="relative h-16 w-16 overflow-hidden rounded-xl border border-[#e2edcf]"><img src={imagePreview} alt="Preview" className="h-full w-full object-cover" /></div>
+                    ) : (
+                      <div className="flex h-16 w-16 items-center justify-center rounded-xl border-2 border-dashed border-[#e2edcf] bg-white/50"><ImageIcon className="h-5 w-5 text-[#94a388]" /></div>
+                    )}
+                    <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-[#d4e4bc] px-4 py-2 text-xs font-medium text-[#1a2e0a] transition-colors hover:border-[#84cc16] hover:bg-[#84cc16]/5">
+                      <Upload className="h-3.5 w-3.5" />{uploading ? 'Uploading...' : 'Upload Photo'}
                       <input type="file" accept="image/*" onChange={handleTeamImageUpload} className="hidden" disabled={uploading} />
                     </label>
-                    {teamForm.image && <p className="mt-1 text-xs text-[#6b7f5e]">{teamForm.image}</p>}
                   </div>
                 </div>
-              </div>
-              <div className="flex gap-2">
-                <button onClick={handleSaveTeam} className="admin-btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm"><Save className="h-3.5 w-3.5" /> Save</button>
-                <button onClick={() => { setShowTeamForm(false); setEditingMember(null); setTeamForm(emptyTeam); setImagePreview(null) }} className="admin-btn-outline inline-flex items-center gap-2 px-4 py-2 text-sm"><X className="h-3.5 w-3.5" /> Cancel</button>
+                <div className="flex gap-2">
+                  <button onClick={handleSaveTeam} className="flex items-center gap-1.5 rounded-lg bg-[#1a1a1a] px-4 py-2 text-xs font-medium text-white hover:bg-black"><Save className="h-3.5 w-3.5" /> Save</button>
+                  <button onClick={() => { setShowTeamForm(false); setEditingMember(null); setTeamForm(emptyTeam); setImagePreview(null) }} className="flex items-center gap-1.5 rounded-lg border border-[#d4e4bc] px-4 py-2 text-xs font-medium text-[#1a2e0a] hover:bg-white"><X className="h-3.5 w-3.5" /> Cancel</button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
-
-      {/* ── Projects (Our Work) ── */}
-      <div className="admin-card p-6">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <FolderOpen className="h-5 w-5 text-[#84cc16]" />
-            <h2 className="text-lg font-semibold text-black">Projects (Our Work)</h2>
-          </div>
-          <button onClick={() => { setShowProjectForm(true); setEditingProject(null); setProjectForm(emptyProject); setProjectImagePreview(null) }} className="admin-btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm">
-            <Plus className="h-4 w-4" /> Add Project
-          </button>
+          )}
+          {!showTeamForm && !editingMember && (
+            <button onClick={() => { setShowTeamForm(true); setEditingMember(null); setTeamForm(emptyTeam); setImagePreview(null) }} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#c5e091] py-3 text-sm font-medium text-[#65a30d] transition-all hover:border-[#84cc16] hover:bg-[#84cc16]/5">
+              <Plus className="h-4 w-4" /> Add Team Member
+            </button>
+          )}
         </div>
+      </Section>
+
+      {/* ── Projects ── */}
+      <Section icon={FolderOpen} title="Projects (Our Work)" subtitle="Showcase projects in the work section" count={projectList.length}>
         <div className="space-y-3">
+          {projectList.length === 0 && (
+            <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#e2edcf] py-8">
+              <FolderOpen className="mb-2 h-8 w-8 text-[#c5e091]" />
+              <p className="text-sm text-[#6b7f5e]">No projects yet</p>
+            </div>
+          )}
           {projectList.map((p) => (
-            <div key={p.id} className="flex items-center gap-4 rounded-xl border border-[#e2edcf] bg-white/50 p-4">
-              <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-gradient-to-br bg-white">
+            <div key={p.id} className="group flex items-center gap-4 rounded-xl border border-[#e2edcf] bg-white/60 p-4 transition-all hover:border-[#c5e091]">
+              <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-white">
                 {p.image ? <img src={p.image} alt={p.title} className="h-full w-full object-cover" /> : <div className={`h-full w-full bg-gradient-to-br ${p.color}`} />}
               </div>
               <div className="min-w-0 flex-1">
-                <h4 className="font-medium text-black">{p.title}</h4>
-                <p className="text-xs text-[#84cc16]">{p.category}</p>
+                <h4 className="text-sm font-semibold text-[#1a2e0a]">{p.title}</h4>
+                <p className="text-[10px] font-medium text-[#65a30d]">{p.category}</p>
                 <p className="truncate text-xs text-[#6b7f5e]">{p.description}</p>
               </div>
-              {p.link && <span className="shrink-0 rounded-full bg-[#84cc16]/10 px-2 py-0.5 text-xs font-medium text-[#84cc16]">Has Link</span>}
-              <button onClick={() => startEditProject(p)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-[#84cc16]/10 hover:text-[#84cc16]"><Pencil className="h-4 w-4" /></button>
-              <button onClick={() => handleDeleteProject(p.id)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-red-50 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
+              {p.link && <span className="shrink-0 rounded-full bg-[#84cc16]/10 px-2 py-0.5 text-[10px] font-bold text-[#65a30d]">Linked</span>}
+              <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <button onClick={() => startEditProject(p)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-[#84cc16]/10 hover:text-[#84cc16]"><Pencil className="h-3.5 w-3.5" /></button>
+                <button onClick={() => handleDeleteProject(p.id)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-red-50 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
+              </div>
             </div>
           ))}
-          {projectList.length === 0 && <p className="text-center text-sm text-[#6b7f5e]">No projects added yet.</p>}
-        </div>
-        {(showProjectForm || editingProject) && (
-          <div className="mt-4 rounded-xl border border-[#e2edcf] bg-white/80 p-4">
-            <h3 className="mb-3 text-sm font-semibold text-black">{editingProject ? 'Edit Project' : 'New Project'}</h3>
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div><label className="admin-label">Title</label><input className="admin-input text-black" value={projectForm.title} onChange={(e) => setProjectForm({ ...projectForm, title: e.target.value })} placeholder="e.g. Himalayan Trails" /></div>
-                <div><label className="admin-label">Category</label><input className="admin-input text-black" value={projectForm.category} onChange={(e) => setProjectForm({ ...projectForm, category: e.target.value })} placeholder="e.g. Web Development + SEO" /></div>
-              </div>
-              <div>
-                <label className="admin-label">Description</label>
-                <textarea className="admin-textarea min-h-[60px] text-black" value={projectForm.description} onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })} placeholder="Project description..." />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="admin-label">Project Link (optional)</label>
-                  <input className="admin-input text-black" value={projectForm.link} onChange={(e) => setProjectForm({ ...projectForm, link: e.target.value })} placeholder="https://... (leave empty if no link)" />
-                  <p className="mt-1 text-xs text-[#6b7f5e]">Add link for web projects. Leave empty for non-web projects.</p>
+          {(showProjectForm || editingProject) && (
+            <div className="rounded-xl border border-[#c5e091] bg-[#f7faf3] p-4">
+              <h3 className="mb-3 text-sm font-bold text-[#1a2e0a]">{editingProject ? 'Edit Project' : 'New Project'}</h3>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="admin-label mb-1 block text-[11px]">Title</label><input className="admin-input" value={projectForm.title} onChange={(e) => setProjectForm({ ...projectForm, title: e.target.value })} placeholder="e.g. Himalayan Trails" /></div>
+                  <div><label className="admin-label mb-1 block text-[11px]">Category</label><input className="admin-input" value={projectForm.category} onChange={(e) => setProjectForm({ ...projectForm, category: e.target.value })} placeholder="e.g. Web Development + SEO" /></div>
+                </div>
+                <div><label className="admin-label mb-1 block text-[11px]">Description</label><textarea className="admin-textarea !min-h-[3.5rem]" value={projectForm.description} onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })} placeholder="Project description..." rows={2} /></div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="admin-label mb-1 block text-[11px]">Project Link</label><input className="admin-input" value={projectForm.link} onChange={(e) => setProjectForm({ ...projectForm, link: e.target.value })} placeholder="https://... (optional)" /></div>
+                  <div><label className="admin-label mb-1 block text-[11px]">Color Theme</label><select className="admin-input" value={projectForm.color} onChange={(e) => setProjectForm({ ...projectForm, color: e.target.value })}>{COLOR_OPTIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}</select></div>
                 </div>
                 <div>
-                  <label className="admin-label">Color Theme</label>
-                  <select className="admin-input text-black" value={projectForm.color} onChange={(e) => setProjectForm({ ...projectForm, color: e.target.value })}>
-                    {COLOR_OPTIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="admin-label">Project Image</label>
-                <div className="mt-1 flex items-center gap-4">
-                  {projectImagePreview ? (
-                    <div className="relative h-20 w-28 overflow-hidden rounded-xl border border-[#e2edcf]"><img src={projectImagePreview} alt="Preview" className="h-full w-full object-cover" /></div>
-                  ) : (
-                    <div className="flex h-20 w-28 items-center justify-center rounded-xl border-2 border-dashed border-[#e2edcf] bg-white/50"><ImageIcon className="h-6 w-6 text-[#94a388]" /></div>
-                  )}
-                  <div className="flex-1">
-                    <label className="admin-btn-outline inline-flex cursor-pointer items-center gap-2 px-4 py-2 text-sm">
-                      <Upload className="h-3.5 w-3.5" />{uploadingProject ? 'Uploading...' : 'Choose Image'}
+                  <label className="admin-label mb-1 block text-[11px]">Image</label>
+                  <div className="flex items-center gap-4">
+                    {projectImagePreview ? (
+                      <div className="relative h-16 w-24 overflow-hidden rounded-lg border border-[#e2edcf]"><img src={projectImagePreview} alt="Preview" className="h-full w-full object-cover" /></div>
+                    ) : (
+                      <div className="flex h-16 w-24 items-center justify-center rounded-lg border-2 border-dashed border-[#e2edcf] bg-white/50"><ImageIcon className="h-5 w-5 text-[#94a388]" /></div>
+                    )}
+                    <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-[#d4e4bc] px-4 py-2 text-xs font-medium text-[#1a2e0a] transition-colors hover:border-[#84cc16] hover:bg-[#84cc16]/5">
+                      <Upload className="h-3.5 w-3.5" />{uploadingProject ? 'Uploading...' : 'Upload Image'}
                       <input type="file" accept="image/*" onChange={handleProjectImageUpload} className="hidden" disabled={uploadingProject} />
                     </label>
-                    {projectForm.image && <p className="mt-1 text-xs text-[#6b7f5e]">{projectForm.image}</p>}
                   </div>
                 </div>
-              </div>
-              <div className="flex gap-2">
-                <button onClick={handleSaveProject} className="admin-btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm"><Save className="h-3.5 w-3.5" /> Save</button>
-                <button onClick={() => { setShowProjectForm(false); setEditingProject(null); setProjectForm(emptyProject); setProjectImagePreview(null) }} className="admin-btn-outline inline-flex items-center gap-2 px-4 py-2 text-sm"><X className="h-3.5 w-3.5" /> Cancel</button>
+                <div className="flex gap-2">
+                  <button onClick={handleSaveProject} className="flex items-center gap-1.5 rounded-lg bg-[#1a1a1a] px-4 py-2 text-xs font-medium text-white hover:bg-black"><Save className="h-3.5 w-3.5" /> Save</button>
+                  <button onClick={() => { setShowProjectForm(false); setEditingProject(null); setProjectForm(emptyProject); setProjectImagePreview(null) }} className="flex items-center gap-1.5 rounded-lg border border-[#d4e4bc] px-4 py-2 text-xs font-medium text-[#1a2e0a] hover:bg-white"><X className="h-3.5 w-3.5" /> Cancel</button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+          {!showProjectForm && !editingProject && (
+            <button onClick={() => { setShowProjectForm(true); setEditingProject(null); setProjectForm(emptyProject); setProjectImagePreview(null) }} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#c5e091] py-3 text-sm font-medium text-[#65a30d] transition-all hover:border-[#84cc16] hover:bg-[#84cc16]/5">
+              <Plus className="h-4 w-4" /> Add Project
+            </button>
+          )}
+        </div>
+      </Section>
 
       {/* ── Testimonials ── */}
-      <div className="admin-card p-6">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <MessageSquareQuote className="h-5 w-5 text-[#84cc16]" />
-            <h2 className="text-lg font-semibold text-black">Testimonials</h2>
-          </div>
-          <button onClick={() => { setShowTestimonialForm(true); setEditingTestimonial(null); setTestimonialForm(emptyTestimonial); setTestimonialImagePreview(null) }} className="admin-btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm">
-            <Plus className="h-4 w-4" /> Add Testimonial
-          </button>
-        </div>
+      <Section icon={MessageSquareQuote} title="Testimonials" subtitle="Client reviews and ratings" count={testimonialList.length}>
         <div className="space-y-3">
+          {testimonialList.length === 0 && (
+            <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#e2edcf] py-8">
+              <MessageSquareQuote className="mb-2 h-8 w-8 text-[#c5e091]" />
+              <p className="text-sm text-[#6b7f5e]">No testimonials yet</p>
+            </div>
+          )}
           {testimonialList.map((t) => (
-            <div key={t.id} className="flex items-center gap-4 rounded-xl border border-[#e2edcf] bg-white/50 p-4">
-              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-[#84cc16]/10">
+            <div key={t.id} className="group flex items-center gap-4 rounded-xl border border-[#e2edcf] bg-white/60 p-4 transition-all hover:border-[#c5e091]">
+              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-[#84cc16]/10">
                 {t.image ? <img src={t.image} alt={t.name} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-sm font-bold text-[#84cc16]">{t.name.split(' ').map(n => n[0]).join('')}</div>}
               </div>
               <div className="min-w-0 flex-1">
-                <h4 className="font-medium text-black">{t.name}</h4>
-                <p className="text-xs text-[#84cc16]">{t.role}{t.company ? `, ${t.company}` : ''}</p>
+                <h4 className="text-sm font-semibold text-[#1a2e0a]">{t.name}</h4>
+                <p className="text-[10px] font-medium text-[#65a30d]">{t.role}{t.company ? `, ${t.company}` : ''}</p>
                 <p className="truncate text-xs text-[#6b7f5e]">&ldquo;{t.content}&rdquo;</p>
-                <div className="mt-1 flex gap-0.5">
-                  {[...Array(t.rating)].map((_, i) => <span key={i} className="text-xs text-[#84cc16]">&#9733;</span>)}
-                </div>
+                <div className="mt-0.5 flex gap-0.5">{[...Array(t.rating)].map((_, i) => <Star key={i} className="h-3 w-3 fill-[#84cc16] text-[#84cc16]" />)}</div>
               </div>
-              <button onClick={() => startEditTestimonial(t)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-[#84cc16]/10 hover:text-[#84cc16]"><Pencil className="h-4 w-4" /></button>
-              <button onClick={() => handleDeleteTestimonial(t.id)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-red-50 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
+              <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <button onClick={() => startEditTestimonial(t)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-[#84cc16]/10 hover:text-[#84cc16]"><Pencil className="h-3.5 w-3.5" /></button>
+                <button onClick={() => handleDeleteTestimonial(t.id)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-red-50 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
+              </div>
             </div>
           ))}
-          {testimonialList.length === 0 && <p className="text-center text-sm text-[#6b7f5e]">No testimonials added yet.</p>}
-        </div>
-        {(showTestimonialForm || editingTestimonial) && (
-          <div className="mt-4 rounded-xl border border-[#e2edcf] bg-white/80 p-4">
-            <h3 className="mb-3 text-sm font-semibold text-black">{editingTestimonial ? 'Edit Testimonial' : 'New Testimonial'}</h3>
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div><label className="admin-label">Name</label><input className="admin-input text-black" value={testimonialForm.name} onChange={(e) => setTestimonialForm({ ...testimonialForm, name: e.target.value })} placeholder="e.g. Bikash Shrestha" /></div>
-                <div><label className="admin-label">Role / Title</label><input className="admin-input text-black" value={testimonialForm.role} onChange={(e) => setTestimonialForm({ ...testimonialForm, role: e.target.value })} placeholder="e.g. CEO" /></div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div><label className="admin-label">Company</label><input className="admin-input text-black" value={testimonialForm.company} onChange={(e) => setTestimonialForm({ ...testimonialForm, company: e.target.value })} placeholder="e.g. Himalayan Adventures" /></div>
-                <div>
-                  <label className="admin-label">Rating (1-5)</label>
-                  <select className="admin-input text-black" value={testimonialForm.rating} onChange={(e) => setTestimonialForm({ ...testimonialForm, rating: parseInt(e.target.value) })}>
-                    {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} Star{n > 1 ? 's' : ''}</option>)}
-                  </select>
+          {(showTestimonialForm || editingTestimonial) && (
+            <div className="rounded-xl border border-[#c5e091] bg-[#f7faf3] p-4">
+              <h3 className="mb-3 text-sm font-bold text-[#1a2e0a]">{editingTestimonial ? 'Edit Testimonial' : 'New Testimonial'}</h3>
+              <div className="space-y-3">
+                <div className="grid grid-cols-3 gap-3">
+                  <div><label className="admin-label mb-1 block text-[11px]">Name</label><input className="admin-input" value={testimonialForm.name} onChange={(e) => setTestimonialForm({ ...testimonialForm, name: e.target.value })} placeholder="Client name" /></div>
+                  <div><label className="admin-label mb-1 block text-[11px]">Role</label><input className="admin-input" value={testimonialForm.role} onChange={(e) => setTestimonialForm({ ...testimonialForm, role: e.target.value })} placeholder="e.g. CEO" /></div>
+                  <div><label className="admin-label mb-1 block text-[11px]">Company</label><input className="admin-input" value={testimonialForm.company} onChange={(e) => setTestimonialForm({ ...testimonialForm, company: e.target.value })} placeholder="Company name" /></div>
                 </div>
-              </div>
-              <div>
-                <label className="admin-label">Testimonial Content</label>
-                <textarea className="admin-textarea min-h-[80px] text-black" value={testimonialForm.content} onChange={(e) => setTestimonialForm({ ...testimonialForm, content: e.target.value })} placeholder="What did they say about your work..." />
-              </div>
-              <div>
-                <label className="admin-label">Photo (optional)</label>
-                <div className="mt-1 flex items-center gap-4">
-                  {testimonialImagePreview ? (
-                    <div className="relative h-16 w-16 overflow-hidden rounded-full border border-[#e2edcf]"><img src={testimonialImagePreview} alt="Preview" className="h-full w-full object-cover" /></div>
-                  ) : (
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed border-[#e2edcf] bg-white/50"><ImageIcon className="h-5 w-5 text-[#94a388]" /></div>
-                  )}
-                  <div className="flex-1">
-                    <label className="admin-btn-outline inline-flex cursor-pointer items-center gap-2 px-4 py-2 text-sm">
-                      <Upload className="h-3.5 w-3.5" />{uploadingTestimonial ? 'Uploading...' : 'Choose Image'}
-                      <input type="file" accept="image/*" onChange={handleTestimonialImageUpload} className="hidden" disabled={uploadingTestimonial} />
-                    </label>
-                    {testimonialForm.image && <p className="mt-1 text-xs text-[#6b7f5e]">{testimonialForm.image}</p>}
+                <div>
+                  <label className="admin-label mb-1 block text-[11px]">Testimonial</label>
+                  <textarea className="admin-textarea !min-h-[4rem]" value={testimonialForm.content} onChange={(e) => setTestimonialForm({ ...testimonialForm, content: e.target.value })} placeholder="What did they say..." rows={3} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="admin-label mb-1 block text-[11px]">Rating</label>
+                    <div className="flex gap-1 pt-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button key={star} type="button" onClick={() => setTestimonialForm({ ...testimonialForm, rating: star })} className={`h-6 w-6 transition-colors ${star <= testimonialForm.rating ? "text-[#84cc16]" : "text-[#e2edcf]"}`}>
+                          <Star className="h-6 w-6 fill-current" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="admin-label mb-1 block text-[11px]">Photo (optional)</label>
+                    <div className="flex items-center gap-3">
+                      {testimonialImagePreview ? (
+                        <div className="relative h-10 w-10 overflow-hidden rounded-full border border-[#e2edcf]"><img src={testimonialImagePreview} alt="Preview" className="h-full w-full object-cover" /></div>
+                      ) : (
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-dashed border-[#e2edcf] bg-white/50"><ImageIcon className="h-4 w-4 text-[#94a388]" /></div>
+                      )}
+                      <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-[#d4e4bc] px-3 py-1.5 text-[11px] font-medium text-[#1a2e0a] hover:border-[#84cc16]">
+                        <Upload className="h-3 w-3" />{uploadingTestimonial ? 'Uploading...' : 'Upload'}
+                        <input type="file" accept="image/*" onChange={handleTestimonialImageUpload} className="hidden" disabled={uploadingTestimonial} />
+                      </label>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="flex gap-2">
-                <button onClick={handleSaveTestimonial} className="admin-btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm"><Save className="h-3.5 w-3.5" /> Save</button>
-                <button onClick={() => { setShowTestimonialForm(false); setEditingTestimonial(null); setTestimonialForm(emptyTestimonial); setTestimonialImagePreview(null) }} className="admin-btn-outline inline-flex items-center gap-2 px-4 py-2 text-sm"><X className="h-3.5 w-3.5" /> Cancel</button>
+                <div className="flex gap-2">
+                  <button onClick={handleSaveTestimonial} className="flex items-center gap-1.5 rounded-lg bg-[#1a1a1a] px-4 py-2 text-xs font-medium text-white hover:bg-black"><Save className="h-3.5 w-3.5" /> Save</button>
+                  <button onClick={() => { setShowTestimonialForm(false); setEditingTestimonial(null); setTestimonialForm(emptyTestimonial); setTestimonialImagePreview(null) }} className="flex items-center gap-1.5 rounded-lg border border-[#d4e4bc] px-4 py-2 text-xs font-medium text-[#1a2e0a] hover:bg-white"><X className="h-3.5 w-3.5" /> Cancel</button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+          {!showTestimonialForm && !editingTestimonial && (
+            <button onClick={() => { setShowTestimonialForm(true); setEditingTestimonial(null); setTestimonialForm(emptyTestimonial); setTestimonialImagePreview(null) }} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#c5e091] py-3 text-sm font-medium text-[#65a30d] transition-all hover:border-[#84cc16] hover:bg-[#84cc16]/5">
+              <Plus className="h-4 w-4" /> Add Testimonial
+            </button>
+          )}
+        </div>
+      </Section>
     </div>
   )
 }

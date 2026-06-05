@@ -1,11 +1,15 @@
 "use client"
 
 import { useState } from "react"
+import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { MessageCircle, X, Phone, Send, CheckCircle2 } from "lucide-react"
 import { submitContact } from "@/app/actions/contact"
 
 export function QuickContact() {
+  const pathname = usePathname()
+  if (pathname?.startsWith("/admin")) return null
+
   const [isOpen, setIsOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)

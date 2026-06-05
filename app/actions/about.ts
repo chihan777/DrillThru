@@ -40,12 +40,17 @@ async function requireAuth() {
 // ─── About Settings (text content: heading, subtitle, story) ────────────────
 
 export async function getAboutSettings() {
-  const rows = await db.select().from(aboutSettings)
-  const map: Record<string, string> = {}
-  for (const row of rows) {
-    map[row.key] = row.value
+  try {
+    const rows = await db.select().from(aboutSettings)
+    const map: Record<string, string> = {}
+    for (const row of rows) {
+      map[row.key] = row.value
+    }
+    return map
+  } catch (error) {
+    console.error("getAboutSettings error:", error)
+    return {}
   }
-  return map
 }
 
 export async function saveAboutSettings(data: Record<string, string>) {
@@ -69,10 +74,15 @@ export async function saveAboutSettings(data: Record<string, string>) {
 // ─── Values ──────────────────────────────────────────────────────────────────
 
 export async function getValues() {
-  return db
-    .select()
-    .from(aboutValues)
-    .orderBy(asc(aboutValues.order))
+  try {
+    return await db
+      .select()
+      .from(aboutValues)
+      .orderBy(asc(aboutValues.order))
+  } catch (error) {
+    console.error("getValues error:", error)
+    return []
+  }
 }
 
 export async function createValue(formData: FormData) {
@@ -139,10 +149,15 @@ export async function deleteValue(id: number) {
 // ─── Team Members ────────────────────────────────────────────────────────────
 
 export async function getTeam() {
-  return db
-    .select()
-    .from(aboutTeam)
-    .orderBy(asc(aboutTeam.order))
+  try {
+    return await db
+      .select()
+      .from(aboutTeam)
+      .orderBy(asc(aboutTeam.order))
+  } catch (error) {
+    console.error("getTeam error:", error)
+    return []
+  }
 }
 
 export async function createTeamMember(formData: FormData) {
@@ -238,10 +253,15 @@ export async function deleteTeamMember(id: number) {
 // ─── Projects ────────────────────────────────────────────────────────────────
 
 export async function getProjects() {
-  return db
-    .select()
-    .from(projects)
-    .orderBy(asc(projects.order))
+  try {
+    return await db
+      .select()
+      .from(projects)
+      .orderBy(asc(projects.order))
+  } catch (error) {
+    console.error("getProjects error:", error)
+    return []
+  }
 }
 
 export async function createProject(formData: FormData) {
@@ -329,10 +349,15 @@ export async function deleteProject(id: number) {
 // ─── Testimonials ────────────────────────────────────────────────────────────
 
 export async function getTestimonials() {
-  return db
-    .select()
-    .from(testimonials)
-    .orderBy(asc(testimonials.order))
+  try {
+    return await db
+      .select()
+      .from(testimonials)
+      .orderBy(asc(testimonials.order))
+  } catch (error) {
+    console.error("getTestimonials error:", error)
+    return []
+  }
 }
 
 export async function createTestimonial(formData: FormData) {

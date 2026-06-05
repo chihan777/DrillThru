@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ArrowLeft, ChevronRight, Star, ArrowRight, Home, Quote } from "lucide-react"
+import { Navigation } from "@/components/navigation"
 import { db } from "@/lib/db"
 import { servicePages, serviceFaqs, serviceTestimonials } from "@/lib/db/schema"
 import { eq, and, asc } from "drizzle-orm"
@@ -127,7 +128,8 @@ export default async function ServicePage({ params }: PageProps) {
       {faqJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pt-24">
+        <Navigation />
         {/* Header */}
         <header className="border-b border-border">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
@@ -166,7 +168,27 @@ export default async function ServicePage({ params }: PageProps) {
           {/* Featured Image */}
           {service.featuredImage && (
             <div className="mb-12 overflow-hidden rounded-2xl border border-border">
-              <img src={service.featuredImage} alt={service.title} className="w-full object-cover" />
+              <a
+                href={service.projectLink || `#services`}
+                target={service.projectLink ? "_blank" : undefined}
+                rel={service.projectLink ? "noopener noreferrer" : undefined}
+                className={service.projectLink ? "block" : "pointer-events-none block"}
+              >
+                <img src={service.featuredImage} alt={service.title} className="w-full object-cover" />
+              </a>
+              {service.projectLink && (
+                <div className="border-t border-border bg-background px-6 py-4 text-right">
+                  <a
+                    href={service.projectLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-lg bg-[#84cc16] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[#a3e635]"
+                  >
+                    View Project
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
+                </div>
+              )}
             </div>
           )}
 

@@ -82,6 +82,7 @@ export async function createService(formData: FormData) {
   const ctaDescription = (formData.get("ctaDescription") as string) || null
   const ctaButtonText = (formData.get("ctaButtonText") as string) || "Get Started"
   const ctaButtonLink = (formData.get("ctaButtonLink") as string) || "#contact"
+  const projectLink = (formData.get("projectLink") as string) || null
   const published = formData.get("published") === "true"
   const order = parseInt((formData.get("order") as string) || "0", 10)
   const faqsJson = (formData.get("faqs") as string) || "[]"
@@ -109,6 +110,7 @@ export async function createService(formData: FormData) {
         content,
         icon,
         featuredImage,
+        projectLink,
         seoTitle,
         seoDescription,
         seoKeywords,
@@ -193,6 +195,7 @@ export async function updateService(id: number, formData: FormData) {
   const ctaDescription = (formData.get("ctaDescription") as string) || null
   const ctaButtonText = (formData.get("ctaButtonText") as string) || "Get Started"
   const ctaButtonLink = (formData.get("ctaButtonLink") as string) || "#contact"
+  const projectLink = (formData.get("projectLink") as string) || null
   const published = formData.get("published") === "true"
   const order = parseInt((formData.get("order") as string) || "0", 10)
   const faqsJson = (formData.get("faqs") as string) || "[]"
@@ -211,6 +214,7 @@ export async function updateService(id: number, formData: FormData) {
         content,
         icon,
         featuredImage,
+        projectLink,
         seoTitle,
         seoDescription,
         seoKeywords,

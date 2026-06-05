@@ -159,6 +159,7 @@ export const servicePages = pgTable("service_pages", {
   slug: text("slug").notNull().unique(),
   description: text("description").notNull(),
   featuredImage: text("featuredImage"),
+  projectLink: text("projectLink"),
   content: text("content").notNull(),
   icon: text("icon").notNull().default("Globe"),
   // SEO fields
