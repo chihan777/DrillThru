@@ -71,9 +71,23 @@ function Section({ icon: Icon, title, subtitle, children, defaultOpen = false, c
 export function AdminAboutForm({ settings: initialSettings, values: initialValues, team: initialTeam, projects: initialProjects, testimonials: initialTestimonials }: Props) {
   const router = useRouter()
 
-  const [settings, setSettings] = useState(initialSettings)
+  const defaultSettings = {
+    heading: '',
+    storyHeading: '',
+    subtitle: '',
+    storyP1: '',
+    storyP2: '',
+    storyP3: '',
+    teamHeading: '',
+    testimonialHeading: '',
+    workHeading: '',
+    workSubtitle: '',
+  }
+
+  const [settings, setSettings] = useState({ ...defaultSettings, ...initialSettings })
   const [savingSettings, setSavingSettings] = useState(false)
   const [settingsSaved, setSettingsSaved] = useState(false)
+  const [actionError, setActionError] = useState<string | null>(null)
 
   const [values, setValues] = useState(initialValues)
   const [editingValue, setEditingValue] = useState<Value | null>(null)
@@ -104,13 +118,23 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
   const [uploadingTestimonial, setUploadingTestimonial] = useState(false)
   const [testimonialImagePreview, setTestimonialImagePreview] = useState<string | null>(null)
 
+  function showError(message: string) {
+    setActionError(message)
+    setTimeout(() => setActionError(null), 5000)
+  }
+
   async function handleSaveSettings() {
     setSavingSettings(true)
-    await saveAboutSettings(settings)
-    setSavingSettings(false)
-    setSettingsSaved(true)
-    setTimeout(() => setSettingsSaved(false), 2000)
-    router.refresh()
+    try {
+      await saveAboutSettings(settings)
+      setSettingsSaved(true)
+      setTimeout(() => setSettingsSaved(false), 2000)
+      router.refresh()
+    } catch (error) {
+      showError(error instanceof Error ? error.message : 'Failed to save settings.')
+    } finally {
+      setSavingSettings(false)
+    }
   }
 
   async function doImageUpload(file: File): Promise<string | null> {
@@ -127,19 +151,44 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
 
   // ── Values CRUD ──
   async function handleSaveValue() {
+    setActionError(null)
     const fd = new FormData()
     fd.set('icon', valueForm.icon); fd.set('title', valueForm.title); fd.set('description', valueForm.description)
     if (editingValue) {
       const res = await updateValue(editingValue.id, fd)
-      if (res.success) { setValues(values.map(v => v.id === editingValue.id ? { ...v, ...valueForm } : v)); setEditingValue(null) }
+      if (res.success) {
+        setValues(values.map(v => v.id === editingValue.id ? { ...v, ...valueForm } : v))
+        setEditingValue(null)
+      } else {
+        showError(res.error || 'Failed to update value.')
+      }
     } else {
       const res = await createValue(fd)
-      if (res.success) { setShowValueForm(false); router.refresh() }
+      if (res.success) {
+        setShowValueForm(false)
+        router.refresh()
+      } else {
+        showError(res.error || 'Failed to create value.')
+      }
     }
     setValueForm({ icon: 'Target', title: '', description: '' })
   }
-  async function handleDeleteValue(id: number) { if (!confirm('Delete this value?')) return; const res = await deleteValue(id); if (res.success) setValues(values.filter(v => v.id !== id)) }
-  function startEditValue(v: Value) { setEditingValue(v); setValueForm({ icon: v.icon, title: v.title, description: v.description }); setShowValueForm(false) }
+
+  async function handleDeleteValue(id: number) {
+    if (!confirm('Delete this value?')) return
+    const res = await deleteValue(id)
+    if (res.success) {
+      setValues(values.filter(v => v.id !== id))
+    } else {
+      showError(res.error || 'Failed to delete value.')
+    }
+  }
+
+  function startEditValue(v: Value) {
+    setEditingValue(v)
+    setValueForm({ icon: v.icon, title: v.title, description: v.description })
+    setShowValueForm(true)
+  }
 
   // ── Team CRUD ──
   async function handleTeamImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -148,18 +197,48 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
     if (url) { setTeamForm({ ...teamForm, image: url }); setImagePreview(url) }
   }
   async function handleSaveTeam() {
+    setActionError(null)
     const fd = new FormData()
     fd.set('name', teamForm.name); fd.set('role', teamForm.role); fd.set('initial', teamForm.initial)
     fd.set('description', teamForm.description); fd.set('email', teamForm.email); fd.set('linkedin', teamForm.linkedin)
     fd.set('github', teamForm.github); fd.set('image', teamForm.image)
     if (editingMember) {
       const res = await updateTeamMember(editingMember.id, fd)
-      if (res.success) { setTeam(team.map(t => t.id === editingMember.id ? { ...t, ...teamForm, initial: teamForm.initial.toUpperCase().slice(0, 2), image: teamForm.image || null, description: teamForm.description || null, email: teamForm.email || null, linkedin: teamForm.linkedin || null, github: teamForm.github || null } : t)); setEditingMember(null) }
-    } else { const res = await createTeamMember(fd); if (res.success) { setShowTeamForm(false); router.refresh() } }
-    setTeamForm(emptyTeam); setImagePreview(null)
+      if (res.success) {
+        setTeam(team.map(t => t.id === editingMember.id ? { ...t, ...teamForm, initial: teamForm.initial.toUpperCase().slice(0, 2), image: teamForm.image || null, description: teamForm.description || null, email: teamForm.email || null, linkedin: teamForm.linkedin || null, github: teamForm.github || null } : t))
+        setEditingMember(null)
+      } else {
+        showError(res.error || 'Failed to update team member.')
+      }
+    } else {
+      const res = await createTeamMember(fd)
+      if (res.success) {
+        setShowTeamForm(false)
+        router.refresh()
+      } else {
+        showError(res.error || 'Failed to create team member.')
+      }
+    }
+    setTeamForm(emptyTeam)
+    setImagePreview(null)
   }
-  async function handleDeleteTeam(id: number) { if (!confirm('Delete this team member?')) return; const res = await deleteTeamMember(id); if (res.success) setTeam(team.filter(t => t.id !== id)) }
-  function startEditMember(m: TeamMember) { setEditingMember(m); setTeamForm({ name: m.name, role: m.role, initial: m.initial, description: m.description || '', email: m.email || '', linkedin: m.linkedin || '', github: m.github || '', image: m.image || '' }); setImagePreview(m.image); setShowTeamForm(false) }
+
+  async function handleDeleteTeam(id: number) {
+    if (!confirm('Delete this team member?')) return
+    const res = await deleteTeamMember(id)
+    if (res.success) {
+      setTeam(team.filter(t => t.id !== id))
+    } else {
+      showError(res.error || 'Failed to delete team member.')
+    }
+  }
+
+  function startEditMember(m: TeamMember) {
+    setEditingMember(m)
+    setTeamForm({ name: m.name, role: m.role, initial: m.initial, description: m.description || '', email: m.email || '', linkedin: m.linkedin || '', github: m.github || '', image: m.image || '' })
+    setImagePreview(m.image)
+    setShowTeamForm(true)
+  }
 
   // ── Projects CRUD ──
   async function handleProjectImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -168,17 +247,47 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
     if (url) { setProjectForm({ ...projectForm, image: url }); setProjectImagePreview(url) }
   }
   async function handleSaveProject() {
+    setActionError(null)
     const fd = new FormData()
     fd.set('title', projectForm.title); fd.set('category', projectForm.category); fd.set('description', projectForm.description)
     fd.set('image', projectForm.image); fd.set('link', projectForm.link); fd.set('color', projectForm.color)
     if (editingProject) {
       const res = await updateProject(editingProject.id, fd)
-      if (res.success) { setProjectList(projectList.map(p => p.id === editingProject.id ? { ...p, ...projectForm, image: projectForm.image || null, link: projectForm.link || null } : p)); setEditingProject(null) }
-    } else { const res = await createProject(fd); if (res.success) { setShowProjectForm(false); router.refresh() } }
-    setProjectForm(emptyProject); setProjectImagePreview(null)
+      if (res.success) {
+        setProjectList(projectList.map(p => p.id === editingProject.id ? { ...p, ...projectForm, image: projectForm.image || null, link: projectForm.link || null } : p))
+        setEditingProject(null)
+      } else {
+        showError(res.error || 'Failed to update project.')
+      }
+    } else {
+      const res = await createProject(fd)
+      if (res.success) {
+        setShowProjectForm(false)
+        router.refresh()
+      } else {
+        showError(res.error || 'Failed to create project.')
+      }
+    }
+    setProjectForm(emptyProject)
+    setProjectImagePreview(null)
   }
-  async function handleDeleteProject(id: number) { if (!confirm('Delete this project?')) return; const res = await deleteProject(id); if (res.success) setProjectList(projectList.filter(p => p.id !== id)) }
-  function startEditProject(p: Project) { setEditingProject(p); setProjectForm({ title: p.title, category: p.category, description: p.description, image: p.image || '', link: p.link || '', color: p.color }); setProjectImagePreview(p.image); setShowProjectForm(false) }
+
+  async function handleDeleteProject(id: number) {
+    if (!confirm('Delete this project?')) return
+    const res = await deleteProject(id)
+    if (res.success) {
+      setProjectList(projectList.filter(p => p.id !== id))
+    } else {
+      showError(res.error || 'Failed to delete project.')
+    }
+  }
+
+  function startEditProject(p: Project) {
+    setEditingProject(p)
+    setProjectForm({ title: p.title, category: p.category, description: p.description, image: p.image || '', link: p.link || '', color: p.color })
+    setProjectImagePreview(p.image)
+    setShowProjectForm(true)
+  }
 
   // ── Testimonials CRUD ──
   async function handleTestimonialImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -187,20 +296,55 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
     if (url) { setTestimonialForm({ ...testimonialForm, image: url }); setTestimonialImagePreview(url) }
   }
   async function handleSaveTestimonial() {
+    setActionError(null)
     const fd = new FormData()
     fd.set('name', testimonialForm.name); fd.set('role', testimonialForm.role); fd.set('company', testimonialForm.company)
     fd.set('content', testimonialForm.content); fd.set('rating', String(testimonialForm.rating)); fd.set('image', testimonialForm.image)
     if (editingTestimonial) {
       const res = await updateTestimonial(editingTestimonial.id, fd)
-      if (res.success) { setTestimonialList(testimonialList.map(t => t.id === editingTestimonial.id ? { ...t, ...testimonialForm, company: testimonialForm.company || null, image: testimonialForm.image || null } : t)); setEditingTestimonial(null) }
-    } else { const res = await createTestimonial(fd); if (res.success) { setShowTestimonialForm(false); router.refresh() } }
-    setTestimonialForm(emptyTestimonial); setTestimonialImagePreview(null)
+      if (res.success) {
+        setTestimonialList(testimonialList.map(t => t.id === editingTestimonial.id ? { ...t, ...testimonialForm, company: testimonialForm.company || null, image: testimonialForm.image || null } : t))
+        setEditingTestimonial(null)
+      } else {
+        showError(res.error || 'Failed to update testimonial.')
+      }
+    } else {
+      const res = await createTestimonial(fd)
+      if (res.success) {
+        setShowTestimonialForm(false)
+        router.refresh()
+      } else {
+        showError(res.error || 'Failed to create testimonial.')
+      }
+    }
+    setTestimonialForm(emptyTestimonial)
+    setTestimonialImagePreview(null)
   }
-  async function handleDeleteTestimonial(id: number) { if (!confirm('Delete this testimonial?')) return; const res = await deleteTestimonial(id); if (res.success) setTestimonialList(testimonialList.filter(t => t.id !== id)) }
-  function startEditTestimonial(t: Testimonial) { setEditingTestimonial(t); setTestimonialForm({ name: t.name, role: t.role, company: t.company || '', content: t.content, rating: t.rating, image: t.image || '' }); setTestimonialImagePreview(t.image); setShowTestimonialForm(false) }
+
+  async function handleDeleteTestimonial(id: number) {
+    if (!confirm('Delete this testimonial?')) return
+    const res = await deleteTestimonial(id)
+    if (res.success) {
+      setTestimonialList(testimonialList.filter(t => t.id !== id))
+    } else {
+      showError(res.error || 'Failed to delete testimonial.')
+    }
+  }
+
+  function startEditTestimonial(t: Testimonial) {
+    setEditingTestimonial(t)
+    setTestimonialForm({ name: t.name, role: t.role, company: t.company || '', content: t.content, rating: t.rating, image: t.image || '' })
+    setTestimonialImagePreview(t.image)
+    setShowTestimonialForm(true)
+  }
 
   return (
     <div className="space-y-5">
+      {actionError && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {actionError}
+        </div>
+      )}
       {/* ── Section Text Settings ── */}
       <Section icon={Type} title="Section Text" subtitle="Headings, story paragraphs, and section titles" defaultOpen>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -252,7 +396,7 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
           </div>
         </div>
         <div className="mt-5 flex items-center gap-3">
-          <button onClick={handleSaveSettings} disabled={savingSettings} className="flex items-center gap-2 rounded-lg bg-[#84cc16] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#65a30d] disabled:opacity-50">
+          <button type="button" onClick={handleSaveSettings} disabled={savingSettings} className="flex items-center gap-2 rounded-lg bg-[#84cc16] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#65a30d] disabled:opacity-50">
             {savingSettings ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             {savingSettings ? 'Saving...' : 'Save Settings'}
           </button>
@@ -281,8 +425,8 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
                   <p className="truncate text-xs text-[#6b7f5e]">{v.description}</p>
                 </div>
                 <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                  <button onClick={() => startEditValue(v)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-[#84cc16]/10 hover:text-[#84cc16]"><Pencil className="h-3.5 w-3.5" /></button>
-                  <button onClick={() => handleDeleteValue(v.id)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-red-50 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
+                  <button type="button" onClick={() => startEditValue(v)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-[#84cc16]/10 hover:text-[#84cc16]"><Pencil className="h-3.5 w-3.5" /></button>
+                  <button type="button" onClick={() => handleDeleteValue(v.id)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-red-50 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
                 </div>
               </div>
             )
@@ -297,14 +441,14 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
                 </div>
                 <div><label className="admin-label mb-1 block text-[11px]">Description</label><textarea className="admin-textarea !min-h-[3.5rem]" value={valueForm.description} onChange={(e) => setValueForm({ ...valueForm, description: e.target.value })} placeholder="Short description..." rows={2} /></div>
                 <div className="flex gap-2">
-                  <button onClick={handleSaveValue} className="flex items-center gap-1.5 rounded-lg bg-[#1a1a1a] px-4 py-2 text-xs font-medium text-white hover:bg-black"><Save className="h-3.5 w-3.5" /> Save</button>
-                  <button onClick={() => { setShowValueForm(false); setEditingValue(null) }} className="flex items-center gap-1.5 rounded-lg border border-[#d4e4bc] px-4 py-2 text-xs font-medium text-[#1a2e0a] hover:bg-white"><X className="h-3.5 w-3.5" /> Cancel</button>
+                  <button type="button" onClick={handleSaveValue} className="flex items-center gap-1.5 rounded-lg bg-[#1a1a1a] px-4 py-2 text-xs font-medium text-white hover:bg-black"><Save className="h-3.5 w-3.5" /> Save</button>
+                  <button type="button" onClick={() => { setShowValueForm(false); setEditingValue(null) }} className="flex items-center gap-1.5 rounded-lg border border-[#d4e4bc] px-4 py-2 text-xs font-medium text-[#1a2e0a] hover:bg-white"><X className="h-3.5 w-3.5" /> Cancel</button>
                 </div>
               </div>
             </div>
           )}
           {!showValueForm && !editingValue && (
-            <button onClick={() => { setShowValueForm(true); setEditingValue(null); setValueForm({ icon: 'Target', title: '', description: '' }) }} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#c5e091] py-3 text-sm font-medium text-[#65a30d] transition-all hover:border-[#84cc16] hover:bg-[#84cc16]/5">
+            <button type="button" onClick={() => { setShowValueForm(true); setEditingValue(null); setValueForm({ icon: 'Target', title: '', description: '' }) }} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#c5e091] py-3 text-sm font-medium text-[#65a30d] transition-all hover:border-[#84cc16] hover:bg-[#84cc16]/5">
               <Plus className="h-4 w-4" /> Add Value
             </button>
           )}
@@ -335,8 +479,8 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
                 )}
               </div>
               <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                <button onClick={() => startEditMember(m)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-[#84cc16]/10 hover:text-[#84cc16]"><Pencil className="h-3.5 w-3.5" /></button>
-                <button onClick={() => handleDeleteTeam(m.id)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-red-50 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
+                <button type="button" onClick={() => startEditMember(m)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-[#84cc16]/10 hover:text-[#84cc16]"><Pencil className="h-3.5 w-3.5" /></button>
+                <button type="button" onClick={() => handleDeleteTeam(m.id)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-red-50 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
               </div>
             </div>
           ))}
@@ -372,14 +516,14 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={handleSaveTeam} className="flex items-center gap-1.5 rounded-lg bg-[#1a1a1a] px-4 py-2 text-xs font-medium text-white hover:bg-black"><Save className="h-3.5 w-3.5" /> Save</button>
-                  <button onClick={() => { setShowTeamForm(false); setEditingMember(null); setTeamForm(emptyTeam); setImagePreview(null) }} className="flex items-center gap-1.5 rounded-lg border border-[#d4e4bc] px-4 py-2 text-xs font-medium text-[#1a2e0a] hover:bg-white"><X className="h-3.5 w-3.5" /> Cancel</button>
+                  <button type="button" onClick={handleSaveTeam} className="flex items-center gap-1.5 rounded-lg bg-[#1a1a1a] px-4 py-2 text-xs font-medium text-white hover:bg-black"><Save className="h-3.5 w-3.5" /> Save</button>
+                  <button type="button" onClick={() => { setShowTeamForm(false); setEditingMember(null); setTeamForm(emptyTeam); setImagePreview(null) }} className="flex items-center gap-1.5 rounded-lg border border-[#d4e4bc] px-4 py-2 text-xs font-medium text-[#1a2e0a] hover:bg-white"><X className="h-3.5 w-3.5" /> Cancel</button>
                 </div>
               </div>
             </div>
           )}
           {!showTeamForm && !editingMember && (
-            <button onClick={() => { setShowTeamForm(true); setEditingMember(null); setTeamForm(emptyTeam); setImagePreview(null) }} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#c5e091] py-3 text-sm font-medium text-[#65a30d] transition-all hover:border-[#84cc16] hover:bg-[#84cc16]/5">
+            <button type="button" onClick={() => { setShowTeamForm(true); setEditingMember(null); setTeamForm(emptyTeam); setImagePreview(null) }} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#c5e091] py-3 text-sm font-medium text-[#65a30d] transition-all hover:border-[#84cc16] hover:bg-[#84cc16]/5">
               <Plus className="h-4 w-4" /> Add Team Member
             </button>
           )}
@@ -407,8 +551,8 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
               </div>
               {p.link && <span className="shrink-0 rounded-full bg-[#84cc16]/10 px-2 py-0.5 text-[10px] font-bold text-[#65a30d]">Linked</span>}
               <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                <button onClick={() => startEditProject(p)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-[#84cc16]/10 hover:text-[#84cc16]"><Pencil className="h-3.5 w-3.5" /></button>
-                <button onClick={() => handleDeleteProject(p.id)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-red-50 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
+                <button type="button" onClick={() => startEditProject(p)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-[#84cc16]/10 hover:text-[#84cc16]"><Pencil className="h-3.5 w-3.5" /></button>
+                <button type="button" onClick={() => handleDeleteProject(p.id)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-red-50 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
               </div>
             </div>
           ))}
@@ -440,14 +584,14 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={handleSaveProject} className="flex items-center gap-1.5 rounded-lg bg-[#1a1a1a] px-4 py-2 text-xs font-medium text-white hover:bg-black"><Save className="h-3.5 w-3.5" /> Save</button>
-                  <button onClick={() => { setShowProjectForm(false); setEditingProject(null); setProjectForm(emptyProject); setProjectImagePreview(null) }} className="flex items-center gap-1.5 rounded-lg border border-[#d4e4bc] px-4 py-2 text-xs font-medium text-[#1a2e0a] hover:bg-white"><X className="h-3.5 w-3.5" /> Cancel</button>
+                  <button type="button" onClick={handleSaveProject} className="flex items-center gap-1.5 rounded-lg bg-[#1a1a1a] px-4 py-2 text-xs font-medium text-white hover:bg-black"><Save className="h-3.5 w-3.5" /> Save</button>
+                  <button type="button" onClick={() => { setShowProjectForm(false); setEditingProject(null); setProjectForm(emptyProject); setProjectImagePreview(null) }} className="flex items-center gap-1.5 rounded-lg border border-[#d4e4bc] px-4 py-2 text-xs font-medium text-[#1a2e0a] hover:bg-white"><X className="h-3.5 w-3.5" /> Cancel</button>
                 </div>
               </div>
             </div>
           )}
           {!showProjectForm && !editingProject && (
-            <button onClick={() => { setShowProjectForm(true); setEditingProject(null); setProjectForm(emptyProject); setProjectImagePreview(null) }} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#c5e091] py-3 text-sm font-medium text-[#65a30d] transition-all hover:border-[#84cc16] hover:bg-[#84cc16]/5">
+            <button type="button" onClick={() => { setShowProjectForm(true); setEditingProject(null); setProjectForm(emptyProject); setProjectImagePreview(null) }} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#c5e091] py-3 text-sm font-medium text-[#65a30d] transition-all hover:border-[#84cc16] hover:bg-[#84cc16]/5">
               <Plus className="h-4 w-4" /> Add Project
             </button>
           )}
@@ -475,8 +619,8 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
                 <div className="mt-0.5 flex gap-0.5">{[...Array(t.rating)].map((_, i) => <Star key={i} className="h-3 w-3 fill-[#84cc16] text-[#84cc16]" />)}</div>
               </div>
               <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                <button onClick={() => startEditTestimonial(t)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-[#84cc16]/10 hover:text-[#84cc16]"><Pencil className="h-3.5 w-3.5" /></button>
-                <button onClick={() => handleDeleteTestimonial(t.id)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-red-50 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
+                <button type="button" onClick={() => startEditTestimonial(t)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-[#84cc16]/10 hover:text-[#84cc16]"><Pencil className="h-3.5 w-3.5" /></button>
+                <button type="button" onClick={() => handleDeleteTestimonial(t.id)} className="rounded-lg p-2 text-[#6b7f5e] hover:bg-red-50 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
               </div>
             </div>
           ))}
@@ -520,14 +664,14 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={handleSaveTestimonial} className="flex items-center gap-1.5 rounded-lg bg-[#1a1a1a] px-4 py-2 text-xs font-medium text-white hover:bg-black"><Save className="h-3.5 w-3.5" /> Save</button>
-                  <button onClick={() => { setShowTestimonialForm(false); setEditingTestimonial(null); setTestimonialForm(emptyTestimonial); setTestimonialImagePreview(null) }} className="flex items-center gap-1.5 rounded-lg border border-[#d4e4bc] px-4 py-2 text-xs font-medium text-[#1a2e0a] hover:bg-white"><X className="h-3.5 w-3.5" /> Cancel</button>
+                  <button type="button" onClick={handleSaveTestimonial} className="flex items-center gap-1.5 rounded-lg bg-[#1a1a1a] px-4 py-2 text-xs font-medium text-white hover:bg-black"><Save className="h-3.5 w-3.5" /> Save</button>
+                  <button type="button" onClick={() => { setShowTestimonialForm(false); setEditingTestimonial(null); setTestimonialForm(emptyTestimonial); setTestimonialImagePreview(null) }} className="flex items-center gap-1.5 rounded-lg border border-[#d4e4bc] px-4 py-2 text-xs font-medium text-[#1a2e0a] hover:bg-white"><X className="h-3.5 w-3.5" /> Cancel</button>
                 </div>
               </div>
             </div>
           )}
           {!showTestimonialForm && !editingTestimonial && (
-            <button onClick={() => { setShowTestimonialForm(true); setEditingTestimonial(null); setTestimonialForm(emptyTestimonial); setTestimonialImagePreview(null) }} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#c5e091] py-3 text-sm font-medium text-[#65a30d] transition-all hover:border-[#84cc16] hover:bg-[#84cc16]/5">
+            <button type="button" onClick={() => { setShowTestimonialForm(true); setEditingTestimonial(null); setTestimonialForm(emptyTestimonial); setTestimonialImagePreview(null) }} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#c5e091] py-3 text-sm font-medium text-[#65a30d] transition-all hover:border-[#84cc16] hover:bg-[#84cc16]/5">
               <Plus className="h-4 w-4" /> Add Testimonial
             </button>
           )}
