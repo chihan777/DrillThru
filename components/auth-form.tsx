@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { authClient } from '@/lib/auth-client'
+import { recordLogin } from '@/app/actions/audit'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -23,15 +24,21 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
     setError(null)
     setLoading(true)
 
-    const { error } = isSignUp
+    const result = isSignUp
       ? await authClient.signUp.email({ email, password, name })
       : await authClient.signIn.email({ email, password })
 
     setLoading(false)
 
-    if (error) {
-      setError(error.message ?? 'Something went wrong')
+    if (result.error) {
+      setError(result.error.message ?? 'Something went wrong')
       return
+    }
+
+    // Record login event
+    const userData = result.data?.user
+    if (userData) {
+      await recordLogin(userData.id, userData.name || email.split('@')[0], userData.email || email)
     }
 
     router.push('/admin')
@@ -43,11 +50,7 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <Link href="/" className="mb-8 flex items-center justify-center gap-2">
-          <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-primary">
-            <span className="absolute inset-0 flex items-center justify-center text-lg font-bold text-primary-foreground">
-              D
-            </span>
-          </div>
+          <img src="/icon.jpeg" alt="DrillThru" className="h-10 w-10 rounded-lg object-cover" />
           <span className="text-xl font-bold tracking-tight">DrillThru</span>
         </Link>
 

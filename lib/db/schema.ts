@@ -215,3 +215,33 @@ export const serviceTestimonials = pgTable("service_testimonials", {
   rating: integer("rating").notNull().default(5),
   order: integer("order").notNull().default(0),
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Activity Log (tracks all admin changes)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const activityLog = pgTable("activity_log", {
+  id: serial("id").primaryKey(),
+  userId: text("userId").notNull(),
+  userName: text("userName").notNull(),
+  userEmail: text("userEmail").notNull(),
+  action: text("action").notNull(),
+  target: text("target").notNull(),
+  details: text("details"),
+  ipAddress: text("ipAddress"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Login History (tracks all login events)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const loginHistory = pgTable("login_history", {
+  id: serial("id").primaryKey(),
+  userId: text("userId").notNull(),
+  userName: text("userName").notNull(),
+  userEmail: text("userEmail").notNull(),
+  ipAddress: text("ipAddress"),
+  userAgent: text("userAgent"),
+  loginTime: timestamp("loginTime").notNull().defaultNow(),
+});

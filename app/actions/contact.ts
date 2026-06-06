@@ -6,11 +6,12 @@ import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { contactSubmissions } from "@/lib/db/schema"
 import { eq, desc } from "drizzle-orm"
+import { logActivity } from "@/app/actions/audit"
 
 async function requireAuth() {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) throw new Error("Unauthorized")
-  return session.user.id
+  return { userId: session.user.id, userName: session.user.name || "Unknown", userEmail: session.user.email || "unknown" }
 }
 
 export async function submitContact(formData: FormData) {
@@ -61,11 +62,12 @@ export async function getEnquiries() {
 
 export async function toggleEnquiryRead(id: number, read: boolean) {
   try {
-    await requireAuth()
+    const u = await requireAuth()
     await db
       .update(contactSubmissions)
       .set({ read })
       .where(eq(contactSubmissions.id, id))
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: read ? "Marked Read" : "Marked Unread", target: "Enquiry", details: `${read ? "Marked read" : "Marked unread"} enquiry #${id}` })
     revalidatePath("/admin/enquiries")
     return { success: true }
   } catch (error) {
@@ -76,8 +78,9 @@ export async function toggleEnquiryRead(id: number, read: boolean) {
 
 export async function deleteEnquiry(id: number) {
   try {
-    await requireAuth()
+    const u = await requireAuth()
     await db.delete(contactSubmissions).where(eq(contactSubmissions.id, id))
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Deleted", target: "Enquiry", details: `Deleted enquiry #${id}` })
     revalidatePath("/admin/enquiries")
     return { success: true }
   } catch (error) {

@@ -6,11 +6,12 @@ import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { siteSettings } from "@/lib/db/schema"
 import { DEFAULT_SITE_SETTINGS } from "@/lib/default-settings"
+import { logActivity } from "@/app/actions/audit"
 
 async function requireAuth() {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) throw new Error("Unauthorized")
-  return session.user.id
+  return { userId: session.user.id, userName: session.user.name || "Unknown", userEmail: session.user.email || "unknown" }
 }
 
 // ─── Public: Get all site settings ──────────────────────────────────────────
@@ -30,7 +31,7 @@ export async function getSiteSettings() {
 
 // ─── Admin: Save site settings ──────────────────────────────────────────────
 export async function saveSiteSettings(data: Record<string, string>) {
-  await requireAuth()
+  const u = await requireAuth()
 
   for (const [key, value] of Object.entries(data)) {
     await db
@@ -41,6 +42,8 @@ export async function saveSiteSettings(data: Record<string, string>) {
         set: { value, updatedAt: new Date() },
       })
   }
+
+  await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "Site Settings", details: `Updated ${Object.keys(data).length} settings` })
 
   revalidatePath("/")
   revalidatePath("/admin/settings")

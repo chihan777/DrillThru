@@ -41,11 +41,7 @@ export async function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link href="/" className="mb-4 inline-flex items-center gap-2">
-              <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-[#84cc16]">
-                <span className="absolute inset-0 flex items-center justify-center text-lg font-bold text-white">
-                  D
-                </span>
-              </div>
+              <img src="/icon.jpeg" alt="DrillThru" className="h-10 w-10 rounded-lg object-cover" />
               <span className="text-xl font-bold tracking-tight">DrillThru</span>
             </Link>
             <p className="mb-6 text-sm text-muted-foreground">

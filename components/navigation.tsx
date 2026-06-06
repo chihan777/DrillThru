@@ -41,12 +41,7 @@ export function Navigation() {
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           {/* Logo */}
           <Link href="/" className="group flex items-center gap-2">
-            <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-[#84cc16]">
-              <span className="absolute inset-0 flex items-center justify-center text-lg font-bold text-white">
-                D
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-tr from-[#84cc16] via-[#a3e635] to-[#65a30d] opacity-0 transition-opacity group-hover:opacity-100" />
-            </div>
+            <img src="/icon.jpeg" alt="DrillThru" className="h-10 w-10 rounded-lg object-cover" />
             <span className="text-xl font-bold tracking-tight">DrillThru</span>
           </Link>
 

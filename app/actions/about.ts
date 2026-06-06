@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { aboutSettings, aboutValues, aboutTeam, projects, testimonials } from "@/lib/db/schema"
 import { eq, asc } from "drizzle-orm"
+import { logActivity } from "@/app/actions/audit"
 // ─── File Upload ─────────────────────────────────────────────────────────────
 
 export async function uploadImage(file: File) {
@@ -34,7 +35,7 @@ export async function uploadImage(file: File) {
 async function requireAuth() {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) throw new Error("Unauthorized")
-  return session.user.id
+  return { userId: session.user.id, userName: session.user.name || "Unknown", userEmail: session.user.email || "unknown" }
 }
 
 // ─── About Settings (text content: heading, subtitle, story) ────────────────
@@ -54,7 +55,7 @@ export async function getAboutSettings() {
 }
 
 export async function saveAboutSettings(data: Record<string, string>) {
-  await requireAuth()
+  const u = await requireAuth()
 
   for (const [key, value] of Object.entries(data)) {
     await db
@@ -65,6 +66,8 @@ export async function saveAboutSettings(data: Record<string, string>) {
         set: { value, updatedAt: new Date() },
       })
   }
+
+  await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "About Settings", details: `Updated ${Object.keys(data).length} about settings` })
 
   revalidatePath("/")
   revalidatePath("/admin/about")
@@ -86,7 +89,7 @@ export async function getValues() {
 }
 
 export async function createValue(formData: FormData) {
-  await requireAuth()
+  const u = await requireAuth()
 
   const icon = formData.get("icon") as string
   const title = formData.get("title") as string
@@ -101,6 +104,7 @@ export async function createValue(formData: FormData) {
 
   try {
     await db.insert(aboutValues).values({ icon, title, description, order: nextOrder })
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Created", target: "About Value", details: `Created value: ${title}` })
     revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
@@ -111,7 +115,7 @@ export async function createValue(formData: FormData) {
 }
 
 export async function updateValue(id: number, formData: FormData) {
-  await requireAuth()
+  const u = await requireAuth()
 
   const icon = formData.get("icon") as string
   const title = formData.get("title") as string
@@ -123,6 +127,7 @@ export async function updateValue(id: number, formData: FormData) {
 
   try {
     await db.update(aboutValues).set({ icon, title, description }).where(eq(aboutValues.id, id))
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "About Value", details: `Updated value: ${title}` })
     revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
@@ -133,10 +138,11 @@ export async function updateValue(id: number, formData: FormData) {
 }
 
 export async function deleteValue(id: number) {
-  await requireAuth()
+  const u = await requireAuth()
 
   try {
     await db.delete(aboutValues).where(eq(aboutValues.id, id))
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Deleted", target: "About Value", details: `Deleted value #${id}` })
     revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
@@ -161,7 +167,7 @@ export async function getTeam() {
 }
 
 export async function createTeamMember(formData: FormData) {
-  await requireAuth()
+  const u = await requireAuth()
 
   const name = formData.get("name") as string
   const role = formData.get("role") as string
@@ -191,6 +197,7 @@ export async function createTeamMember(formData: FormData) {
       image: image || null,
       order: nextOrder,
     })
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Created", target: "Team Member", details: `Added team member: ${name}` })
     revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
@@ -201,7 +208,7 @@ export async function createTeamMember(formData: FormData) {
 }
 
 export async function updateTeamMember(id: number, formData: FormData) {
-  await requireAuth()
+  const u = await requireAuth()
 
   const name = formData.get("name") as string
   const role = formData.get("role") as string
@@ -227,6 +234,7 @@ export async function updateTeamMember(id: number, formData: FormData) {
       github: github || null,
       image: image || null,
     }).where(eq(aboutTeam.id, id))
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "Team Member", details: `Updated team member: ${name}` })
     revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
@@ -237,10 +245,11 @@ export async function updateTeamMember(id: number, formData: FormData) {
 }
 
 export async function deleteTeamMember(id: number) {
-  await requireAuth()
+  const u = await requireAuth()
 
   try {
     await db.delete(aboutTeam).where(eq(aboutTeam.id, id))
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Deleted", target: "Team Member", details: `Deleted team member #${id}` })
     revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
@@ -265,7 +274,7 @@ export async function getProjects() {
 }
 
 export async function createProject(formData: FormData) {
-  await requireAuth()
+  const u = await requireAuth()
 
   const title = formData.get("title") as string
   const category = formData.get("category") as string
@@ -291,6 +300,7 @@ export async function createProject(formData: FormData) {
       color: color || "from-blue-500/20 to-purple-500/20",
       order: nextOrder,
     })
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Created", target: "Project", details: `Created project: ${title}` })
     revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
@@ -301,7 +311,7 @@ export async function createProject(formData: FormData) {
 }
 
 export async function updateProject(id: number, formData: FormData) {
-  await requireAuth()
+  const u = await requireAuth()
 
   const title = formData.get("title") as string
   const category = formData.get("category") as string
@@ -323,6 +333,7 @@ export async function updateProject(id: number, formData: FormData) {
       link: link || null,
       color: color || "from-blue-500/20 to-purple-500/20",
     }).where(eq(projects.id, id))
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "Project", details: `Updated project: ${title}` })
     revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
@@ -333,10 +344,11 @@ export async function updateProject(id: number, formData: FormData) {
 }
 
 export async function deleteProject(id: number) {
-  await requireAuth()
+  const u = await requireAuth()
 
   try {
     await db.delete(projects).where(eq(projects.id, id))
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Deleted", target: "Project", details: `Deleted project #${id}` })
     revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
@@ -361,7 +373,7 @@ export async function getTestimonials() {
 }
 
 export async function createTestimonial(formData: FormData) {
-  await requireAuth()
+  const u = await requireAuth()
 
   const name = formData.get("name") as string
   const role = formData.get("role") as string
@@ -387,6 +399,7 @@ export async function createTestimonial(formData: FormData) {
       image: image || null,
       order: nextOrder,
     })
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Created", target: "Testimonial", details: `Created testimonial from: ${name}` })
     revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
@@ -397,7 +410,7 @@ export async function createTestimonial(formData: FormData) {
 }
 
 export async function updateTestimonial(id: number, formData: FormData) {
-  await requireAuth()
+  const u = await requireAuth()
 
   const name = formData.get("name") as string
   const role = formData.get("role") as string
@@ -419,6 +432,7 @@ export async function updateTestimonial(id: number, formData: FormData) {
       rating: Math.min(5, Math.max(1, rating)),
       image: image || null,
     }).where(eq(testimonials.id, id))
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "Testimonial", details: `Updated testimonial from: ${name}` })
     revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
@@ -429,10 +443,11 @@ export async function updateTestimonial(id: number, formData: FormData) {
 }
 
 export async function deleteTestimonial(id: number) {
-  await requireAuth()
+  const u = await requireAuth()
 
   try {
     await db.delete(testimonials).where(eq(testimonials.id, id))
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Deleted", target: "Testimonial", details: `Deleted testimonial #${id}` })
     revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }

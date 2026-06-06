@@ -6,28 +6,29 @@ import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { blogPosts } from "@/lib/db/schema"
 import { eq, and, desc } from "drizzle-orm"
+import { logActivity } from "@/app/actions/audit"
 
 async function getUserId() {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) throw new Error("Unauthorized")
-  return session.user.id
+  return { userId: session.user.id, userName: session.user.name || "Unknown", userEmail: session.user.email || "unknown" }
 }
 
 export async function getPosts() {
-  const userId = await getUserId()
+  const u = await getUserId()
   return db
     .select()
     .from(blogPosts)
-    .where(eq(blogPosts.userId, userId))
+    .where(eq(blogPosts.userId, u.userId))
     .orderBy(desc(blogPosts.createdAt))
 }
 
 export async function getPost(id: number) {
-  const userId = await getUserId()
+  const u = await getUserId()
   const posts = await db
     .select()
     .from(blogPosts)
-    .where(and(eq(blogPosts.id, id), eq(blogPosts.userId, userId)))
+    .where(and(eq(blogPosts.id, id), eq(blogPosts.userId, u.userId)))
     .limit(1)
   return posts[0] || null
 }
@@ -40,7 +41,7 @@ function generateSlug(title: string): string {
 }
 
 export async function createPost(formData: FormData) {
-  const userId = await getUserId()
+  const u = await getUserId()
 
   const title = formData.get("title") as string
   const excerpt = formData.get("excerpt") as string
@@ -67,7 +68,7 @@ export async function createPost(formData: FormData) {
 
   try {
     const result = await db.insert(blogPosts).values({
-      userId,
+      userId: u.userId,
       title,
       slug: finalSlug,
       excerpt,
@@ -76,6 +77,8 @@ export async function createPost(formData: FormData) {
       metaDescription: metaDescription || excerpt,
       published,
     }).returning({ id: blogPosts.id })
+
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Created", target: "Blog Post", details: `Created post: ${title}` })
 
     revalidatePath("/admin")
     revalidatePath("/blog")
@@ -88,7 +91,7 @@ export async function createPost(formData: FormData) {
 }
 
 export async function updatePost(id: number, formData: FormData) {
-  const userId = await getUserId()
+  const u = await getUserId()
 
   const title = formData.get("title") as string
   const excerpt = formData.get("excerpt") as string
@@ -113,7 +116,9 @@ export async function updatePost(id: number, formData: FormData) {
         published,
         updatedAt: new Date(),
       })
-      .where(and(eq(blogPosts.id, id), eq(blogPosts.userId, userId)))
+      .where(and(eq(blogPosts.id, id), eq(blogPosts.userId, u.userId)))
+
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "Blog Post", details: `Updated post: ${title}` })
 
     revalidatePath("/admin")
     revalidatePath("/blog")
@@ -127,12 +132,14 @@ export async function updatePost(id: number, formData: FormData) {
 }
 
 export async function deletePost(id: number) {
-  const userId = await getUserId()
+  const u = await getUserId()
 
   try {
     await db
       .delete(blogPosts)
-      .where(and(eq(blogPosts.id, id), eq(blogPosts.userId, userId)))
+      .where(and(eq(blogPosts.id, id), eq(blogPosts.userId, u.userId)))
+
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Deleted", target: "Blog Post", details: `Deleted post #${id}` })
 
     revalidatePath("/admin")
     revalidatePath("/blog")
@@ -145,13 +152,15 @@ export async function deletePost(id: number) {
 }
 
 export async function togglePublished(id: number, published: boolean) {
-  const userId = await getUserId()
+  const u = await getUserId()
 
   try {
     await db
       .update(blogPosts)
       .set({ published, updatedAt: new Date() })
-      .where(and(eq(blogPosts.id, id), eq(blogPosts.userId, userId)))
+      .where(and(eq(blogPosts.id, id), eq(blogPosts.userId, u.userId)))
+
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: published ? "Published" : "Unpublished", target: "Blog Post", details: `${published ? "Published" : "Unpublished"} post #${id}` })
 
     revalidatePath("/admin")
     revalidatePath("/blog")

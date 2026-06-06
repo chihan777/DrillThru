@@ -14,6 +14,8 @@ import {
   Calendar,
   Building2,
   Settings,
+  Activity,
+  ShieldCheck,
 } from "lucide-react"
 import { SignOutButton } from "@/components/sign-out-button"
 import { AdminEnquiryActions } from "@/components/admin-enquiry-actions"
@@ -67,9 +69,7 @@ export default async function AdminEnquiriesPage() {
         <div className="flex h-full flex-col">
           <div className="flex h-16 items-center border-b border-white/10 px-6">
             <Link href="/" className="flex items-center gap-2.5">
-              <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-[#84cc16]">
-                <span className="text-sm font-bold text-white">D</span>
-              </div>
+              <img src="/icon.jpeg" alt="DrillThru" className="h-9 w-9 rounded-lg object-cover" />
               <span className="font-bold tracking-tight text-white">DrillThru</span>
             </Link>
           </div>
@@ -98,6 +98,14 @@ export default async function AdminEnquiriesPage() {
             <Link href="/admin/settings" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white">
               <Settings className="h-4 w-4" />
               Site Settings
+            </Link>
+            <Link href="/admin/activity" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white">
+              <Activity className="h-4 w-4" />
+              Activity Log
+            </Link>
+            <Link href="/admin/users" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white">
+              <ShieldCheck className="h-4 w-4" />
+              Users & Sessions
             </Link>
             <Link href="/admin/posts/new" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white">
               <Plus className="h-4 w-4" />

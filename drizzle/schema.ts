@@ -174,3 +174,25 @@ export const playingWithNeon = pgTable("playing_with_neon", {
 	name: text().notNull(),
 	value: real(),
 });
+
+export const activityLog = pgTable("activity_log", {
+	id: serial().primaryKey().notNull(),
+	userId: text().notNull(),
+	userName: text().notNull(),
+	userEmail: text().notNull(),
+	action: text().notNull(),
+	target: text().notNull(),
+	details: text(),
+	ipAddress: text(),
+	createdAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+});
+
+export const loginHistory = pgTable("login_history", {
+	id: serial().primaryKey().notNull(),
+	userId: text().notNull(),
+	userName: text().notNull(),
+	userEmail: text().notNull(),
+	ipAddress: text(),
+	userAgent: text(),
+	loginTime: timestamp({ mode: 'string' }).defaultNow().notNull(),
+});

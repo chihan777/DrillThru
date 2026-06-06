@@ -30,9 +30,7 @@ export default async function NewPostPage() {
             Back to Dashboard
           </Link>
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#84cc16]">
-              <span className="text-xs font-bold text-white">D</span>
-            </div>
+            <img src="/icon.jpeg" alt="DrillThru" className="h-8 w-8 rounded-lg object-cover" />
             <span className="font-bold tracking-tight text-[#1a2e0a]">
               DrillThru
             </span>

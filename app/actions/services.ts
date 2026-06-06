@@ -6,11 +6,12 @@ import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { servicePages, serviceFaqs, serviceTestimonials } from "@/lib/db/schema"
 import { eq, and, asc, desc } from "drizzle-orm"
+import { logActivity } from "@/app/actions/audit"
 
 async function getUserId() {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) throw new Error("Unauthorized")
-  return session.user.id
+  return { userId: session.user.id, userName: session.user.name || "Unknown", userEmail: session.user.email || "unknown" }
 }
 
 function generateSlug(title: string): string {
@@ -23,12 +24,12 @@ function generateSlug(title: string): string {
 // ─── Read ──────────────────────────────────────────────────────────────────────
 
 export async function getServices() {
-  const userId = await getUserId()
+  const u = await getUserId()
   try {
     return await db
       .select()
       .from(servicePages)
-      .where(eq(servicePages.userId, userId))
+      .where(eq(servicePages.userId, u.userId))
       .orderBy(asc(servicePages.order))
   } catch (error) {
     console.error("getServices error:", error)
@@ -37,11 +38,11 @@ export async function getServices() {
 }
 
 export async function getService(id: number) {
-  const userId = await getUserId()
+  const u = await getUserId()
   const rows = await db
     .select()
     .from(servicePages)
-    .where(and(eq(servicePages.id, id), eq(servicePages.userId, userId)))
+    .where(and(eq(servicePages.id, id), eq(servicePages.userId, u.userId)))
     .limit(1)
   if (!rows[0]) return null
 
@@ -64,7 +65,7 @@ export async function getService(id: number) {
 // ─── Create ────────────────────────────────────────────────────────────────────
 
 export async function createService(formData: FormData) {
-  const userId = await getUserId()
+  const u = await getUserId()
 
   const title = formData.get("title") as string
   const description = formData.get("description") as string
@@ -103,7 +104,7 @@ export async function createService(formData: FormData) {
     const result = await db
       .insert(servicePages)
       .values({
-        userId,
+        userId: u.userId,
         title,
         slug: finalSlug,
         description,
@@ -167,6 +168,8 @@ export async function createService(formData: FormData) {
     revalidatePath("/admin/services")
     revalidatePath("/services")
 
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Created", target: "Service Page", details: `Created service: ${title}` })
+
     return { success: true, id: serviceId }
   } catch (error) {
     console.error("Create service error:", error)
@@ -177,7 +180,7 @@ export async function createService(formData: FormData) {
 // ─── Update ────────────────────────────────────────────────────────────────────
 
 export async function updateService(id: number, formData: FormData) {
-  const userId = await getUserId()
+  const u = await getUserId()
 
   const title = formData.get("title") as string
   const description = formData.get("description") as string
@@ -230,7 +233,7 @@ export async function updateService(id: number, formData: FormData) {
         order,
         updatedAt: new Date(),
       })
-      .where(and(eq(servicePages.id, id), eq(servicePages.userId, userId)))
+      .where(and(eq(servicePages.id, id), eq(servicePages.userId, u.userId)))
 
     // Replace FAQs (delete + re-insert)
     await db.delete(serviceFaqs).where(eq(serviceFaqs.serviceId, id))
@@ -282,6 +285,8 @@ export async function updateService(id: number, formData: FormData) {
       revalidatePath(`/services/${rows[0].slug}`)
     }
 
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "Service Page", details: `Updated service: ${title}` })
+
     return { success: true }
   } catch (error) {
     console.error("Update service error:", error)
@@ -292,13 +297,15 @@ export async function updateService(id: number, formData: FormData) {
 // ─── Delete ────────────────────────────────────────────────────────────────────
 
 export async function deleteService(id: number) {
-  const userId = await getUserId()
+  const u = await getUserId()
 
   try {
     // Cascade deletes FAQs + testimonials via FK
     await db
       .delete(servicePages)
-      .where(and(eq(servicePages.id, id), eq(servicePages.userId, userId)))
+      .where(and(eq(servicePages.id, id), eq(servicePages.userId, u.userId)))
+
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Deleted", target: "Service Page", details: `Deleted service #${id}` })
 
     revalidatePath("/admin/services")
     revalidatePath("/services")
@@ -313,13 +320,15 @@ export async function deleteService(id: number) {
 // ─── Toggle Publish ────────────────────────────────────────────────────────────
 
 export async function toggleServicePublished(id: number, published: boolean) {
-  const userId = await getUserId()
+  const u = await getUserId()
 
   try {
     await db
       .update(servicePages)
       .set({ published, updatedAt: new Date() })
-      .where(and(eq(servicePages.id, id), eq(servicePages.userId, userId)))
+      .where(and(eq(servicePages.id, id), eq(servicePages.userId, u.userId)))
+
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: published ? "Published" : "Unpublished", target: "Service Page", details: `${published ? "Published" : "Unpublished"} service #${id}` })
 
     revalidatePath("/admin/services")
     revalidatePath("/services")
