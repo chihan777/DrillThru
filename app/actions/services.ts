@@ -5,7 +5,7 @@ import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { servicePages, serviceFaqs, serviceTestimonials } from "@/lib/db/schema"
-import { eq, and, asc, desc } from "drizzle-orm"
+import { eq, asc, desc } from "drizzle-orm"
 import { logActivity } from "@/app/actions/audit"
 
 async function getUserId() {
@@ -42,7 +42,7 @@ export async function getService(id: number) {
   const rows = await db
     .select()
     .from(servicePages)
-    .where(and(eq(servicePages.id, id), eq(servicePages.userId, u.userId)))
+    .where(eq(servicePages.id, id))
     .limit(1)
   if (!rows[0]) return null
 
@@ -233,7 +233,7 @@ export async function updateService(id: number, formData: FormData) {
         order,
         updatedAt: new Date(),
       })
-      .where(and(eq(servicePages.id, id), eq(servicePages.userId, u.userId)))
+      .where(eq(servicePages.id, id))
 
     // Replace FAQs (delete + re-insert)
     await db.delete(serviceFaqs).where(eq(serviceFaqs.serviceId, id))
@@ -303,7 +303,7 @@ export async function deleteService(id: number) {
     // Cascade deletes FAQs + testimonials via FK
     await db
       .delete(servicePages)
-      .where(and(eq(servicePages.id, id), eq(servicePages.userId, u.userId)))
+      .where(eq(servicePages.id, id))
 
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Deleted", target: "Service Page", details: `Deleted service #${id}` })
 
@@ -326,7 +326,7 @@ export async function toggleServicePublished(id: number, published: boolean) {
     await db
       .update(servicePages)
       .set({ published, updatedAt: new Date() })
-      .where(and(eq(servicePages.id, id), eq(servicePages.userId, u.userId)))
+      .where(eq(servicePages.id, id))
 
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: published ? "Published" : "Unpublished", target: "Service Page", details: `${published ? "Published" : "Unpublished"} service #${id}` })
 

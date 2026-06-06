@@ -4,7 +4,7 @@ import Link from "next/link"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { servicePages, serviceFaqs, serviceTestimonials } from "@/lib/db/schema"
-import { eq, and, asc } from "drizzle-orm"
+import { eq, asc } from "drizzle-orm"
 import { ArrowLeft, Sparkles } from "lucide-react"
 import { ServiceEditor } from "@/components/service-editor"
 
@@ -17,11 +17,11 @@ interface PageProps {
   params: Promise<{ id: string }>
 }
 
-async function getServiceWithRelations(id: number, userId: string) {
+async function getServiceWithRelations(id: number) {
   const rows = await db
     .select()
     .from(servicePages)
-    .where(and(eq(servicePages.id, id), eq(servicePages.userId, userId)))
+    .where(eq(servicePages.id, id))
     .limit(1)
 
   if (!rows[0]) return null
@@ -45,7 +45,7 @@ export default async function EditServicePage({ params }: PageProps) {
   const id = parseInt(idStr, 10)
   if (isNaN(id)) notFound()
 
-  const service = await getServiceWithRelations(id, session.user.id)
+  const service = await getServiceWithRelations(id)
   if (!service) notFound()
 
   const serviceData = {

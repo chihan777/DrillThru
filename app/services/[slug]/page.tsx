@@ -138,9 +138,7 @@ export default async function ServicePage({ params }: PageProps) {
               <span className="text-sm">Back to Services</span>
             </Link>
             <Link href="/" className="flex items-center gap-2">
-              <div className="relative h-8 w-8 overflow-hidden rounded-lg bg-[#84cc16]">
-                <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">D</span>
-              </div>
+              <img src="/icon.jpeg" alt="DrillThru" className="h-8 w-8 rounded-lg object-cover" />
               <span className="text-lg font-bold tracking-tight">DrillThru</span>
             </Link>
           </div>
