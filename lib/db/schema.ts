@@ -149,6 +149,17 @@ export const testimonials = pgTable("testimonials", {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Site Settings (contact info, footer, quick enquiry - admin-manageable)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const siteSettings = pgTable("site_settings", {
+  id: serial("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Service Pages (admin-manageable dynamic SEO pages)
 // ─────────────────────────────────────────────────────────────────────────────
 

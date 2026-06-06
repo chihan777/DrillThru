@@ -13,6 +13,7 @@ import {
   MailOpen,
   Calendar,
   Building2,
+  Settings,
 } from "lucide-react"
 import { SignOutButton } from "@/components/sign-out-button"
 import { AdminEnquiryActions } from "@/components/admin-enquiry-actions"
@@ -93,6 +94,10 @@ export default async function AdminEnquiriesPage() {
                   {unreadCount}
                 </span>
               )}
+            </Link>
+            <Link href="/admin/settings" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white">
+              <Settings className="h-4 w-4" />
+              Site Settings
             </Link>
             <Link href="/admin/posts/new" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white">
               <Plus className="h-4 w-4" />

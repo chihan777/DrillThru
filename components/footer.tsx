@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Facebook, Twitter, Linkedin, Instagram } from "lucide-react"
+import { getSiteSettings } from "@/app/actions/settings"
 
 const footerLinks = {
   services: [
@@ -23,14 +24,16 @@ const footerLinks = {
   ],
 }
 
-const socialLinks = [
-  { icon: Facebook, href: "https://facebook.com/drillthru", label: "Facebook" },
-  { icon: Twitter, href: "https://twitter.com/drillthru", label: "Twitter" },
-  { icon: Linkedin, href: "https://linkedin.com/company/drillthru", label: "LinkedIn" },
-  { icon: Instagram, href: "https://instagram.com/drillthru", label: "Instagram" },
-]
+export async function Footer() {
+  const settings = await getSiteSettings()
 
-export function Footer() {
+  const socialLinks = [
+    { icon: Facebook, href: settings.facebookUrl, label: "Facebook" },
+    { icon: Twitter, href: settings.twitterUrl, label: "Twitter" },
+    { icon: Linkedin, href: settings.linkedinUrl, label: "LinkedIn" },
+    { icon: Instagram, href: settings.instagramUrl, label: "Instagram" },
+  ]
+
   return (
     <footer className="border-t border-border bg-background">
       <div className="mx-auto max-w-7xl px-6 py-16">
@@ -46,9 +49,7 @@ export function Footer() {
               <span className="text-xl font-bold tracking-tight">DrillThru</span>
             </Link>
             <p className="mb-6 text-sm text-muted-foreground">
-              Nepal&apos;s leading web design, web development, and digital marketing agency. 
-              We offer professional website design, SEO services, Google Ads, Meta Ads, 
-              and creative digital marketing solutions for businesses in Kathmandu and across Nepal.
+              {settings.footerDescription}
             </p>
             {/* Social Links */}
             <div className="flex gap-4">
@@ -106,18 +107,18 @@ export function Footer() {
             <h4 className="mb-4 font-semibold">Contact</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li>
-                <a href="mailto:hello@drillthru.com" className="transition-colors hover:text-[#84cc16]">
-                  hello@drillthru.com
+                <a href={`mailto:${settings.contactEmail}`} className="transition-colors hover:text-[#84cc16]">
+                  {settings.contactEmail}
                 </a>
               </li>
               <li>
-                <a href="tel:+9771234567890" className="transition-colors hover:text-[#84cc16]">
-                  +977 1-234-5678
+                <a href={`tel:${settings.contactPhoneHref}`} className="transition-colors hover:text-[#84cc16]">
+                  {settings.contactPhone}
                 </a>
               </li>
               <li>
-                Thamel, Kathmandu<br />
-                Nepal
+                {settings.contactLocationLine1}<br />
+                {settings.contactLocationLine2}
               </li>
             </ul>
           </div>

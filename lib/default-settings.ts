@@ -1,0 +1,20 @@
+// Default values used when no DB entry exists yet
+export const DEFAULT_SITE_SETTINGS: Record<string, string> = {
+  contactEmail: "hello@drillthru.com",
+  contactPhone: "+977 1-234-5678",
+  contactPhoneHref: "+9771234567890",
+  contactLocationLine1: "Thamel, Kathmandu",
+  contactLocationLine2: "Nepal",
+  businessHoursWeekday: "Sunday - Friday",
+  businessHoursWeekdayTime: "9:00 AM - 6:00 PM",
+  businessHoursWeekend: "Saturday",
+  businessHoursWeekendTime: "Closed",
+  quickEnquiryNote: "Call us directly or fill the form below — we respond within 24 hours",
+  quickResponseTitle: "Quick Response Guaranteed",
+  quickResponseText: "We respond to all inquiries within 24 hours. For urgent matters, feel free to call us directly.",
+  facebookUrl: "https://facebook.com/drillthru",
+  twitterUrl: "https://twitter.com/drillthru",
+  linkedinUrl: "https://linkedin.com/company/drillthru",
+  instagramUrl: "https://instagram.com/drillthru",
+  footerDescription: "Nepal's leading web design, web development, and digital marketing agency. We offer professional website design, SEO services, Google Ads, Meta Ads, and creative digital marketing solutions for businesses in Kathmandu and across Nepal.",
+}

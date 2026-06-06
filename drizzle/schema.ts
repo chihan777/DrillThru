@@ -160,6 +160,15 @@ export const services = pgTable("services", {
 	unique("services_slug_unique").on(table.slug),
 ]);
 
+export const siteSettings = pgTable("site_settings", {
+	id: serial().primaryKey().notNull(),
+	key: text().notNull(),
+	value: text().notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	unique("site_settings_key_unique").on(table.key),
+]);
+
 export const playingWithNeon = pgTable("playing_with_neon", {
 	id: serial().primaryKey().notNull(),
 	name: text().notNull(),

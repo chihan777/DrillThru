@@ -4,7 +4,7 @@ import Link from "next/link"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { servicePages } from "@/lib/db/schema"
-import { eq, asc } from "drizzle-orm"
+import { asc } from "drizzle-orm"
 import {
   Plus,
   FileText,
@@ -16,6 +16,7 @@ import {
   Briefcase,
   Calendar,
   MessageSquare,
+  Settings,
 } from "lucide-react"
 import { AdminServiceActions } from "@/components/admin-service-actions"
 import { SignOutButton } from "@/components/sign-out-button"
@@ -25,12 +26,11 @@ export const metadata = {
   description: "Manage your service pages",
 }
 
-async function getUserServices(userId: string) {
+async function getAllServices() {
   try {
     return await db
       .select()
       .from(servicePages)
-      .where(eq(servicePages.userId, userId))
       .orderBy(asc(servicePages.order))
   } catch (error) {
     console.warn("Failed to fetch services:", error)
@@ -53,7 +53,7 @@ export default async function AdminServicesPage() {
     redirect("/admin/sign-in")
   }
 
-  const services = await getUserServices(session.user.id)
+  const services = await getAllServices()
   const publishedCount = services.filter((s) => s.published).length
   const draftCount = services.filter((s) => !s.published).length
 
@@ -89,6 +89,10 @@ export default async function AdminServicesPage() {
             <Link href="/admin/enquiries" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white">
               <MessageSquare className="h-4 w-4" />
               Enquiries
+            </Link>
+            <Link href="/admin/settings" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white">
+              <Settings className="h-4 w-4" />
+              Site Settings
             </Link>
             <Link href="/admin/posts/new" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white">
               <Plus className="h-4 w-4" />

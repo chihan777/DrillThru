@@ -12,28 +12,22 @@ import {
   Settings,
 } from "lucide-react"
 import { SignOutButton } from "@/components/sign-out-button"
-import { AdminAboutForm } from "@/components/admin-about-form"
-import { getAboutSettings, getValues, getTeam, getProjects, getTestimonials } from "@/app/actions/about"
+import { AdminSettingsForm } from "@/components/admin-settings-form"
+import { getSiteSettings } from "@/app/actions/settings"
 
 export const metadata = {
-  title: "Manage About Section | DrillThru",
-  description: "Edit the about section content",
+  title: "Site Settings | DrillThru",
+  description: "Manage contact info, footer, and quick enquiry settings",
 }
 
-export default async function AdminAboutPage() {
+export default async function AdminSettingsPage() {
   const session = await auth.api.getSession({ headers: await headers() })
 
   if (!session?.user) {
     redirect("/admin/sign-in")
   }
 
-  const [settings, values, team, projects, testimonials] = await Promise.all([
-    getAboutSettings(),
-    getValues(),
-    getTeam(),
-    getProjects(),
-    getTestimonials(),
-  ])
+  const settings = await getSiteSettings()
 
   return (
     <div className="admin-gradient-bg relative overflow-hidden">
@@ -67,7 +61,7 @@ export default async function AdminAboutPage() {
             </Link>
             <Link
               href="/admin/about"
-              className="flex items-center gap-3 rounded-lg bg-[#84cc16]/15 px-3 py-2.5 text-sm font-medium text-[#a3e635]"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white"
             >
               <Users className="h-4 w-4" />
               About Section
@@ -88,7 +82,7 @@ export default async function AdminAboutPage() {
             </Link>
             <Link
               href="/admin/settings"
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white"
+              className="flex items-center gap-3 rounded-lg bg-[#84cc16]/15 px-3 py-2.5 text-sm font-medium text-[#a3e635]"
             >
               <Settings className="h-4 w-4" />
               Site Settings
@@ -135,13 +129,13 @@ export default async function AdminAboutPage() {
                 Admin
               </span>
             </div>
-            <h1 className="admin-heading text-3xl">About Section</h1>
+            <h1 className="admin-heading text-3xl">Site Settings</h1>
             <p className="admin-muted mt-1">
-              Manage your about page content — text, values, and team members
+              Manage contact information, footer content, and quick enquiry settings
             </p>
           </div>
 
-          <AdminAboutForm settings={settings} values={values} team={team} projects={projects} testimonials={testimonials} />
+          <AdminSettingsForm settings={settings} />
         </div>
       </main>
     </div>
