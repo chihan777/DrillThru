@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import { ArrowLeft, ChevronRight, Star, ArrowRight, Home, Quote } from "lucide-react"
 import { Navigation } from "@/components/navigation"
 import { db } from "@/lib/db"
-import { servicePages, serviceFaqs, serviceTestimonials } from "@/lib/db/schema"
+import { servicePages, serviceFaqs, serviceTestimonials, serviceProjects } from "@/lib/db/schema"
 import { eq, and, asc } from "drizzle-orm"
 import type { Metadata } from "next"
 
@@ -22,12 +22,13 @@ async function getService(slug: string) {
       .limit(1)
     if (!rows[0]) return null
 
-    const [faqs, testimonials] = await Promise.all([
+    const [faqs, testimonials, projects] = await Promise.all([
       db.select().from(serviceFaqs).where(eq(serviceFaqs.serviceId, rows[0].id)).orderBy(asc(serviceFaqs.order)),
       db.select().from(serviceTestimonials).where(eq(serviceTestimonials.serviceId, rows[0].id)).orderBy(asc(serviceTestimonials.order)),
+      db.select().from(serviceProjects).where(eq(serviceProjects.serviceId, rows[0].id)).orderBy(asc(serviceProjects.order)),
     ])
 
-    return { ...rows[0], faqs, testimonials }
+    return { ...rows[0], faqs, testimonials, projects }
   } catch (error) {
     console.warn("Failed to fetch service:", error)
     return null
@@ -196,6 +197,43 @@ export default async function ServicePage({ params }: PageProps) {
               <p key={index}>{paragraph}</p>
             ))}
           </article>
+
+          {/* Project Gallery */}
+          {service.projects && service.projects.length > 0 && (
+            <section className="mb-16">
+              <h2 className="mb-8 text-center text-2xl font-bold md:text-3xl">Our Projects</h2>
+              <div className="grid gap-6 md:grid-cols-2">
+                {service.projects.map((proj: any, i: number) => (
+                  <div key={i} className="group overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-[#84cc16]/50 hover:shadow-lg hover:shadow-[#84cc16]/5">
+                    {proj.image && (
+                      <div className="aspect-[16/10] overflow-hidden">
+                        <img
+                          src={proj.image}
+                          alt={proj.title}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      </div>
+                    )}
+                    <div className="p-5">
+                      <h3 className="mb-1 text-lg font-bold">{proj.title}</h3>
+                      {proj.description && <p className="mb-3 text-sm text-muted-foreground">{proj.description}</p>}
+                      {proj.link && (
+                        <a
+                          href={proj.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-[#84cc16] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[#a3e635]"
+                        >
+                          View Project
+                          <ArrowRight className="h-4 w-4" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* FAQs */}
           {service.faqs.length > 0 && (

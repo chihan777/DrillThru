@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { servicePages, serviceFaqs, serviceTestimonials } from "@/lib/db/schema"
+import { servicePages, serviceFaqs, serviceTestimonials, serviceProjects } from "@/lib/db/schema"
 import { eq, asc, desc } from "drizzle-orm"
 import { logActivity } from "@/app/actions/audit"
 
@@ -46,7 +46,7 @@ export async function getService(id: number) {
     .limit(1)
   if (!rows[0]) return null
 
-  const [faqs, testimonials] = await Promise.all([
+  const [faqs, testimonials, projects] = await Promise.all([
     db
       .select()
       .from(serviceFaqs)
@@ -57,9 +57,14 @@ export async function getService(id: number) {
       .from(serviceTestimonials)
       .where(eq(serviceTestimonials.serviceId, id))
       .orderBy(asc(serviceTestimonials.order)),
+    db
+      .select()
+      .from(serviceProjects)
+      .where(eq(serviceProjects.serviceId, id))
+      .orderBy(asc(serviceProjects.order)),
   ])
 
-  return { ...rows[0], faqs, testimonials }
+  return { ...rows[0], faqs, testimonials, projects }
 }
 
 // ─── Create ────────────────────────────────────────────────────────────────────
@@ -88,6 +93,7 @@ export async function createService(formData: FormData) {
   const order = parseInt((formData.get("order") as string) || "0", 10)
   const faqsJson = (formData.get("faqs") as string) || "[]"
   const testimonialsJson = (formData.get("testimonials") as string) || "[]"
+  const projectsJson = (formData.get("projects") as string) || "[]"
 
   if (!title || !description || !content) {
     return { success: false, error: "Please fill in all required fields." }
@@ -165,6 +171,21 @@ export async function createService(formData: FormData) {
       }
     }
 
+    // Insert projects
+    const projs = JSON.parse(projectsJson) as { title: string; description?: string; image?: string; link?: string }[]
+    for (let i = 0; i < projs.length; i++) {
+      if (projs[i].title) {
+        await db.insert(serviceProjects).values({
+          serviceId,
+          title: projs[i].title,
+          description: projs[i].description || null,
+          image: projs[i].image || null,
+          link: projs[i].link || null,
+          order: i,
+        })
+      }
+    }
+
     revalidatePath("/admin/services")
     revalidatePath("/services")
 
@@ -203,6 +224,7 @@ export async function updateService(id: number, formData: FormData) {
   const order = parseInt((formData.get("order") as string) || "0", 10)
   const faqsJson = (formData.get("faqs") as string) || "[]"
   const testimonialsJson = (formData.get("testimonials") as string) || "[]"
+  const projectsJson = (formData.get("projects") as string) || "[]"
 
   if (!title || !description || !content) {
     return { success: false, error: "Please fill in all required fields." }
@@ -267,6 +289,22 @@ export async function updateService(id: number, formData: FormData) {
           company: tms[i].company || null,
           content: tms[i].content,
           rating: tms[i].rating || 5,
+          order: i,
+        })
+      }
+    }
+
+    // Replace projects (delete + re-insert)
+    await db.delete(serviceProjects).where(eq(serviceProjects.serviceId, id))
+    const projs = JSON.parse(projectsJson) as { title: string; description?: string; image?: string; link?: string }[]
+    for (let i = 0; i < projs.length; i++) {
+      if (projs[i].title) {
+        await db.insert(serviceProjects).values({
+          serviceId: id,
+          title: projs[i].title,
+          description: projs[i].description || null,
+          image: projs[i].image || null,
+          link: projs[i].link || null,
           order: i,
         })
       }

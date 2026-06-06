@@ -3,7 +3,7 @@ import { headers } from "next/headers"
 import Link from "next/link"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { servicePages, serviceFaqs, serviceTestimonials } from "@/lib/db/schema"
+import { servicePages, serviceFaqs, serviceTestimonials, serviceProjects } from "@/lib/db/schema"
 import { eq, asc } from "drizzle-orm"
 import { ArrowLeft, Sparkles } from "lucide-react"
 import { ServiceEditor } from "@/components/service-editor"
@@ -26,12 +26,13 @@ async function getServiceWithRelations(id: number) {
 
   if (!rows[0]) return null
 
-  const [faqs, testimonials] = await Promise.all([
+  const [faqs, testimonials, projects] = await Promise.all([
     db.select().from(serviceFaqs).where(eq(serviceFaqs.serviceId, id)).orderBy(asc(serviceFaqs.order)),
     db.select().from(serviceTestimonials).where(eq(serviceTestimonials.serviceId, id)).orderBy(asc(serviceTestimonials.order)),
+    db.select().from(serviceProjects).where(eq(serviceProjects.serviceId, id)).orderBy(asc(serviceProjects.order)),
   ])
 
-  return { ...rows[0], faqs, testimonials }
+  return { ...rows[0], faqs, testimonials, projects }
 }
 
 export default async function EditServicePage({ params }: PageProps) {
@@ -77,6 +78,12 @@ export default async function EditServicePage({ params }: PageProps) {
       company: t.company || "",
       content: t.content,
       rating: t.rating,
+    })),
+    projects: service.projects.map((p) => ({
+      title: p.title,
+      description: p.description || "",
+      image: p.image || "",
+      link: p.link || "",
     })),
   }
 

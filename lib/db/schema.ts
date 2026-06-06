@@ -217,6 +217,22 @@ export const serviceTestimonials = pgTable("service_testimonials", {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Service Projects (multiple project links/images per service)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const serviceProjects = pgTable("service_projects", {
+  id: serial("id").primaryKey(),
+  serviceId: integer("serviceId")
+    .notNull()
+    .references(() => servicePages.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  description: text("description"),
+  image: text("image"),
+  link: text("link"),
+  order: integer("order").notNull().default(0),
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Activity Log (tracks all admin changes)
 // ─────────────────────────────────────────────────────────────────────────────
 

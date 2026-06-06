@@ -11,6 +11,7 @@ import { createService, updateService } from "@/app/actions/services"
 
 interface FAQ { question: string; answer: string }
 interface Testimonial { name: string; role: string; company: string; content: string; rating: number }
+interface Project { title: string; description: string; image: string; link: string }
 
 interface ServiceData {
   id: number
@@ -36,6 +37,7 @@ interface ServiceData {
   order: number
   faqs: FAQ[]
   testimonials: Testimonial[]
+  projects: Project[]
 }
 
 interface ServiceEditorProps {
@@ -221,6 +223,9 @@ export function ServiceEditor({ service }: ServiceEditorProps) {
   const [faqs, setFaqs] = useState<FAQ[]>(service?.faqs ?? [])
   const [testimonials, setTestimonials] = useState<Testimonial[]>(service?.testimonials ?? [])
 
+  // Projects
+  const [projects, setProjects] = useState<Project[]>(service?.projects ?? [])
+
   const seo = analyzeSEO({ title, metaTitle: seoTitle, metaDesc: seoDescription, content, keywords: seoKeywords, faqCount: faqs.length, testimonialCount: testimonials.length, hasCta: !!ctaHeading, hasFeaturedImage: !!featuredImage })
 
   // Auto-generate slug from title
@@ -283,6 +288,7 @@ export function ServiceEditor({ service }: ServiceEditorProps) {
     formData.append("projectLink", projectLink)
     formData.append("faqs", JSON.stringify(faqs.filter((f) => f.question && f.answer)))
     formData.append("testimonials", JSON.stringify(testimonials.filter((t) => t.name && t.content)))
+    formData.append("projects", JSON.stringify(projects.filter((p) => p.title)))
 
     try {
       const result = service
@@ -304,7 +310,7 @@ export function ServiceEditor({ service }: ServiceEditorProps) {
     } finally {
       setIsSubmitting(false)
     }
-  }, [title, description, content, icon, featuredImage, order, seoTitle, seoDescription, seoKeywords, canonicalUrl, ogImage, twitterCard, robotsMeta, ctaHeading, ctaDescription, ctaButtonText, ctaButtonLink, faqs, testimonials, published, service, router])
+  }, [title, description, content, icon, featuredImage, order, seoTitle, seoDescription, seoKeywords, canonicalUrl, ogImage, twitterCard, robotsMeta, ctaHeading, ctaDescription, ctaButtonText, ctaButtonLink, faqs, testimonials, projects, published, service, router])
 
   return (
     <div className="relative">
@@ -504,6 +510,85 @@ export function ServiceEditor({ service }: ServiceEditorProps) {
               ))}
               <button onClick={addTestimonial} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#c5e091] py-3 text-sm font-medium text-[#65a30d] transition-all hover:border-[#84cc16] hover:bg-[#84cc16]/5">
                 <Plus className="h-4 w-4" /> Add Testimonial
+              </button>
+            </div>
+          </Section>
+
+          {/* Projects Gallery */}
+          <Section icon={Image} title="Project Gallery" subtitle="Showcase multiple project images and links for this service" count={projects.length}>
+            <div className="space-y-3">
+              {projects.length === 0 && (
+                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#e2edcf] py-8">
+                  <Image className="mb-2 h-8 w-8 text-[#c5e091]" />
+                  <p className="text-sm text-[#6b7f5e]">No projects yet</p>
+                  <p className="text-xs text-[#94a388]">Add multiple project links and images to showcase your work</p>
+                </div>
+              )}
+              {projects.map((proj, i) => (
+                <div key={i} className="group relative rounded-xl border border-[#e2edcf] bg-white/70 p-4 transition-all hover:border-[#c5e091]">
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="rounded-md bg-[#f0f5e8] px-2 py-0.5 text-[10px] font-bold text-[#65a30d]">Project #{i + 1}</span>
+                    <button onClick={() => setProjects(projects.filter((_, idx) => idx !== i))} className="rounded-md p-1 text-[#6b7f5e] opacity-0 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="admin-label mb-1 block text-[11px]">Project Title <span className="text-red-400">*</span></label>
+                      <input className="admin-input" placeholder="e.g. E-commerce Website" value={proj.title} onChange={(e) => { const c = [...projects]; c[i] = { ...c[i], title: e.target.value }; setProjects(c) }} />
+                    </div>
+                    <div>
+                      <label className="admin-label mb-1 block text-[11px]">Project Link</label>
+                      <input className="admin-input" placeholder="https://example.com" value={proj.link} onChange={(e) => { const c = [...projects]; c[i] = { ...c[i], link: e.target.value }; setProjects(c) }} />
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <label className="admin-label mb-1 block text-[11px]">Description</label>
+                    <textarea className="admin-textarea !min-h-[3rem]" placeholder="Brief project description..." value={proj.description} onChange={(e) => { const c = [...projects]; c[i] = { ...c[i], description: e.target.value }; setProjects(c) }} rows={2} />
+                  </div>
+                  <div className="mt-3">
+                    <label className="admin-label mb-1 block text-[11px]">Project Image</label>
+                    <div className="flex gap-2">
+                      <input className="admin-input flex-1 text-sm" placeholder="Paste image URL or upload..." value={proj.image} onChange={(e) => { const c = [...projects]; c[i] = { ...c[i], image: e.target.value }; setProjects(c) }} />
+                      <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-[#e2edcf] bg-white/60 px-3 text-xs text-[#6b7f5e] transition-colors hover:border-[#84cc16] hover:text-[#65a30d]">
+                        <Image className="h-3.5 w-3.5" />
+                        Upload
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              const reader = new FileReader()
+                              reader.onload = () => {
+                                if (typeof reader.result === "string") {
+                                  const c = [...projects]
+                                  c[i] = { ...c[i], image: reader.result as string }
+                                  setProjects(c)
+                                }
+                              }
+                              reader.readAsDataURL(file)
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                    {proj.image && (
+                      <div className="mt-2 overflow-hidden rounded-lg border border-[#e2edcf]">
+                        <img
+                          src={proj.image.startsWith("data:") || proj.image.startsWith("http") ? proj.image : `/${proj.image}`}
+                          alt={proj.title || `Project ${i + 1}`}
+                          className="h-24 w-full object-cover"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <button onClick={() => setProjects([...projects, { title: "", description: "", image: "", link: "" }])} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#c5e091] py-3 text-sm font-medium text-[#65a30d] transition-all hover:border-[#84cc16] hover:bg-[#84cc16]/5">
+                <Plus className="h-4 w-4" /> Add Project
               </button>
             </div>
           </Section>
