@@ -164,33 +164,6 @@ export default async function ServicePage({ params }: PageProps) {
             <p className="mx-auto max-w-2xl text-pretty text-lg text-muted-foreground">{service.description}</p>
           </div>
 
-          {/* Featured Image */}
-          {service.featuredImage && (
-            <div className="mb-12 overflow-hidden rounded-2xl border border-border">
-              <a
-                href={service.projectLink || `#services`}
-                target={service.projectLink ? "_blank" : undefined}
-                rel={service.projectLink ? "noopener noreferrer" : undefined}
-                className={service.projectLink ? "block" : "pointer-events-none block"}
-              >
-                <img src={service.featuredImage} alt={service.title} className="w-full object-cover" />
-              </a>
-              {service.projectLink && (
-                <div className="border-t border-border bg-background px-6 py-4 text-right">
-                  <a
-                    href={service.projectLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-lg bg-[#84cc16] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[#a3e635]"
-                  >
-                    View Project
-                    <ArrowRight className="h-4 w-4" />
-                  </a>
-                </div>
-              )}
-            </div>
-          )}
-
           {/* Content */}
           <article className="prose prose-invert mx-auto mb-16 max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-h2:text-2xl prose-h3:text-xl prose-p:text-muted-foreground prose-p:leading-relaxed prose-a:text-[#84cc16] prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-code:text-[#84cc16] prose-pre:bg-card prose-pre:border prose-pre:border-border">
             {service.content.split("\n\n").map((paragraph, index) => (
@@ -198,31 +171,35 @@ export default async function ServicePage({ params }: PageProps) {
             ))}
           </article>
 
-          {/* Project Gallery */}
+          {/* Our Projects */}
           {service.projects && service.projects.length > 0 && (
             <section className="mb-16">
               <h2 className="mb-8 text-center text-2xl font-bold md:text-3xl">Our Projects</h2>
               <div className="grid gap-6 md:grid-cols-2">
                 {service.projects.map((proj: any, i: number) => (
-                  <div key={i} className="group overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-[#84cc16]/50 hover:shadow-lg hover:shadow-[#84cc16]/5">
+                  <div key={i} className="group relative overflow-hidden rounded-2xl border border-[#84cc16]/30 bg-black transition-all hover:border-[#84cc16] hover:shadow-xl hover:shadow-[#84cc16]/10">
+                    {/* Project Image */}
                     {proj.image && (
                       <div className="aspect-[16/10] overflow-hidden">
                         <img
                           src={proj.image}
                           alt={proj.title}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
                       </div>
                     )}
-                    <div className="p-5">
-                      <h3 className="mb-1 text-lg font-bold">{proj.title}</h3>
-                      {proj.description && <p className="mb-3 text-sm text-muted-foreground">{proj.description}</p>}
+                    {/* Dark Overlay Content */}
+                    <div className="relative bg-gradient-to-t from-black/95 via-black/80 to-transparent p-6">
+                      <h3 className="mb-2 text-xl font-bold text-white">{proj.title}</h3>
+                      {proj.description && (
+                        <p className="mb-4 text-sm leading-relaxed text-gray-400">{proj.description}</p>
+                      )}
                       {proj.link && (
                         <a
                           href={proj.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-[#84cc16] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[#a3e635]"
+                          className="inline-flex items-center gap-2 rounded-lg bg-[#84cc16] px-5 py-2.5 text-sm font-semibold text-black transition-all hover:bg-[#a3e635] hover:shadow-lg hover:shadow-[#84cc16]/20"
                         >
                           View Project
                           <ArrowRight className="h-4 w-4" />
