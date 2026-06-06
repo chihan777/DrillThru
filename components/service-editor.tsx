@@ -54,25 +54,61 @@ function generateSlug(title: string): string {
     .replace(/(^-|-$)/g, "")
 }
 
-function analyzeSEO(data: { title: string; metaTitle: string; metaDesc: string; content: string }) {
+function analyzeSEO(data: { title: string; metaTitle: string; metaDesc: string; content: string; keywords: string; faqCount: number; testimonialCount: number; hasCta: boolean; hasFeaturedImage: boolean }) {
   const titleLen = data.metaTitle.length
   const descLen = data.metaDesc.length
   const words = data.content.split(/\s+/).filter((w) => w.length > 0).length
   const suggestions: string[] = []
   let score = 0
 
+  // Title (10 pts)
   if (!data.title) suggestions.push("Add a service title")
-  else score += 15
-  if (titleLen >= 30 && titleLen <= 60) score += 15
-  else if (titleLen > 0) suggestions.push("Meta title should be 30-60 characters")
-  if (data.metaDesc) score += 15
+  else score += 10
+
+  // Meta title (10 pts)
+  if (titleLen >= 20 && titleLen <= 70) score += 10
+  else if (titleLen > 0) { score += 5; suggestions.push("Meta title ideally 30-60 characters") }
+
+  // Meta description (10 pts)
+  if (data.metaDesc) score += 10
   else suggestions.push("Add a meta description")
-  if (descLen >= 120 && descLen <= 160) score += 15
-  else if (descLen > 0) suggestions.push("Meta description should be 120-160 characters")
-  if (data.content) score += 15
+
+  // Meta description length (10 pts)
+  if (descLen >= 80 && descLen <= 170) score += 10
+  else if (descLen > 0) { score += 5; suggestions.push("Meta description ideally 120-160 characters") }
+
+  // Content exists (10 pts)
+  if (data.content) score += 10
+
+  // Word count (15 pts)
   if (words >= 300) score += 15
+  else if (words >= 150) { score += 8; suggestions.push("Content should be at least 300 words for better SEO") }
   else if (data.content) suggestions.push("Content should be at least 300 words for better SEO")
-  if (data.title && data.title.length > 10) score += 10
+
+  // Title length > 10 (5 pts)
+  if (data.title && data.title.length > 10) score += 5
+
+  // Keywords (10 pts)
+  if (data.keywords && data.keywords.trim().length > 0) score += 10
+  else suggestions.push("Add SEO keywords to improve discoverability")
+
+  // FAQs (10 pts)
+  if (data.faqCount >= 3) score += 10
+  else if (data.faqCount >= 1) { score += 5; suggestions.push("Add at least 3 FAQs for better SEO") }
+  else suggestions.push("Add FAQs to help customers find answers")
+
+  // Testimonials (10 pts)
+  if (data.testimonialCount >= 2) score += 10
+  else if (data.testimonialCount >= 1) { score += 5; suggestions.push("Add at least 2 testimonials for trust") }
+  else suggestions.push("Add testimonials to build credibility")
+
+  // CTA (5 pts)
+  if (data.hasCta) score += 5
+  else suggestions.push("Add a Call to Action section")
+
+  // Featured image (5 pts)
+  if (data.hasFeaturedImage) score += 5
+  else suggestions.push("Add a featured image for visual appeal")
 
   return { titleLen, descLen, words, score: Math.min(score, 100), suggestions }
 }
@@ -185,7 +221,7 @@ export function ServiceEditor({ service }: ServiceEditorProps) {
   const [faqs, setFaqs] = useState<FAQ[]>(service?.faqs ?? [])
   const [testimonials, setTestimonials] = useState<Testimonial[]>(service?.testimonials ?? [])
 
-  const seo = analyzeSEO({ title, metaTitle: seoTitle, metaDesc: seoDescription, content })
+  const seo = analyzeSEO({ title, metaTitle: seoTitle, metaDesc: seoDescription, content, keywords: seoKeywords, faqCount: faqs.length, testimonialCount: testimonials.length, hasCta: !!ctaHeading, hasFeaturedImage: !!featuredImage })
 
   // Auto-generate slug from title
   useEffect(() => {
