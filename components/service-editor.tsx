@@ -572,56 +572,78 @@ export function ServiceEditor({ service }: ServiceEditorProps) {
 
           {/* Featured Image */}
           <div className="admin-card p-5">
-            <div className="mb-3 flex items-center gap-2">
-              <Image className="h-4 w-4 text-[#65a30d]" />
-              <h3 className="text-sm font-bold text-[#1a2e0a]">Featured Image</h3>
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Image className="h-4 w-4 text-[#65a30d]" />
+                <h3 className="text-sm font-bold text-[#1a2e0a]">Featured Image</h3>
+              </div>
+              {featuredImage && (
+                <span className="flex items-center gap-1 rounded-full bg-[#84cc16]/10 px-2 py-0.5 text-[10px] font-bold text-[#65a30d]">
+                  <CheckCircle2 className="h-3 w-3" /> Saved
+                </span>
+              )}
             </div>
+
+            {/* Current image preview */}
+            {featuredImage && (
+              <div className="mb-3 overflow-hidden rounded-lg border border-[#e2edcf]">
+                <img
+                  src={featuredImage.startsWith("data:") || featuredImage.startsWith("http") ? featuredImage : `/${featuredImage}`}
+                  alt="Featured image preview"
+                  className="h-32 w-full object-cover"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
+                />
+              </div>
+            )}
+
             <div className="space-y-3">
               <div>
                 <label className="admin-label mb-1.5 block text-[11px]">Image URL</label>
                 <input
                   className="admin-input text-sm"
                   placeholder="https://example.com/image.jpg"
-                  value={featuredImage}
+                  value={featuredImage.startsWith("data:") ? "" : featuredImage}
                   onChange={(e) => setFeaturedImage(e.target.value)}
                 />
+                {featuredImage.startsWith("data:") && (
+                  <p className="mt-1 text-[11px] text-[#65a30d]">Image uploaded from device (base64)</p>
+                )}
               </div>
               <div>
-                <label className="admin-label mb-1.5 block text-[11px]">Upload from device</label>
+                <label className="admin-label mb-1.5 block text-[11px]">
+                  {featuredImage ? "Change image" : "Upload from device"}
+                </label>
                 <input
                   type="file"
                   accept="image/*"
-                  className="w-full text-sm text-[#6b7f5e]"
+                  className="w-full cursor-pointer rounded-lg border border-[#e2edcf] bg-white/60 px-3 py-2 text-sm text-[#6b7f5e] file:mr-3 file:rounded-md file:border-0 file:bg-[#84cc16]/10 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-[#65a30d] hover:border-[#84cc16] hover:file:bg-[#84cc16]/20"
                   onChange={(e) => {
                     const file = e.target.files?.[0]
                     if (file) handleImageUpload(file)
                   }}
                 />
-                {imageFileName && <p className="mt-2 text-[11px] text-[#6b7f5e]">Selected file: {imageFileName}</p>}
+                {imageFileName && (
+                  <p className="mt-1.5 flex items-center gap-1 text-[11px] text-[#65a30d]">
+                    <CheckCircle2 className="h-3 w-3" /> Selected: {imageFileName}
+                  </p>
+                )}
               </div>
-            </div>
-            {featuredImage ? (
-              <div className="mt-4 overflow-hidden rounded-lg border border-[#e2edcf]">
-                <a
-                  href={projectLink || "#"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={projectLink ? "block" : "pointer-events-none block"}
-                  aria-label={projectLink ? "View project" : "Image preview"}
+              {featuredImage && (
+                <button
+                  type="button"
+                  onClick={() => { setFeaturedImage(""); setImageFileName("") }}
+                  className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50/50 px-3 py-2 text-[11px] font-medium text-red-600 transition-colors hover:bg-red-100"
                 >
-                  <img
-                    src={featuredImage.startsWith("data:") || featuredImage.startsWith("http") ? featuredImage : `/${featuredImage}`}
-                    alt="Preview"
-                    className="h-36 w-full object-cover"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
-                  />
-                </a>
-              </div>
-            ) : (
-              <div className="mt-4 flex h-24 items-center justify-center rounded-lg border-2 border-dashed border-[#e2edcf]">
+                  <Trash2 className="h-3.5 w-3.5" /> Remove Image
+                </button>
+              )}
+            </div>
+
+            {!featuredImage && (
+              <div className="mt-3 flex h-20 items-center justify-center rounded-lg border-2 border-dashed border-[#e2edcf]">
                 <div className="text-center">
-                  <Image className="mx-auto mb-1 h-6 w-6 text-[#c5e091]" />
-                  <p className="text-[11px] text-[#94a388]">Paste image URL above or upload one from your device</p>
+                  <Image className="mx-auto mb-1 h-5 w-5 text-[#c5e091]" />
+                  <p className="text-[11px] text-[#94a388]">Paste a URL or upload from your device</p>
                 </div>
               </div>
             )}
