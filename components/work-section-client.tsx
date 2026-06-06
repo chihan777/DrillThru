@@ -75,7 +75,7 @@ export function WorkSectionClient({ projects, settings: dbSettings }: Props) {
               {/* Project image or placeholder */}
               {normalizeImageSrc(project.image) ? (
                 <div className="absolute inset-0">
-                  <img src={normalizeImageSrc(project.image)!} alt={project.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <img src={normalizeImageSrc(project.image)!} alt={project.title} className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-110" />
                 </div>
               ) : (
                 <div className={`absolute inset-0 bg-gradient-to-br ${project.color}`} />
