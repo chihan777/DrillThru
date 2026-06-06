@@ -165,10 +165,35 @@ export default async function ServicePage({ params }: PageProps) {
           </div>
 
           {/* Content */}
-          <article className="prose prose-invert mx-auto mb-16 max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-h2:text-2xl prose-h3:text-xl prose-p:text-muted-foreground prose-p:leading-relaxed prose-a:text-[#84cc16] prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-code:text-[#84cc16] prose-pre:bg-card prose-pre:border prose-pre:border-border">
-            {service.content.split("\n\n").map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))}
+          <article className="mx-auto mb-16 max-w-none">
+            {service.content.split("\n\n").map((block: string, index: number) => {
+              const trimmed = block.trim()
+              // Heading
+              if (trimmed.startsWith("## ")) {
+                return <h2 key={index} className="mb-4 mt-10 text-2xl font-bold tracking-tight text-foreground">{trimmed.replace(/^## /, "")}</h2>
+              }
+              if (trimmed.startsWith("### ")) {
+                return <h3 key={index} className="mb-3 mt-8 text-xl font-bold tracking-tight text-foreground">{trimmed.replace(/^### /, "")}</h3>
+              }
+              // Bullet list - if block contains lines starting with "- "
+              const lines = trimmed.split("\n").filter((l: string) => l.trim().length > 0)
+              if (lines.length > 1 && lines.every((l: string) => l.trim().startsWith("- "))) {
+                return (
+                  <ul key={index} className="mb-6 space-y-2.5">
+                    {lines.map((item: string, i: number) => (
+                      <li key={i} className="flex items-start gap-3 text-muted-foreground leading-relaxed">
+                        <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#84cc16]" />
+                        <span dangerouslySetInnerHTML={{ __html: item.trim().replace(/^- /, "").replace(/\*\*(.*?)\*\*/g, "<strong class='text-foreground'>$1</strong>") }} />
+                      </li>
+                    ))}
+                  </ul>
+                )
+              }
+              // Paragraph with bold support
+              return (
+                <p key={index} className="mb-5 text-muted-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: trimmed.replace(/\*\*(.*?)\*\*/g, "<strong class='text-foreground'>$1</strong>") }} />
+              )
+            })}
           </article>
 
           {/* Our Projects */}
