@@ -90,7 +90,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-background" data-scroll-behavior="smooth">
       <head>
-        <meta name="google-site-verification" content="-W3td-NgwZv-G4fdVXHRmu31veO5-AJOuxY5eZzvWpo" />
+        <meta name="google-site-verification" content="XuRfUWO7u8XE2PyvZjuBpAj0tuVMIKk-XXpibPVltQE" />
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-FSPQW4F9Z5" />
         <script
           dangerouslySetInnerHTML={{
