@@ -6,6 +6,17 @@ import { blogPosts } from "@/lib/db/schema"
 import { eq, and, ne, desc } from "drizzle-orm"
 import type { Metadata } from "next"
 
+export const revalidate = 86400 // 24 hours
+export const dynamicParams = false
+
+export async function generateStaticParams() {
+  const posts = await db
+    .select({ slug: blogPosts.slug })
+    .from(blogPosts)
+    .where(eq(blogPosts.published, true))
+  return posts.map((p) => ({ slug: p.slug }))
+}
+
 interface PageProps {
   params: Promise<{ slug: string }>
 }

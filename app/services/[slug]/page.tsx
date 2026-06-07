@@ -10,6 +10,17 @@ import { servicePages, serviceFaqs, serviceTestimonials, serviceProjects } from 
 import { eq, and, asc } from "drizzle-orm"
 import type { Metadata } from "next"
 
+export const revalidate = 86400 // 24 hours
+export const dynamicParams = false
+
+export async function generateStaticParams() {
+  const rows = await db
+    .select({ slug: servicePages.slug })
+    .from(servicePages)
+    .where(eq(servicePages.published, true))
+  return rows.map((r) => ({ slug: r.slug }))
+}
+
 interface PageProps {
   params: Promise<{ slug: string }>
 }

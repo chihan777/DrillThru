@@ -8,6 +8,8 @@ import { TestimonialsSection } from "@/components/testimonials-section"
 import { ContactSection } from "@/components/contact-section"
 import { Footer } from "@/components/footer"
 
+export const revalidate = 86400 // 24 hours
+
 export default function HomePage() {
   return (
     <>
