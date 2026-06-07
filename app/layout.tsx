@@ -89,6 +89,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="bg-background" data-scroll-behavior="smooth">
+      <head>
+        <meta name="google-site-verification" content="-W3td-NgwZv-G4fdVXHRmu31veO5-AJOuxY5eZzvWpo" />
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-FSPQW4F9Z5" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-FSPQW4F9Z5');
+            `,
+          }}
+        />
+      </head>
       <body className={`${inter.variable} ${geistMono.variable} font-sans antialiased`} suppressHydrationWarning>
         {/* Organization + LocalBusiness + Services JSON-LD */}
         <script
