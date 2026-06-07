@@ -1,6 +1,9 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { ArrowLeft, ChevronRight, Star, ArrowRight, Home, Quote } from "lucide-react"
+import {
+  ArrowLeft, ChevronRight, Star, ArrowRight, Home, Quote,
+  Sparkles, MessageCircle, HelpCircle, Rocket, CheckCircle2,
+} from "lucide-react"
 import { Navigation } from "@/components/navigation"
 import { db } from "@/lib/db"
 import { servicePages, serviceFaqs, serviceTestimonials, serviceProjects } from "@/lib/db/schema"
@@ -47,9 +50,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: service.seoTitle || service.title,
     description: service.seoDescription || service.description,
     keywords: service.seoKeywords || undefined,
-    alternates: {
-      canonical: service.canonicalUrl || url,
-    },
+    alternates: { canonical: service.canonicalUrl || url },
     openGraph: {
       title: service.seoTitle || service.title,
       description: service.seoDescription || service.description,
@@ -80,22 +81,16 @@ export default async function ServicePage({ params }: PageProps) {
 
   if (!service) notFound()
 
-  // JSON-LD: Service schema
   const serviceJsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
     name: service.title,
     description: service.description,
-    provider: {
-      "@type": "Organization",
-      name: "DrillThru",
-      url: SITE_URL,
-    },
+    provider: { "@type": "Organization", name: "DrillThru", url: SITE_URL },
     url: `${SITE_URL}/services/${service.slug}`,
     ...(service.featuredImage ? { image: service.featuredImage } : {}),
   }
 
-  // JSON-LD: FAQ schema
   const faqJsonLd = service.faqs.length > 0
     ? {
         "@context": "https://schema.org",
@@ -103,15 +98,11 @@ export default async function ServicePage({ params }: PageProps) {
         mainEntity: service.faqs.map((faq) => ({
           "@type": "Question",
           name: faq.question,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: faq.answer,
-          },
+          acceptedAnswer: { "@type": "Answer", text: faq.answer },
         })),
       }
     : null
 
-  // JSON-LD: Breadcrumb
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -124,100 +115,100 @@ export default async function ServicePage({ params }: PageProps) {
 
   return (
     <>
-      {/* JSON-LD Scripts */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }} />
       {faqJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
-      <div className="min-h-screen bg-background pt-24">
+      <div className="min-h-screen bg-background">
         <Navigation />
-        {/* Header */}
-        <header className="border-b border-border">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-            <Link href="/#services" className="group flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground">
-              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-              <span className="text-sm">Back to Services</span>
-            </Link>
-            <Link href="/" className="flex items-center gap-2">
-              <img src="/icon.jpeg" alt="DrillThru" className="h-8 w-8 rounded-lg object-cover" />
-              <span className="text-lg font-bold tracking-tight">DrillThru</span>
-            </Link>
-          </div>
-        </header>
 
-        {/* Breadcrumb */}
-        <nav className="mx-auto max-w-4xl px-6 pt-6" aria-label="Breadcrumb">
-          <ol className="flex items-center gap-2 text-sm text-muted-foreground">
-            <li><Link href="/" className="flex items-center gap-1 transition-colors hover:text-foreground"><Home className="h-3.5 w-3.5" /> Home</Link></li>
-            <li><ChevronRight className="h-3.5 w-3.5" /></li>
-            <li><Link href="/#services" className="transition-colors hover:text-foreground">Services</Link></li>
-            <li><ChevronRight className="h-3.5 w-3.5" /></li>
-            <li className="text-foreground">{service.title}</li>
-          </ol>
-        </nav>
-
-        <main className="mx-auto max-w-4xl px-6 py-12">
-          {/* Hero */}
-          <div className="mb-12 text-center">
-            <span className="mb-4 inline-block text-sm font-medium uppercase tracking-wider text-[#84cc16]">Our Service</span>
-            <h1 className="mb-6 text-balance text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">{service.title}</h1>
-            <p className="mx-auto max-w-2xl text-pretty text-lg text-muted-foreground">{service.description}</p>
+        {/* ── Hero Section ── */}
+        <section className="relative overflow-hidden pt-28 pb-16 md:pt-36 md:pb-24">
+          {/* Background decoration */}
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-[#84cc16]/5 blur-[120px]" />
+            <div className="absolute -bottom-20 -left-20 h-[400px] w-[400px] rounded-full bg-[#84cc16]/3 blur-[100px]" />
           </div>
 
-          {/* Content */}
-          <article className="mx-auto mb-16 max-w-none">
-            {service.content.split("\n\n").map((block: string, index: number) => {
-              const trimmed = block.trim()
-              // Heading
-              if (trimmed.startsWith("## ")) {
-                return <h2 key={index} className="mb-4 mt-10 text-2xl font-bold tracking-tight text-foreground">{trimmed.replace(/^## /, "")}</h2>
-              }
-              if (trimmed.startsWith("### ")) {
-                return <h3 key={index} className="mb-3 mt-8 text-xl font-bold tracking-tight text-foreground">{trimmed.replace(/^### /, "")}</h3>
-              }
-              // Bullet list - if block contains lines starting with "- "
-              const lines = trimmed.split("\n").filter((l: string) => l.trim().length > 0)
-              if (lines.length > 1 && lines.every((l: string) => l.trim().startsWith("- "))) {
-                return (
-                  <ul key={index} className="mb-6 space-y-2.5">
-                    {lines.map((item: string, i: number) => (
-                      <li key={i} className="flex items-start gap-3 text-muted-foreground leading-relaxed">
-                        <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#84cc16]" />
-                        <span dangerouslySetInnerHTML={{ __html: item.trim().replace(/^- /, "").replace(/\*\*(.*?)\*\*/g, "<strong class='text-foreground'>$1</strong>") }} />
-                      </li>
-                    ))}
-                  </ul>
-                )
-              }
-              // Paragraph with bold support
-              return (
-                <p key={index} className="mb-5 text-muted-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: trimmed.replace(/\*\*(.*?)\*\*/g, "<strong class='text-foreground'>$1</strong>") }} />
-              )
-            })}
-          </article>
+          <div className="relative mx-auto max-w-4xl px-6">
+            {/* Breadcrumb */}
+            <nav className="mb-8 flex items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">
+              <Link href="/" className="flex items-center gap-1 transition-colors hover:text-[#84cc16]">
+                <Home className="h-3.5 w-3.5" /> Home
+              </Link>
+              <ChevronRight className="h-3 w-3" />
+              <Link href="/#services" className="transition-colors hover:text-[#84cc16]">Services</Link>
+              <ChevronRight className="h-3 w-3" />
+              <span className="text-foreground">{service.title}</span>
+            </nav>
 
-          {/* Our Projects */}
-          {service.projects && service.projects.length > 0 && (
-            <section className="mb-16">
-              <h2 className="mb-8 text-center text-2xl font-bold md:text-3xl">Our Projects</h2>
+            {/* Badge */}
+            <div className="mb-6 flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#84cc16]/10">
+                <Sparkles className="h-4 w-4 text-[#84cc16]" />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-widest text-[#84cc16]">Our Service</span>
+            </div>
+
+            {/* Title */}
+            <h1 className="mb-6 text-balance text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
+              <span className="gradient-text">{service.title}</span>
+            </h1>
+
+            {/* Description */}
+            <p className="mx-auto max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground md:text-xl">
+              {service.description}
+            </p>
+
+            {/* Back link */}
+            <div className="mt-8">
+              <Link href="/#services" className="group inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground transition-all hover:border-[#84cc16]/50 hover:text-foreground">
+                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                Back to Services
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Content Section ── */}
+        <section className="relative border-t border-border">
+          <div className="mx-auto max-w-3xl px-6 py-16 md:py-20">
+            <article className="prose prose-invert prose-lg max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-h2:mt-12 prose-h2:text-2xl prose-h2:md:text-3xl prose-h3:text-xl prose-p:text-muted-foreground prose-p:leading-relaxed prose-a:text-[#84cc16] prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-code:text-[#84cc16] prose-pre:bg-card prose-pre:border prose-pre:border-border">
+              {service.content.split("\n\n").map((paragraph, index) => (
+                <p key={index}>{paragraph}</p>
+              ))}
+            </article>
+          </div>
+        </section>
+
+        {/* ── Our Projects Section ── */}
+        {service.projects && service.projects.length > 0 && (
+          <section className="relative border-t border-border py-16 md:py-20">
+            <div className="mx-auto max-w-5xl px-6">
+              <div className="mb-12 text-center">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#84cc16]/20 bg-[#84cc16]/5 px-4 py-1.5">
+                  <Rocket className="h-4 w-4 text-[#84cc16]" />
+                  <span className="text-xs font-semibold uppercase tracking-widest text-[#84cc16]">Portfolio</span>
+                </div>
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Our Projects</h2>
+                <p className="mt-3 text-muted-foreground">Real results we&apos;ve delivered for our clients</p>
+              </div>
               <div className="grid gap-6 md:grid-cols-2">
                 {service.projects.map((proj: any, i: number) => (
-                  <div key={i} className="group relative overflow-hidden rounded-2xl border border-[#84cc16]/30 bg-black transition-all hover:border-[#84cc16] hover:shadow-xl hover:shadow-[#84cc16]/10">
-                    {/* Project Image */}
+                  <div key={i} className="group relative overflow-hidden rounded-2xl border border-[#84cc16]/20 bg-card transition-all duration-300 hover:border-[#84cc16]/50 hover:shadow-xl hover:shadow-[#84cc16]/5">
                     {proj.image && (
                       <div className="aspect-[16/10] overflow-hidden">
                         <img
                           src={proj.image}
                           alt={proj.title}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       </div>
                     )}
-                    {/* Dark Overlay Content */}
-                    <div className="relative bg-gradient-to-t from-black/95 via-black/80 to-transparent p-6">
-                      <h3 className="mb-2 text-xl font-bold text-white">{proj.title}</h3>
+                    <div className="p-6">
+                      <h3 className="mb-2 text-xl font-bold">{proj.title}</h3>
                       {proj.description && (
-                        <p className="mb-4 text-sm leading-relaxed text-gray-400">{proj.description}</p>
+                        <p className="mb-4 text-sm leading-relaxed text-muted-foreground">{proj.description}</p>
                       )}
                       {proj.link && (
                         <a
@@ -226,77 +217,149 @@ export default async function ServicePage({ params }: PageProps) {
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-2 rounded-lg bg-[#84cc16] px-5 py-2.5 text-sm font-semibold text-black transition-all hover:bg-[#a3e635] hover:shadow-lg hover:shadow-[#84cc16]/20"
                         >
-                          View Project
-                          <ArrowRight className="h-4 w-4" />
+                          View Project <ArrowRight className="h-4 w-4" />
                         </a>
                       )}
                     </div>
                   </div>
                 ))}
               </div>
-            </section>
-          )}
+            </div>
+          </section>
+        )}
 
-          {/* FAQs */}
-          {service.faqs.length > 0 && (
-            <section className="mb-16">
-              <h2 className="mb-8 text-center text-2xl font-bold md:text-3xl">Frequently Asked Questions</h2>
-              <div className="space-y-4">
+        {/* ── FAQs Section ── */}
+        {service.faqs.length > 0 && (
+          <section className="relative border-t border-border py-16 md:py-20">
+            <div className="mx-auto max-w-3xl px-6">
+              <div className="mb-12 text-center">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#84cc16]/20 bg-[#84cc16]/5 px-4 py-1.5">
+                  <HelpCircle className="h-4 w-4 text-[#84cc16]" />
+                  <span className="text-xs font-semibold uppercase tracking-widest text-[#84cc16]">FAQ</span>
+                </div>
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Frequently Asked Questions</h2>
+                <p className="mt-3 text-muted-foreground">Everything you need to know about this service</p>
+              </div>
+              <div className="space-y-3">
                 {service.faqs.map((faq, i) => (
-                  <details key={i} className="group rounded-xl border border-border bg-card transition-colors open:border-[#84cc16]/50">
-                    <summary className="flex cursor-pointer items-center justify-between p-5 text-left">
+                  <details key={i} className="group rounded-xl border border-border bg-card transition-all open:border-[#84cc16]/30 open:bg-[#84cc16]/[0.02]">
+                    <summary className="flex cursor-pointer items-center justify-between p-5 text-left transition-colors hover:bg-white/[0.02]">
                       <span className="pr-4 font-semibold">{faq.question}</span>
-                      <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-open:rotate-90" />
+                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border transition-all group-open:border-[#84cc16] group-open:bg-[#84cc16]/10">
+                        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-open:rotate-90 group-open:text-[#84cc16]" />
+                      </div>
                     </summary>
-                    <div className="border-t border-border px-5 pb-5 pt-4 text-muted-foreground">{faq.answer}</div>
+                    <div className="border-t border-border px-5 pb-5 pt-4 leading-relaxed text-muted-foreground">
+                      {faq.answer}
+                    </div>
                   </details>
                 ))}
               </div>
-            </section>
-          )}
+            </div>
+          </section>
+        )}
 
-          {/* Testimonials */}
-          {service.testimonials.length > 0 && (
-            <section className="mb-16">
-              <h2 className="mb-8 text-center text-2xl font-bold md:text-3xl">What Our Clients Say</h2>
+        {/* ── Testimonials Section ── */}
+        {service.testimonials.length > 0 && (
+          <section className="relative border-t border-border py-16 md:py-20">
+            <div className="mx-auto max-w-5xl px-6">
+              <div className="mb-12 text-center">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#84cc16]/20 bg-[#84cc16]/5 px-4 py-1.5">
+                  <MessageCircle className="h-4 w-4 text-[#84cc16]" />
+                  <span className="text-xs font-semibold uppercase tracking-widest text-[#84cc16]">Testimonials</span>
+                </div>
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">What Our Clients Say</h2>
+                <p className="mt-3 text-muted-foreground">Don&apos;t just take our word for it</p>
+              </div>
               <div className="grid gap-6 md:grid-cols-2">
                 {service.testimonials.map((tm, i) => (
-                  <div key={i} className="relative rounded-xl border border-border bg-card p-6">
-                    <Quote className="absolute top-4 right-4 h-8 w-8 text-[#84cc16]/20" />
-                    <div className="mb-3 flex gap-1">
-                      {[...Array(tm.rating)].map((_, s) => (
-                        <Star key={s} className="h-4 w-4 fill-[#84cc16] text-[#84cc16]" />
+                  <div key={i} className="relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:border-[#84cc16]/30">
+                    <Quote className="absolute top-4 right-4 h-10 w-10 text-[#84cc16]/10" />
+                    <div className="mb-4 flex gap-0.5">
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <Star key={s} className={`h-4 w-4 ${s <= tm.rating ? "fill-[#84cc16] text-[#84cc16]" : "fill-border text-border"}`} />
                       ))}
                     </div>
-                    <blockquote className="mb-4 text-sm text-muted-foreground">&ldquo;{tm.content}&rdquo;</blockquote>
-                    <div>
-                      <p className="font-semibold text-sm">{tm.name}</p>
-                      <p className="text-xs text-muted-foreground">{tm.role}{tm.company ? `, ${tm.company}` : ""}</p>
+                    <blockquote className="relative mb-6 text-sm leading-relaxed text-muted-foreground">
+                      &ldquo;{tm.content}&rdquo;
+                    </blockquote>
+                    <div className="flex items-center gap-3 border-t border-border pt-4">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#84cc16]/10 text-sm font-bold text-[#84cc16]">
+                        {tm.name.split(" ").map((n) => n[0]).join("")}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold">{tm.name}</p>
+                        <p className="text-xs text-muted-foreground">{tm.role}{tm.company ? `, ${tm.company}` : ""}</p>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
-            </section>
-          )}
-
-          {/* CTA Section */}
-          <section className="rounded-2xl border border-border bg-card p-8 text-center md:p-12">
-            <h2 className="mb-3 text-2xl font-bold md:text-3xl">{service.ctaHeading || `Ready to get started with ${service.title}?`}</h2>
-            {service.ctaDescription && <p className="mx-auto mb-6 max-w-xl text-muted-foreground">{service.ctaDescription}</p>}
-            <Link
-              href={service.ctaButtonLink?.startsWith("#") ? `/${service.ctaButtonLink}` : service.ctaButtonLink || "/"}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#84cc16] px-8 py-3 font-semibold text-black transition-all hover:bg-[#a3e635] hover:shadow-lg hover:shadow-[#84cc16]/20"
-            >
-              {service.ctaButtonText}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+            </div>
           </section>
-        </main>
+        )}
 
-        {/* Footer */}
-        <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
+        {/* ── CTA Section ── */}
+        <section className="relative border-t border-border py-16 md:py-20">
+          <div className="mx-auto max-w-4xl px-6">
+            <div className="relative overflow-hidden rounded-2xl border border-[#84cc16]/20 bg-gradient-to-br from-[#84cc16]/5 via-card to-[#84cc16]/[0.02] p-8 text-center md:p-14">
+              {/* Decorative elements */}
+              <div className="pointer-events-none absolute -top-20 -right-20 h-60 w-60 rounded-full bg-[#84cc16]/5 blur-[80px]" />
+              <div className="pointer-events-none absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-[#84cc16]/5 blur-[80px]" />
+
+              <div className="relative">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#84cc16]/20 bg-[#84cc16]/10 px-4 py-1.5">
+                  <Rocket className="h-4 w-4 text-[#84cc16]" />
+                  <span className="text-xs font-semibold uppercase tracking-widest text-[#84cc16]">Get Started</span>
+                </div>
+                <h2 className="mb-3 text-3xl font-bold tracking-tight md:text-4xl">
+                  {service.ctaHeading || `Ready to get started with ${service.title}?`}
+                </h2>
+                {service.ctaDescription && (
+                  <p className="mx-auto mb-8 max-w-xl text-muted-foreground">{service.ctaDescription}</p>
+                )}
+                {!service.ctaDescription && (
+                  <p className="mx-auto mb-8 max-w-xl text-muted-foreground">
+                    Let&apos;s discuss how our {service.title.toLowerCase()} services can help your business grow.
+                  </p>
+                )}
+                <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+                  <Link
+                    href={service.ctaButtonLink?.startsWith("#") ? `/${service.ctaButtonLink}` : service.ctaButtonLink || "/"}
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#84cc16] px-8 py-3.5 font-semibold text-black shadow-lg shadow-[#84cc16]/20 transition-all hover:bg-[#a3e635] hover:shadow-xl hover:shadow-[#84cc16]/30"
+                  >
+                    {service.ctaButtonText}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <Link
+                    href="/#services"
+                    className="inline-flex items-center gap-2 rounded-xl border border-border px-6 py-3.5 text-sm font-medium text-muted-foreground transition-all hover:border-[#84cc16]/50 hover:text-foreground"
+                  >
+                    Explore All Services
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Footer ── */}
+        <footer className="border-t border-border py-10">
           <div className="mx-auto max-w-7xl px-6">
-            <p>&copy; {new Date().getFullYear()} DrillThru. All rights reserved.</p>
+            <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+              <Link href="/" className="flex items-center gap-2">
+                <img src="/icon.jpeg" alt="DrillThru" className="h-8 w-8 rounded-lg object-cover" />
+                <span className="text-lg font-bold tracking-tight">DrillThru</span>
+              </Link>
+              <p className="text-sm text-muted-foreground">
+                &copy; {new Date().getFullYear()} DrillThru. All rights reserved.
+              </p>
+              <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                <Link href="/" className="transition-colors hover:text-foreground">Home</Link>
+                <Link href="/#services" className="transition-colors hover:text-foreground">Services</Link>
+                <Link href="/#about" className="transition-colors hover:text-foreground">About</Link>
+              </div>
+            </div>
           </div>
         </footer>
       </div>
