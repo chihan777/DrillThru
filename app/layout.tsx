@@ -32,17 +32,17 @@ export const metadata: Metadata = {
     // Brand + misc
     'DrillThru', 'marketing agency Nepal', 'brand identity Nepal', 'creative agency Nepal',
   ],
-  authors: [{ name: 'DrillThru', url: 'https://drillthru.com' }],
+  authors: [{ name: 'DrillThru', url: 'https://drillthru.tech' }],
   creator: 'DrillThru',
   publisher: 'DrillThru',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://drillthru.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://drillthru.tech'),
   openGraph: {
     type: 'website',
     locale: 'en_US',
     siteName: 'DrillThru',
     title: 'DrillThru | Web Design, Web Development & Digital Marketing Agency in Nepal',
     description: 'Nepal\'s premier web design and development agency. Professional website design, SEO services, Google Ads, Meta Ads, and digital marketing solutions that drive real results for Nepali businesses.',
-    url: 'https://drillthru.com',
+    url: 'https://drillthru.tech',
   },
   twitter: {
     card: 'summary_large_image',
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     description: 'Nepal\'s premier web design and development agency. Professional website design, SEO services, Google Ads, Meta Ads, and digital marketing solutions.',
   },
   alternates: {
-    canonical: 'https://drillthru.com',
+    canonical: 'https://drillthru.tech',
   },
   category: 'technology',
   robots: {
@@ -111,10 +111,10 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "MarketingAgency",
-              "@id": "https://drillthru.com/#organization",
+              "@id": "https://drillthru.tech/#organization",
               name: "DrillThru",
               alternateName: "DrillThru Digital Agency",
-              url: "https://drillthru.com",
+              url: "https://drillthru.tech",
               description: "DrillThru is Nepal's leading web design, web development, and digital marketing agency. We offer professional website design and development, SEO services, Google Ads management, Meta Ads campaigns, and full-service digital marketing for businesses in Kathmandu and across Nepal.",
               address: {
                 "@type": "PostalAddress",
@@ -129,7 +129,7 @@ export default function RootLayout({
                 longitude: 85.3240,
               },
               telephone: "+977-1-234-5678",
-              email: "hello@drillthru.com",
+              email: "hello@drillthru.tech",
               areaServed: {
                 "@type": "Country",
                 name: "Nepal",
@@ -222,16 +222,16 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebSite",
-              "@id": "https://drillthru.com/#website",
+              "@id": "https://drillthru.tech/#website",
               name: "DrillThru",
-              url: "https://drillthru.com",
-              publisher: { "@id": "https://drillthru.com/#organization" },
+              url: "https://drillthru.tech",
+              publisher: { "@id": "https://drillthru.tech/#organization" },
               inLanguage: "en",
               potentialAction: {
                 "@type": "SearchAction",
                 target: {
                   "@type": "EntryPoint",
-                  urlTemplate: "https://drillthru.com/blog?q={search_term_string}",
+                  urlTemplate: "https://drillthru.tech/blog?q={search_term_string}",
                 },
                 "query-input": "required name=search_term_string",
               },

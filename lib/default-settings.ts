@@ -1,6 +1,6 @@
 // Default values used when no DB entry exists yet
 export const DEFAULT_SITE_SETTINGS: Record<string, string> = {
-  contactEmail: "hello@drillthru.com",
+  contactEmail: "hello@drillthru.tech",
   contactPhone: "+977 1-234-5678",
   contactPhoneHref: "+9771234567890",
   contactLocationLine1: "Thamel, Kathmandu",

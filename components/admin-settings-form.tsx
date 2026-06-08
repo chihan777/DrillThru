@@ -84,7 +84,7 @@ export function AdminSettingsForm({ settings: initialSettings }: Props) {
             <label className="admin-label mb-1 block text-[11px]">Email Address</label>
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 shrink-0 text-[#6b7f5e]" />
-              <input className="admin-input" value={settings.contactEmail} onChange={(e) => update('contactEmail', e.target.value)} placeholder="hello@drillthru.com" />
+              <input className="admin-input" value={settings.contactEmail} onChange={(e) => update('contactEmail', e.target.value)} placeholder="hello@drillthru.tech" />
             </div>
           </div>
           <div>

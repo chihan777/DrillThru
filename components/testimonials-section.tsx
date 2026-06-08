@@ -3,14 +3,16 @@ import { testimonials, aboutSettings } from "@/lib/db/schema"
 import { asc } from "drizzle-orm"
 import { TestimonialsSectionClient } from "./testimonials-section-client"
 
-const FALLBACK_TESTIMONIALS = [
+type Testimonial = { id: number; name: string; role: string; company: string | null; content: string; rating: number; image: string | null; order: number }
+
+const FALLBACK_TESTIMONIALS: Testimonial[] = [
   { id: 1, name: "Prakash Adhikari", role: "CEO", company: "NepalCrafts Pvt. Ltd.", content: "DrillThru transformed our online presence completely. Our e-commerce sales increased by 300% within six months of launching the new website.", rating: 5, image: null, order: 1 },
   { id: 2, name: "Maya Rai", role: "Founder", company: "Himalayan Trekkers", content: "The team understood our vision perfectly and delivered a website that truly represents the beauty of Nepal's tourism. Bookings are up 150%!", rating: 5, image: null, order: 2 },
   { id: 3, name: "Sandeep Joshi", role: "Marketing Director", company: "Kathmandu Foods", content: "Professional, responsive, and incredibly talented. Our SEO rankings went from page 5 to the top 3 results for our key search terms.", rating: 5, image: null, order: 3 },
 ]
 
 export async function TestimonialsSection() {
-  let rows: typeof FALLBACK_TESTIMONIALS = []
+  let rows: Testimonial[] = []
   let settingsRows: { key: string; value: string }[] = []
 
   try {
