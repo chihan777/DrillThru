@@ -470,7 +470,7 @@ export function PostEditor({ post }: PostEditorProps) {
                     {metaTitle || title || "Page Title"}
                   </p>
                   <p className="truncate text-xs text-green-700">
-                    drillthru.com/blog/{post?.slug || "your-post-slug"}
+                    drillthru.tech/blog/{post?.slug || "your-post-slug"}
                   </p>
                   <p className="line-clamp-2 text-xs text-[#4d5156]">
                     {metaDescription ||

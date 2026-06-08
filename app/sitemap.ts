@@ -3,7 +3,7 @@ import { db } from "@/lib/db"
 import { blogPosts, servicePages } from "@/lib/db/schema"
 import { eq, desc } from "drizzle-orm"
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://drillthru.com"
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://drillthru.tech"
 
 async function getPublishedSlugs() {
   try {

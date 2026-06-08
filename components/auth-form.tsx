@@ -91,7 +91,7 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
-                placeholder="admin@drillthru.com"
+                placeholder="admin@drillthru.tech"
                 className="bg-secondary/50"
               />
             </div>

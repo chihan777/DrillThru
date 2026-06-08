@@ -3,7 +3,9 @@ import { projects, aboutSettings } from "@/lib/db/schema"
 import { asc } from "drizzle-orm"
 import { WorkSectionClient } from "./work-section-client"
 
-const FALLBACK_PROJECTS = [
+type Project = { id: number; title: string; category: string; description: string; image: string | null; link: string | null; color: string; order: number }
+
+const FALLBACK_PROJECTS: Project[] = [
   { id: 1, title: "Himalayan E-Commerce", category: "Web Development", description: "A full-featured online marketplace connecting Nepali artisans with customers worldwide. Built with Next.js and Stripe integration.", image: null, link: "https://example.com", color: "from-blue-500/20 to-purple-500/20", order: 1 },
   { id: 2, title: "Namaste Finance App", category: "Mobile App", description: "Personal finance management app tailored for Nepali banking systems with real-time NPR exchange rates.", image: null, link: "https://example.com", color: "from-green-500/20 to-teal-500/20", order: 2 },
   { id: 3, title: "VisitNepal Portal", category: "UI/UX Design", description: "Tourism portal showcasing Nepal's destinations with immersive 3D maps and AI-powered trip planning.", image: null, link: "https://example.com", color: "from-orange-500/20 to-red-500/20", order: 3 },
@@ -11,7 +13,7 @@ const FALLBACK_PROJECTS = [
 ]
 
 export async function WorkSection() {
-  let projectRows: typeof FALLBACK_PROJECTS = []
+  let projectRows: Project[] = []
   let settingsRows: { key: string; value: string }[] = []
 
   try {

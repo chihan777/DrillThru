@@ -10,7 +10,9 @@ const FALLBACK_VALUES = [
   { id: 4, icon: "Rocket", title: "Innovation", description: "We stay ahead of trends so your business stays ahead of the competition.", order: 4 },
 ]
 
-const FALLBACK_TEAM = [
+type TeamMember = { id: number; name: string; role: string; initial: string; description: string | null; email: string | null; linkedin: string | null; github: string | null; image: string | null; order: number }
+
+const FALLBACK_TEAM: TeamMember[] = [
   { id: 1, name: "Rajan Sharma", role: "Founder & Lead Developer", initial: "RS", description: "Full-stack developer with 5+ years building for the web.", email: null, linkedin: null, github: null, image: null, order: 1 },
   { id: 2, name: "Sita Thapa", role: "UI/UX Designer", initial: "ST", description: "Crafts pixel-perfect interfaces that users love.", email: null, linkedin: null, github: null, image: null, order: 2 },
   { id: 3, name: "Bikash Gurung", role: "Backend Engineer", initial: "BG", description: "Builds scalable APIs and database architectures.", email: null, linkedin: null, github: null, image: null, order: 3 },
@@ -20,7 +22,7 @@ const FALLBACK_TEAM = [
 export async function AboutSection() {
   let settingsRows: { key: string; value: string }[] = []
   let values: typeof FALLBACK_VALUES = []
-  let team: typeof FALLBACK_TEAM = []
+  let team: TeamMember[] = []
 
   try {
     ;[settingsRows, values, team] = await Promise.all([

@@ -196,7 +196,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             </span>
             <div className="flex gap-2">
               <a
-                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`https://drillthru.com/blog/${post.slug}`)}`}
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`https://drillthru.tech/blog/${post.slug}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-lg bg-secondary p-2 text-muted-foreground transition-colors hover:bg-[#84cc16] hover:text-white"
@@ -205,7 +205,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                 <Twitter className="h-4 w-4" />
               </a>
               <a
-                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://drillthru.com/blog/${post.slug}`)}`}
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://drillthru.tech/blog/${post.slug}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-lg bg-secondary p-2 text-muted-foreground transition-colors hover:bg-[#84cc16] hover:text-white"
@@ -214,7 +214,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                 <Facebook className="h-4 w-4" />
               </a>
               <a
-                href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(`https://drillthru.com/blog/${post.slug}`)}&title=${encodeURIComponent(post.title)}`}
+                href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(`https://drillthru.tech/blog/${post.slug}`)}&title=${encodeURIComponent(post.title)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-lg bg-secondary p-2 text-muted-foreground transition-colors hover:bg-[#84cc16] hover:text-white"
