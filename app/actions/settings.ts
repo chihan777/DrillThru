@@ -45,7 +45,6 @@ export async function saveSiteSettings(data: Record<string, string>) {
 
   await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "Site Settings", details: `Updated ${Object.keys(data).length} settings` })
 
-  revalidatePath("/")
   revalidatePath("/admin/settings")
   return { success: true }
 }

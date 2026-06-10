@@ -19,8 +19,12 @@ export async function uploadImage(file: File) {
     }
 
     const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-    const base64 = buffer.toString("base64")
+    const u8 = new Uint8Array(bytes)
+    // Server actions shouldn't rely on Node Buffer at type-check time.
+    // Encode to base64 without Node types.
+    let binary = ""
+    for (let i = 0; i < u8.length; i++) binary += String.fromCharCode(u8[i])
+    const base64 = btoa(binary)
     const mimeType = file.type || "image/jpeg"
     const dataUrl = `data:${mimeType};base64,${base64}`
 
@@ -69,7 +73,6 @@ export async function saveAboutSettings(data: Record<string, string>) {
 
   await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "About Settings", details: `Updated ${Object.keys(data).length} about settings` })
 
-  revalidatePath("/")
   revalidatePath("/admin/about")
   return { success: true }
 }
@@ -99,13 +102,18 @@ export async function createValue(formData: FormData) {
     return { success: false, error: "Please fill in all fields." }
   }
 
-  const maxOrder = await db.select({ order: aboutValues.order }).from(aboutValues).orderBy(asc(aboutValues.order))
-  const nextOrder = maxOrder.length > 0 ? Math.max(...maxOrder.map(r => r.order)) + 1 : 0
+  const maxOrder = await db
+    .select({ order: aboutValues.order })
+    .from(aboutValues)
+    .orderBy(asc(aboutValues.order))
+  const nextOrder =
+    maxOrder.length > 0
+      ? Math.max(...maxOrder.map((r: { order: number }) => r.order)) + 1
+      : 0
 
   try {
     await db.insert(aboutValues).values({ icon, title, description, order: nextOrder })
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Created", target: "About Value", details: `Created value: ${title}` })
-    revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
   } catch (error) {
@@ -128,7 +136,6 @@ export async function updateValue(id: number, formData: FormData) {
   try {
     await db.update(aboutValues).set({ icon, title, description }).where(eq(aboutValues.id, id))
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "About Value", details: `Updated value: ${title}` })
-    revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
   } catch (error) {
@@ -143,7 +150,6 @@ export async function deleteValue(id: number) {
   try {
     await db.delete(aboutValues).where(eq(aboutValues.id, id))
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Deleted", target: "About Value", details: `Deleted value #${id}` })
-    revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
   } catch (error) {
@@ -183,7 +189,8 @@ export async function createTeamMember(formData: FormData) {
   }
 
   const maxOrder = await db.select({ order: aboutTeam.order }).from(aboutTeam).orderBy(asc(aboutTeam.order))
-  const nextOrder = maxOrder.length > 0 ? Math.max(...maxOrder.map(r => r.order)) + 1 : 0
+  const nextOrder =
+    maxOrder.length > 0 ? Math.max(...maxOrder.map((r: { order: number }) => r.order)) + 1 : 0
 
   try {
     await db.insert(aboutTeam).values({
@@ -198,7 +205,6 @@ export async function createTeamMember(formData: FormData) {
       order: nextOrder,
     })
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Created", target: "Team Member", details: `Added team member: ${name}` })
-    revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
   } catch (error) {
@@ -235,7 +241,6 @@ export async function updateTeamMember(id: number, formData: FormData) {
       image: image || null,
     }).where(eq(aboutTeam.id, id))
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "Team Member", details: `Updated team member: ${name}` })
-    revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
   } catch (error) {
@@ -250,7 +255,6 @@ export async function deleteTeamMember(id: number) {
   try {
     await db.delete(aboutTeam).where(eq(aboutTeam.id, id))
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Deleted", target: "Team Member", details: `Deleted team member #${id}` })
-    revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
   } catch (error) {
@@ -288,7 +292,8 @@ export async function createProject(formData: FormData) {
   }
 
   const maxOrder = await db.select({ order: projects.order }).from(projects).orderBy(asc(projects.order))
-  const nextOrder = maxOrder.length > 0 ? Math.max(...maxOrder.map(r => r.order)) + 1 : 0
+  const nextOrder =
+    maxOrder.length > 0 ? Math.max(...maxOrder.map((r: { order: number }) => r.order)) + 1 : 0
 
   try {
     await db.insert(projects).values({
@@ -301,7 +306,6 @@ export async function createProject(formData: FormData) {
       order: nextOrder,
     })
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Created", target: "Project", details: `Created project: ${title}` })
-    revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
   } catch (error) {
@@ -334,7 +338,6 @@ export async function updateProject(id: number, formData: FormData) {
       color: color || "from-blue-500/20 to-purple-500/20",
     }).where(eq(projects.id, id))
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "Project", details: `Updated project: ${title}` })
-    revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
   } catch (error) {
@@ -349,7 +352,6 @@ export async function deleteProject(id: number) {
   try {
     await db.delete(projects).where(eq(projects.id, id))
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Deleted", target: "Project", details: `Deleted project #${id}` })
-    revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
   } catch (error) {
@@ -400,7 +402,6 @@ export async function createTestimonial(formData: FormData) {
       order: nextOrder,
     })
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Created", target: "Testimonial", details: `Created testimonial from: ${name}` })
-    revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
   } catch (error) {
@@ -433,7 +434,6 @@ export async function updateTestimonial(id: number, formData: FormData) {
       image: image || null,
     }).where(eq(testimonials.id, id))
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "Testimonial", details: `Updated testimonial from: ${name}` })
-    revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
   } catch (error) {
@@ -448,7 +448,6 @@ export async function deleteTestimonial(id: number) {
   try {
     await db.delete(testimonials).where(eq(testimonials.id, id))
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Deleted", target: "Testimonial", details: `Deleted testimonial #${id}` })
-    revalidatePath("/")
     revalidatePath("/admin/about")
     return { success: true }
   } catch (error) {

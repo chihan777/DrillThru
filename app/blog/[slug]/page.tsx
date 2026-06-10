@@ -7,14 +7,13 @@ import { eq, and, ne, desc } from "drizzle-orm"
 import type { Metadata } from "next"
 
 export const revalidate = 86400 // 24 hours
+export const dynamic = "force-dynamic" // prevent build-time DB reads
 export const dynamicParams = true // allow on-demand generation for newly published posts
 
+// Avoid querying the DB during `next build` when DATABASE_URL is not configured.
+// If DB is available, Next will still render pages on-demand.
 export async function generateStaticParams() {
-  const posts = await db
-    .select({ slug: blogPosts.slug })
-    .from(blogPosts)
-    .where(eq(blogPosts.published, true))
-  return posts.map((p) => ({ slug: p.slug }))
+  return []
 }
 
 interface PageProps {

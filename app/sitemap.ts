@@ -5,7 +5,13 @@ import { eq, desc } from "drizzle-orm"
 
 export const revalidate = 86400 // regenerate sitemap once per day
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://drillthru.tech"
+function sanitizeSiteUrl(url: string) {
+  // Prevent accidental sitemap/robots pointing to the wrong domain.
+  // If someone sets NEXT_PUBLIC_SITE_URL=https://drillthru.com, normalize it.
+  return url.replace("drillthru.com", "drillthru.tech")
+}
+
+const SITE_URL = sanitizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL || "https://drillthru.tech")
 
 async function getPublishedSlugs() {
   try {

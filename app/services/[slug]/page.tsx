@@ -11,14 +11,12 @@ import { eq, and, asc } from "drizzle-orm"
 import type { Metadata } from "next"
 
 export const revalidate = 86400 // 24 hours
+export const dynamic = "force-dynamic" // prevent build-time DB reads
 export const dynamicParams = true // allow on-demand generation for newly published services
 
+// Avoid querying the DB during `next build` when DATABASE_URL is not configured.
 export async function generateStaticParams() {
-  const rows = await db
-    .select({ slug: servicePages.slug })
-    .from(servicePages)
-    .where(eq(servicePages.published, true))
-  return rows.map((r) => ({ slug: r.slug }))
+  return []
 }
 
 interface PageProps {
