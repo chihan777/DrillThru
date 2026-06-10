@@ -11,7 +11,7 @@ import { eq, and, asc } from "drizzle-orm"
 import type { Metadata } from "next"
 
 export const revalidate = 86400 // 24 hours
-export const dynamicParams = false
+export const dynamicParams = true // allow on-demand generation for newly published services
 
 export async function generateStaticParams() {
   const rows = await db

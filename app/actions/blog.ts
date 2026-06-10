@@ -82,6 +82,7 @@ export async function createPost(formData: FormData) {
 
     revalidatePath("/admin")
     revalidatePath("/blog")
+    revalidatePath("/sitemap.xml")
     
     return { success: true, id: result[0].id }
   } catch (error) {
@@ -123,6 +124,7 @@ export async function updatePost(id: number, formData: FormData) {
     revalidatePath("/admin")
     revalidatePath("/blog")
     revalidatePath(`/blog/${(await getPost(id))?.slug}`)
+    revalidatePath("/sitemap.xml")
     
     return { success: true }
   } catch (error) {
@@ -143,6 +145,7 @@ export async function deletePost(id: number) {
 
     revalidatePath("/admin")
     revalidatePath("/blog")
+    revalidatePath("/sitemap.xml")
     
     return { success: true }
   } catch (error) {
@@ -164,6 +167,7 @@ export async function togglePublished(id: number, published: boolean) {
 
     revalidatePath("/admin")
     revalidatePath("/blog")
+    revalidatePath("/sitemap.xml")
     
     return { success: true }
   } catch (error) {

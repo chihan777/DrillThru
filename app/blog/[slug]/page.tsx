@@ -7,7 +7,7 @@ import { eq, and, ne, desc } from "drizzle-orm"
 import type { Metadata } from "next"
 
 export const revalidate = 86400 // 24 hours
-export const dynamicParams = false
+export const dynamicParams = true // allow on-demand generation for newly published posts
 
 export async function generateStaticParams() {
   const posts = await db

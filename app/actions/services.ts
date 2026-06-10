@@ -188,6 +188,7 @@ export async function createService(formData: FormData) {
 
     revalidatePath("/admin/services")
     revalidatePath("/services")
+    revalidatePath("/sitemap.xml")
 
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Created", target: "Service Page", details: `Created service: ${title}` })
 
@@ -312,16 +313,10 @@ export async function updateService(id: number, formData: FormData) {
 
     revalidatePath("/admin/services")
     revalidatePath("/services")
-
-    // Get slug for revalidation
-    const rows = await db
-      .select({ slug: servicePages.slug })
-      .from(servicePages)
-      .where(eq(servicePages.id, id))
-      .limit(1)
     if (rows[0]) {
       revalidatePath(`/services/${rows[0].slug}`)
     }
+    revalidatePath("/sitemap.xml")
 
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "Service Page", details: `Updated service: ${title}` })
 
