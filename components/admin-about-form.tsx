@@ -137,9 +137,36 @@ export function AdminAboutForm({ settings: initialSettings, values: initialValue
     }
   }
 
+  async function compressImage(file: File, maxWidthPx = 1200, quality = 0.8): Promise<File> {
+    return new Promise((resolve) => {
+      const img = new Image()
+      const url = URL.createObjectURL(file)
+      img.onload = () => {
+        URL.revokeObjectURL(url)
+        const scale = Math.min(1, maxWidthPx / img.width)
+        const canvas = document.createElement('canvas')
+        canvas.width = Math.round(img.width * scale)
+        canvas.height = Math.round(img.height * scale)
+        const ctx = canvas.getContext('2d')!
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) { resolve(file); return }
+            resolve(new File([blob], file.name, { type: 'image/webp', lastModified: Date.now() }))
+          },
+          'image/webp',
+          quality,
+        )
+      }
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(file) }
+      img.src = url
+    })
+  }
+
   async function doImageUpload(file: File): Promise<string | null> {
     try {
-      const result = await uploadImage(file)
+      const compressed = await compressImage(file)
+      const result = await uploadImage(compressed)
       if (result.success && result.url) return result.url
       alert(`Upload failed: ${result.error || 'Unknown error'}`)
       return null
