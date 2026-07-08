@@ -87,11 +87,6 @@ export function WorkSectionClient({ projects, settings: dbSettings }: Props) {
               {/* Dark overlay for readability */}
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-              {/* Project Number */}
-              <div className="pointer-events-none absolute top-3 left-3 font-mono text-4xl font-bold text-white/10 md:top-4 md:left-5 md:text-5xl">
-                0{index + 1}
-              </div>
-
               {/* Content */}
               <motion.div
                 animate={{
