@@ -5,7 +5,13 @@ import { LogOut } from "lucide-react"
 
 export function SignOutButton() {
   async function handleSignOut() {
-    try { await authClient.signOut() } catch {}
+    // Call sign-out API up to 3 times until session is cleared
+    for (let i = 0; i < 3; i++) {
+      if (i > 0) await new Promise(r => setTimeout(r, 200))
+      await authClient.signOut()
+      const { data: session } = await authClient.getSession()
+      if (!session) break
+    }
     window.location.href = "/"
   }
 
