@@ -74,6 +74,7 @@ export async function saveAboutSettings(data: Record<string, string>) {
   await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "About Settings", details: `Updated ${Object.keys(data).length} about settings` })
 
   revalidatePath("/admin/about")
+    revalidatePath("/", "page")
   return { success: true }
 }
 
@@ -115,6 +116,7 @@ export async function createValue(formData: FormData) {
     await db.insert(aboutValues).values({ icon, title, description, order: nextOrder })
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Created", target: "About Value", details: `Created value: ${title}` })
     revalidatePath("/admin/about")
+    revalidatePath("/", "page")
     return { success: true }
   } catch (error) {
     console.error("Create value error:", error)
@@ -137,6 +139,7 @@ export async function updateValue(id: number, formData: FormData) {
     await db.update(aboutValues).set({ icon, title, description }).where(eq(aboutValues.id, id))
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "About Value", details: `Updated value: ${title}` })
     revalidatePath("/admin/about")
+    revalidatePath("/", "page")
     return { success: true }
   } catch (error) {
     console.error("Update value error:", error)
@@ -151,6 +154,7 @@ export async function deleteValue(id: number) {
     await db.delete(aboutValues).where(eq(aboutValues.id, id))
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Deleted", target: "About Value", details: `Deleted value #${id}` })
     revalidatePath("/admin/about")
+    revalidatePath("/", "page")
     return { success: true }
   } catch (error) {
     console.error("Delete value error:", error)
@@ -206,6 +210,7 @@ export async function createTeamMember(formData: FormData) {
     })
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Created", target: "Team Member", details: `Added team member: ${name}` })
     revalidatePath("/admin/about")
+    revalidatePath("/", "page")
     return { success: true }
   } catch (error) {
     console.error("Create team member error:", error)
@@ -242,6 +247,7 @@ export async function updateTeamMember(id: number, formData: FormData) {
     }).where(eq(aboutTeam.id, id))
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "Team Member", details: `Updated team member: ${name}` })
     revalidatePath("/admin/about")
+    revalidatePath("/", "page")
     return { success: true }
   } catch (error) {
     console.error("Update team member error:", error)
@@ -256,6 +262,7 @@ export async function deleteTeamMember(id: number) {
     await db.delete(aboutTeam).where(eq(aboutTeam.id, id))
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Deleted", target: "Team Member", details: `Deleted team member #${id}` })
     revalidatePath("/admin/about")
+    revalidatePath("/", "page")
     return { success: true }
   } catch (error) {
     console.error("Delete team member error:", error)
@@ -307,6 +314,7 @@ export async function createProject(formData: FormData) {
     })
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Created", target: "Project", details: `Created project: ${title}` })
     revalidatePath("/admin/about")
+    revalidatePath("/", "page")
     return { success: true }
   } catch (error) {
     console.error("Create project error:", error)
@@ -339,6 +347,7 @@ export async function updateProject(id: number, formData: FormData) {
     }).where(eq(projects.id, id))
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "Project", details: `Updated project: ${title}` })
     revalidatePath("/admin/about")
+    revalidatePath("/", "page")
     return { success: true }
   } catch (error) {
     console.error("Update project error:", error)
@@ -353,6 +362,7 @@ export async function deleteProject(id: number) {
     await db.delete(projects).where(eq(projects.id, id))
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Deleted", target: "Project", details: `Deleted project #${id}` })
     revalidatePath("/admin/about")
+    revalidatePath("/", "page")
     return { success: true }
   } catch (error) {
     console.error("Delete project error:", error)
@@ -403,6 +413,7 @@ export async function createTestimonial(formData: FormData) {
     })
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Created", target: "Testimonial", details: `Created testimonial from: ${name}` })
     revalidatePath("/admin/about")
+    revalidatePath("/", "page")
     return { success: true }
   } catch (error) {
     console.error("Create testimonial error:", error)
@@ -435,6 +446,7 @@ export async function updateTestimonial(id: number, formData: FormData) {
     }).where(eq(testimonials.id, id))
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Updated", target: "Testimonial", details: `Updated testimonial from: ${name}` })
     revalidatePath("/admin/about")
+    revalidatePath("/", "page")
     return { success: true }
   } catch (error) {
     console.error("Update testimonial error:", error)
@@ -449,6 +461,7 @@ export async function deleteTestimonial(id: number) {
     await db.delete(testimonials).where(eq(testimonials.id, id))
     await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Deleted", target: "Testimonial", details: `Deleted testimonial #${id}` })
     revalidatePath("/admin/about")
+    revalidatePath("/", "page")
     return { success: true }
   } catch (error) {
     console.error("Delete testimonial error:", error)
