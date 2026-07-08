@@ -47,6 +47,8 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) to view the application.
 
+> Test commit - 2026-07-08
+
 ## Available Scripts
 
 - `pnpm dev` - Start development server
