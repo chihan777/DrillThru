@@ -9,32 +9,35 @@ if (!connectionString) {
   console.warn('⚠️  DATABASE_URL is not set. Database features will not work until this is configured.')
 }
 
-// Ensure the connection string uses explicit SSL mode to avoid deprecation warnings
-const ensureExplicitSslMode = (connStr: string | undefined): string | undefined => {
-  if (!connStr) return undefined
+const hasSslInUrl = (connStr: string): boolean => {
+  return /[?&]sslmode=/i.test(connStr)
+}
 
-  // Local development, SSL not required
-  if (connStr.includes('localhost') || connStr.includes('127.0.0.1')) {
-    return connStr
-  }
-
-  // Remove any existing sslmode parameter to avoid deprecation warnings
-  let cleanedUrl = connStr.replace(/([?&])sslmode=[^&]*/, '$1').replace(/[?&]$/, '')
-
-  // Add explicit SSL mode for remote databases
-  const separator = cleanedUrl.includes('?') ? '&' : '?'
-  return `${cleanedUrl}${separator}sslmode=verify-full`
+const isLocal = (connStr: string): boolean => {
+  return connStr.includes('localhost') || connStr.includes('127.0.0.1')
 }
 
 // Create pool with graceful fallback if DATABASE_URL is missing
-const poolConfig = {
-  connectionString: ensureExplicitSslMode(connectionString) || undefined,
-  ssl: connectionString && !connectionString.includes('localhost') && !connectionString.includes('127.0.0.1')
-    ? { rejectUnauthorized: false }
-    : false,
-  // Add connection timeout to prevent hanging
+const poolConfig: import('pg').PoolConfig = {
   connectionTimeoutMillis: 5000,
   idleTimeoutMillis: 5000,
+}
+
+if (connectionString) {
+  if (isLocal(connectionString)) {
+    // Local dev — no SSL
+    poolConfig.connectionString = connectionString
+    poolConfig.ssl = false
+  } else if (hasSslInUrl(connectionString)) {
+    // URL already has sslmode — don't double-configure SSL
+    poolConfig.connectionString = connectionString
+    poolConfig.ssl = false
+  } else {
+    // Remote URL without sslmode — add it
+    const separator = connectionString.includes('?') ? '&' : '?'
+    poolConfig.connectionString = `${connectionString}${separator}sslmode=require`
+    poolConfig.ssl = { rejectUnauthorized: false }
+  }
 }
 
 export const pool = new Pool(poolConfig)
