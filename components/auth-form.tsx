@@ -35,14 +35,13 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
       return
     }
 
-    // Record login event
+    // Record login event (fire-and-forget, don't block navigation)
     const userData = result.data?.user
     if (userData) {
-      await recordLogin(userData.id, userData.name || email.split('@')[0], userData.email || email)
+      recordLogin(userData.id, userData.name || email.split('@')[0], userData.email || email).catch(() => {})
     }
 
-    router.push('/admin')
-    router.refresh()
+    window.location.href = '/admin'
   }
 
   return (
