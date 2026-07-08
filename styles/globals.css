@@ -122,4 +122,32 @@
   body {
     @apply bg-background text-foreground;
   }
+  .admin-gradient-bg,
+  .admin-gradient-bg * {
+    color: #000000 !important;
+    fill: #000000 !important;
+    stroke: #000000 !important;
+  }
+  .admin-gradient-bg [class*="text-white"],
+  .admin-gradient-bg [class*="text-[#ffffff]"],
+  .admin-gradient-bg [class*="text-[#fff]"],
+  .admin-gradient-bg [class*="text-white/"] {
+    color: #000000 !important;
+  }
+  .admin-gradient-bg .ProseMirror,
+  .admin-gradient-bg .ProseMirror *,
+  .admin-gradient-bg .ProseMirror [style*="color"] {
+    color: #000000 !important;
+  }
+  .admin-gradient-bg .ProseMirror [style*="background-color"] {
+    background-color: transparent !important;
+  }
+  .admin-gradient-bg textarea,
+  .admin-gradient-bg input,
+  .admin-gradient-bg select,
+  .admin-gradient-bg button,
+  .admin-gradient-bg label,
+  .admin-gradient-bg option {
+    color: #000000 !important;
+  }
 }

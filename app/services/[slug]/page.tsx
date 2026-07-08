@@ -6,10 +6,11 @@ import {
 } from "lucide-react"
 import { Navigation } from "@/components/navigation"
 import { db } from "@/lib/db"
-import { servicePages, serviceFaqs, serviceTestimonials, serviceProjects, siteSettings, serviceContent } from "@/lib/db/schema"
+import { servicePages, serviceFaqs, serviceTestimonials, serviceProjects, siteSettings } from "@/lib/db/schema"
 import { eq, and, asc } from "drizzle-orm"
 import type { Metadata } from "next"
 import { applyWordReplacements } from "@/lib/word-replacements"
+import ReactMarkdown from "react-markdown"
 import { SanitizedHTML } from "@/components/editor/sanitized-html"
 
 export const revalidate = 86400 // 24 hours
@@ -34,36 +35,35 @@ async function getService(slug: string) {
       .from(servicePages)
       .where(and(eq(servicePages.slug, slug), eq(servicePages.published, true)))
       .limit(1)
+
     if (!rows[0]) return null
 
-    const [faqs, testimonials, projects, settingsRows, pageContentRows] = await Promise.all([
+    const [faqs, testimonials, projects, settingsRows] = await Promise.all([
       db.select().from(serviceFaqs).where(eq(serviceFaqs.serviceId, rows[0].id)).orderBy(asc(serviceFaqs.order)),
       db.select().from(serviceTestimonials).where(eq(serviceTestimonials.serviceId, rows[0].id)).orderBy(asc(serviceTestimonials.order)),
       db.select().from(serviceProjects).where(eq(serviceProjects.serviceId, rows[0].id)).orderBy(asc(serviceProjects.order)),
       db.select().from(siteSettings).where(eq(siteSettings.key, "globalWordReplacements")),
-      db.select().from(serviceContent).where(eq(serviceContent.page, "services")).limit(1),
     ])
 
     const replacementsJson = settingsRows[0]?.value || "[]"
-
     const apply = (text: string) => applyWordReplacements(text, replacementsJson)
-
-    const pageContent = pageContentRows[0]?.content || null
+    const content = apply(rows[0].content)
 
     return {
       ...rows[0],
       title: apply(rows[0].title),
       description: apply(rows[0].description),
-      content: apply(rows[0].content),
-      pageContent,
+      content,
       ctaHeading: rows[0].ctaHeading ? apply(rows[0].ctaHeading) : null,
       ctaDescription: rows[0].ctaDescription ? apply(rows[0].ctaDescription) : null,
+      ctaButtonText: rows[0].ctaButtonText ? apply(rows[0].ctaButtonText) : "Get Started",
+      ctaButtonLink: rows[0].ctaButtonLink || "#contact",
       faqs: faqs.map(f => ({ ...f, question: apply(f.question), answer: apply(f.answer) })),
       testimonials: testimonials.map(t => ({ ...t, content: apply(t.content) })),
       projects,
     }
   } catch (error) {
-    console.warn("Failed to fetch service:", error)
+    console.warn("Failed to fetch service from DB:", error)
     return null
   }
 }
@@ -153,14 +153,14 @@ export default async function ServicePage({ params }: PageProps) {
         <Navigation />
 
         {/* ── Hero Section ── */}
-        <section className="relative overflow-hidden pt-28 pb-16 md:pt-36 md:pb-24">
+        <section className="relative overflow-hidden pt-24 pb-12 md:pt-32 md:pb-16">
           {/* Background decoration */}
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-[#84cc16]/5 blur-[120px]" />
             <div className="absolute -bottom-20 -left-20 h-[400px] w-[400px] rounded-full bg-[#84cc16]/3 blur-[100px]" />
           </div>
 
-          <div className="relative mx-auto max-w-4xl px-6">
+          <div className="relative mx-auto max-w-5xl px-6">
             {/* Breadcrumb */}
             <nav className="mb-8 flex items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">
               <Link href="/" className="flex items-center gap-1 transition-colors hover:text-[#84cc16]">
@@ -202,57 +202,36 @@ export default async function ServicePage({ params }: PageProps) {
 
         {/* ── Content Section ── */}
         <section className="relative border-t border-border">
-          <div className="mx-auto max-w-3xl px-6 py-16 md:py-20">
-            {service.pageContent ? (
-              <SanitizedHTML html={service.pageContent} />
-            ) : (
-              <article className="prose prose-invert prose-lg max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-h2:mt-12 prose-h2:text-2xl prose-h2:md:text-3xl prose-h3:text-xl prose-p:text-muted-foreground prose-p:leading-relaxed prose-a:text-[#84cc16] prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-code:text-[#84cc16] prose-pre:bg-card prose-pre:border prose-pre:border-border">
-                {service.content}
-              </article>
-            )}
+          <div className="mx-auto max-w-4xl px-6 py-12 md:py-16">
+            <div className="prose prose-invert prose-lg mx-auto max-w-none text-left prose-headings:font-bold prose-headings:tracking-tight prose-h2:mt-16 prose-h2:text-2xl prose-h2:md:text-3xl prose-h3:text-xl prose-p:text-muted-foreground prose-p:leading-8 prose-ul:pl-6 prose-li:mb-4 prose-a:text-[#84cc16] prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-code:text-[#84cc16] prose-pre:bg-card prose-pre:border prose-pre:border-border prose-blockquote:border-l prose-blockquote:border-[#84cc16]/30 prose-blockquote:bg-[#111827]/80 prose-blockquote:px-6 prose-blockquote:py-4">
+              {service.content.trim().startsWith("<") ? (
+                <SanitizedHTML html={service.content} />
+              ) : (
+                <ReactMarkdown>{service.content}</ReactMarkdown>
+              )}
+            </div>
           </div>
         </section>
 
-        {/* ── Our Projects Section ── */}
-        {service.projects && service.projects.length > 0 && (
-          <section className="relative border-t border-border py-16 md:py-20">
+        {/* ── Service Highlights Section ── */}
+        {service.features && service.features.length > 0 && (
+          <section className="relative border-t border-border py-14 md:py-16">
             <div className="mx-auto max-w-5xl px-6">
               <div className="mb-12 text-center">
                 <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#84cc16]/20 bg-[#84cc16]/5 px-4 py-1.5">
-                  <Rocket className="h-4 w-4 text-[#84cc16]" />
-                  <span className="text-xs font-semibold uppercase tracking-widest text-[#84cc16]">Portfolio</span>
+                  <CheckCircle2 className="h-4 w-4 text-[#84cc16]" />
+                  <span className="text-xs font-semibold uppercase tracking-widest text-[#84cc16]">Service Benefits</span>
                 </div>
-                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Our Projects</h2>
-                <p className="mt-3 text-muted-foreground">Real results we&apos;ve delivered for our clients</p>
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">What You Get</h2>
+                <p className="mt-3 text-muted-foreground">The core advantages included with this service.</p>
               </div>
-              <div className="grid gap-6 md:grid-cols-2">
-                {service.projects.map((proj: any, i: number) => (
-                  <div key={i} className="group relative overflow-hidden rounded-2xl border border-[#84cc16]/20 bg-card transition-all duration-300 hover:border-[#84cc16]/50 hover:shadow-xl hover:shadow-[#84cc16]/5">
-                    {proj.image && (
-                      <div className="aspect-[16/10] overflow-hidden">
-                        <img
-                          src={proj.image}
-                          alt={proj.title}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      </div>
-                    )}
-                    <div className="p-6">
-                      <h3 className="mb-2 text-xl font-bold">{proj.title}</h3>
-                      {proj.description && (
-                        <p className="mb-4 text-sm leading-relaxed text-muted-foreground">{proj.description}</p>
-                      )}
-                      {proj.link && (
-                        <a
-                          href={proj.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 rounded-lg bg-[#84cc16] px-5 py-2.5 text-sm font-semibold text-black transition-all hover:bg-[#a3e635] hover:shadow-lg hover:shadow-[#84cc16]/20"
-                        >
-                          View Project <ArrowRight className="h-4 w-4" />
-                        </a>
-                      )}
+              <div className="grid gap-6 sm:grid-cols-2">
+                {service.features.map((feature, idx) => (
+                  <div key={idx} className="rounded-3xl border border-[#84cc16]/10 bg-[#111827] p-6 shadow-sm shadow-[#84cc16]/5">
+                    <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[#84cc16]/10 text-[#84cc16]">
+                      <CheckCircle2 className="h-5 w-5" />
                     </div>
+                    <p className="text-lg font-semibold">{feature}</p>
                   </div>
                 ))}
               </div>
@@ -262,7 +241,7 @@ export default async function ServicePage({ params }: PageProps) {
 
         {/* ── FAQs Section ── */}
         {service.faqs.length > 0 && (
-          <section className="relative border-t border-border py-16 md:py-20">
+          <section className="relative border-t border-border py-14 md:py-16">
             <div className="mx-auto max-w-3xl px-6">
               <div className="mb-12 text-center">
                 <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#84cc16]/20 bg-[#84cc16]/5 px-4 py-1.5">
@@ -293,7 +272,7 @@ export default async function ServicePage({ params }: PageProps) {
 
         {/* ── Testimonials Section ── */}
         {service.testimonials.length > 0 && (
-          <section className="relative border-t border-border py-16 md:py-20">
+          <section className="relative border-t border-border py-14 md:py-16">
             <div className="mx-auto max-w-5xl px-6">
               <div className="mb-12 text-center">
                 <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#84cc16]/20 bg-[#84cc16]/5 px-4 py-1.5">
@@ -332,7 +311,7 @@ export default async function ServicePage({ params }: PageProps) {
         )}
 
         {/* ── CTA Section ── */}
-        <section className="relative border-t border-border py-16 md:py-20">
+        <section className="relative border-t border-border py-14 md:py-16">
           <div className="mx-auto max-w-4xl px-6">
             <div className="relative overflow-hidden rounded-2xl border border-[#84cc16]/20 bg-gradient-to-br from-[#84cc16]/5 via-card to-[#84cc16]/[0.02] p-8 text-center md:p-14">
               {/* Decorative elements */}

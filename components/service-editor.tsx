@@ -8,6 +8,7 @@ import {
   FileText, MessageSquare, Zap, Image, Settings, BarChart3, Link2,
 } from "lucide-react"
 import { createService, updateService } from "@/app/actions/services"
+import { RichTextEditor } from "@/components/editor/rich-text-editor"
 
 interface FAQ { question: string; answer: string }
 interface Testimonial { name: string; role: string; company: string; content: string; rating: number }
@@ -415,13 +416,9 @@ export function ServiceEditor({ service }: ServiceEditorProps) {
           <Section icon={Zap} title="Page Content" subtitle="Main body content of the service page" defaultOpen>
             <div>
               <label className="admin-label mb-1.5 block">Content <span className="text-red-400">*</span></label>
-              <textarea
-                className="admin-textarea font-mono !text-[13px]"
-                placeholder="Write the full service page content here.&#10;&#10;Separate paragraphs with blank lines.&#10;Use markdown-style formatting if needed..."
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                rows={18}
-              />
+              <div className="border border-[#e2edcf] rounded-2xl bg-white">
+                <RichTextEditor content={content} onChange={setContent} />
+              </div>
               <div className="mt-2 flex items-center justify-between text-[11px] text-[#6b7f5e]">
                 <span>{seo.words} words</span>
                 <span className={seo.words >= 300 ? "text-[#65a30d] font-medium" : ""}>

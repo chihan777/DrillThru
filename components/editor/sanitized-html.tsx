@@ -8,11 +8,45 @@ interface Props {
   className?: string
 }
 
+function stripMarkdownArtifactsFromText(text: string) {
+  return text
+    .replace(/(^|\n)(#{1,6})\s+/g, "$1")
+    .replace(/(^|\n)(?:\*|\-|—|\+)\s+/g, "$1")
+    .replace(/(^|\n)\d+\.\s+/g, "$1")
+    .replace(/(^|\n)>\s+/g, "$1")
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/__(.*?)__/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/_(.*?)_/g, "$1")
+    .replace(/~~(.*?)~~/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+}
+
+function cleanHtmlMarkdownArtifacts(html: string) {
+  const parser = new DOMParser()
+  const document = parser.parseFromString(html, "text/html")
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
+
+  let node = walker.nextNode()
+  while (node) {
+    const textNode = node as Text
+    const currentText = textNode.textContent || ""
+    const cleaned = stripMarkdownArtifactsFromText(currentText)
+    if (cleaned !== currentText) {
+      textNode.textContent = cleaned
+    }
+    node = walker.nextNode()
+  }
+
+  return document.body.innerHTML
+}
+
 export function SanitizedHTML({ html, className = "" }: Props) {
   const [clean, setClean] = useState("")
 
   useEffect(() => {
-    setClean(DOMPurify.sanitize(html, {
+    const cleanedHtml = cleanHtmlMarkdownArtifacts(html)
+    setClean(DOMPurify.sanitize(cleanedHtml, {
       ALLOWED_TAGS: [
         "h1", "h2", "h3", "h4", "h5", "h6", "p", "br", "hr",
         "strong", "em", "u", "s", "del", "ins", "mark", "sub", "sup",

@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import Script from 'next/script'
 import { Inter, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { QuickContact } from '@/components/quick-contact'
@@ -91,8 +92,15 @@ export default function RootLayout({
     <html lang="en" className="bg-background" data-scroll-behavior="smooth">
       <head>
         <meta name="google-site-verification" content="XuRfUWO7u8XE2PyvZjuBpAj0tuVMIKk-XXpibPVltQE" />
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-FSPQW4F9Z5" />
-        <script
+        <Script
+          id="gtag-script"
+          async
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=G-FSPQW4F9Z5"
+        />
+        <Script
+          id="gtag-inline"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
@@ -105,8 +113,10 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} ${geistMono.variable} font-sans antialiased`} suppressHydrationWarning>
         {/* Organization + LocalBusiness + Services JSON-LD */}
-        <script
+        <Script
+          id="jsonld-organization"
           type="application/ld+json"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -216,8 +226,10 @@ export default function RootLayout({
         />
 
         {/* WebSite JSON-LD with SearchAction */}
-        <script
+        <Script
+          id="jsonld-website"
           type="application/ld+json"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -240,8 +252,10 @@ export default function RootLayout({
         />
 
         {/* FAQPage JSON-LD */}
-        <script
+        <Script
+          id="jsonld-faqpage"
           type="application/ld+json"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -268,7 +282,7 @@ export default function RootLayout({
                   name: "Do you offer SEO services for businesses in Nepal?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Yes, DrillThru provides comprehensive SEO services for businesses in Nepal. Our packages include technical SEO audits, keyword research for the Nepali market, on-page optimization, local SEO for Kathmandu, content strategy, and link building.",
+                    text: "Yes, DrillThru provides comprehensive SEO services for businesses in Nepal. Our packages include technical SEO audits, keyword research for the Nepali market, on-page optimization, local SEO, content strategy, and link building.",
                   },
                 },
                 {

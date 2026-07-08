@@ -60,6 +60,58 @@ interface Props {
   saving?: boolean
 }
 
+function isHtmlContent(text: string) {
+  return /<[^>]+>/.test(text)
+}
+
+function convertMarkdownToHtml(markdown: string) {
+  const normalized = markdown.replace(/\r\n?/g, "\n").trim()
+
+  if (!normalized) return ""
+
+  const inline = (text: string) =>
+    text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/__(.*?)__/g, '<strong>$1</strong>')
+      .replace(/~~(.*?)~~/g, '<del>$1</del>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/_(.*?)_/g, '<em>$1</em>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+
+  const blocks = normalized.split(/\n{2,}/g)
+  const htmlBlocks = blocks.map((block) => {
+    const lines = block.split("\n")
+    const headingMatch = lines[0].match(/^(#{1,6})\s+(.*)$/)
+    if (headingMatch) {
+      const level = Math.min(6, headingMatch[1].length)
+      return `<h${level}>${inline(headingMatch[2].trim())}</h${level}>`
+    }
+
+    if (lines.every((line) => /^>\s+/.test(line))) {
+      const quote = lines.map((line) => inline(line.replace(/^>\s+/, ""))).join("<br/>")
+      return `<blockquote>${quote}</blockquote>`
+    }
+
+    if (lines.every((line) => /^([-*+]\s+).+/.test(line))) {
+      const items = lines.map((line) => `<li>${inline(line.replace(/^([-*+]\s+)/, ""))}</li>`).join("")
+      return `<ul>${items}</ul>`
+    }
+
+    if (lines.every((line) => /^\d+\.\s+/.test(line))) {
+      const items = lines.map((line) => `<li>${inline(line.replace(/^\d+\.\s+/, ""))}</li>`).join("")
+      return `<ol>${items}</ol>`
+    }
+
+    return `<p>${lines.map((line) => inline(line.trim())).join("<br/>")}</p>`
+  })
+
+  return htmlBlocks.join("")
+}
+
 function Dropdown({ trigger, children, className = "" }: { trigger: React.ReactNode; children: React.ReactNode; className?: string }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -132,10 +184,10 @@ export function RichTextEditor({ content, onChange, onSave, saving }: Props) {
       Image.configure({ inline: false, allowBase64: true }),
       CodeBlockLowlight.configure({ lowlight }),
     ],
-    content,
+    content: isHtmlContent(content) ? content : convertMarkdownToHtml(content),
     editorProps: {
       attributes: {
-        class: "prose prose-lg max-w-none focus:outline-none min-h-[400px] px-8 py-6",
+        class: "prose prose-lg max-w-none focus:outline-none min-h-[400px] px-8 py-6 text-black",
       },
     },
     onUpdate: ({ editor }) => {
@@ -148,6 +200,11 @@ export function RichTextEditor({ content, onChange, onSave, saving }: Props) {
       setHtmlSource(editor.getHTML())
     }
   }, [editor, showHtml])
+
+  const applyTextStyle = useCallback((style: Record<string, string>) => {
+    if (!editor) return
+    editor.chain().focus().extendMarkRange("textStyle").setMark("textStyle", style).run()
+  }, [editor])
 
   const setLink = useCallback(() => {
     if (!editor) return
@@ -242,7 +299,7 @@ export function RichTextEditor({ content, onChange, onSave, saving }: Props) {
           {FONT_FAMILIES.map((f) => (
             <button
               key={f}
-              onClick={() => editor.chain().focus().setFontFamily(f).run()}
+              onClick={() => editor.chain().focus().extendMarkRange("textStyle").setFontFamily(f).run()}
               className="flex w-full items-center rounded-md px-3 py-1.5 text-left text-sm hover:bg-[#e2edcf]"
               style={{ fontFamily: f }}
             >
@@ -266,8 +323,7 @@ export function RichTextEditor({ content, onChange, onSave, saving }: Props) {
             <button
               key={s}
               onClick={() => {
-                const size = parseInt(s)
-                editor.chain().focus().setMark("textStyle", { fontSize: s }).run()
+                editor.chain().focus().extendMarkRange("textStyle").setMark("textStyle", { fontSize: s }).run()
               }}
               className="flex w-full items-center rounded-md px-3 py-1.5 text-left text-sm hover:bg-[#e2edcf]"
             >
@@ -292,7 +348,7 @@ export function RichTextEditor({ content, onChange, onSave, saving }: Props) {
           {COLORS.map((c) => (
             <button
               key={c}
-              onClick={() => editor.chain().focus().setColor(c).run()}
+              onClick={() => editor.chain().focus().extendMarkRange("textStyle").setMark("textStyle", { color: c }).run()}
               className="h-5 w-5 rounded border border-gray-200 hover:scale-125 transition-transform"
               style={{ backgroundColor: c }}
               title={c}
@@ -314,7 +370,7 @@ export function RichTextEditor({ content, onChange, onSave, saving }: Props) {
           {COLORS.map((c) => (
             <button
               key={c}
-              onClick={() => editor.chain().focus().toggleHighlight({ color: c }).run()}
+              onClick={() => editor.chain().focus().extendMarkRange("highlight").toggleHighlight({ color: c }).run()}
               className="h-5 w-5 rounded border border-gray-200 hover:scale-125 transition-transform"
               style={{ backgroundColor: c }}
               title={c}
@@ -326,16 +382,16 @@ export function RichTextEditor({ content, onChange, onSave, saving }: Props) {
       <ToolbarSeparator />
 
       {/* Bold / Italic / Underline / Strikethrough */}
-      <ToolbarBtn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title="Bold">
+      <ToolbarBtn onClick={() => editor.chain().focus().extendMarkRange("bold").toggleBold().run()} active={editor.isActive("bold")} title="Bold">
         <Bold className="h-4 w-4" />
       </ToolbarBtn>
-      <ToolbarBtn onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")} title="Italic">
+      <ToolbarBtn onClick={() => editor.chain().focus().extendMarkRange("italic").toggleItalic().run()} active={editor.isActive("italic")} title="Italic">
         <Italic className="h-4 w-4" />
       </ToolbarBtn>
-      <ToolbarBtn onClick={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive("underline")} title="Underline">
+      <ToolbarBtn onClick={() => editor.chain().focus().extendMarkRange("underline").toggleUnderline().run()} active={editor.isActive("underline")} title="Underline">
         <UnderlineIcon className="h-4 w-4" />
       </ToolbarBtn>
-      <ToolbarBtn onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive("strike")} title="Strikethrough">
+      <ToolbarBtn onClick={() => editor.chain().focus().extendMarkRange("strike").toggleStrike().run()} active={editor.isActive("strike")} title="Strikethrough">
         <Strikethrough className="h-4 w-4" />
       </ToolbarBtn>
 
@@ -479,10 +535,10 @@ export function RichTextEditor({ content, onChange, onSave, saving }: Props) {
           />
         </div>
       ) : (
-        <div className="border border-[#e2edcf] border-t-0 rounded-b-xl overflow-auto bg-white">
+        <div className="border border-[#374151] border-t-0 rounded-b-xl overflow-auto bg-[#111827] text-white">
           <EditorContent
             editor={editor}
-            className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-[#84cc16] prose-strong:text-gray-900 prose-code:text-[#84cc16] prose-pre:bg-gray-50 prose-pre:border prose-pre:border-gray-200"
+            className="text-white prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-white prose-p:text-white prose-a:text-[#84cc16] prose-strong:text-white prose-code:text-[#86efac] prose-pre:bg-[#1f2937] prose-pre:border prose-pre:border-[#4b5563]"
           />
         </div>
       )}
