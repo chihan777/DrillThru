@@ -54,17 +54,17 @@ export async function createPost(formData: FormData) {
     return { success: false, error: "Please fill in all required fields." }
   }
 
-  const slug = generateSlug(title)
+  const rawSlug = (formData.get("slug") as string) || generateSlug(title)
 
   // Check if slug exists
   const existingSlugs = await db
     .select({ slug: blogPosts.slug })
     .from(blogPosts)
-    .where(eq(blogPosts.slug, slug))
+    .where(eq(blogPosts.slug, rawSlug))
   
   const finalSlug = existingSlugs.length > 0 
-    ? `${slug}-${Date.now()}` 
-    : slug
+    ? `${rawSlug}-${Date.now()}` 
+    : rawSlug
 
   try {
     const result = await db.insert(blogPosts).values({
@@ -106,10 +106,12 @@ export async function updatePost(id: number, formData: FormData) {
   }
 
   try {
+    const newSlug = formData.get("slug") as string | null
     await db
       .update(blogPosts)
       .set({
         title,
+        ...(newSlug ? { slug: newSlug } : {}),
         excerpt,
         content,
         metaTitle: metaTitle || title,

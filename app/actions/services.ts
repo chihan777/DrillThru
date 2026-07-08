@@ -99,12 +99,12 @@ export async function createService(formData: FormData) {
     return { success: false, error: "Please fill in all required fields." }
   }
 
-  const slug = generateSlug(title)
+  const rawSlug = (formData.get("slug") as string) || generateSlug(title)
   const existingSlugs = await db
     .select({ slug: servicePages.slug })
     .from(servicePages)
-    .where(eq(servicePages.slug, slug))
-  const finalSlug = existingSlugs.length > 0 ? `${slug}-${Date.now()}` : slug
+    .where(eq(servicePages.slug, rawSlug))
+  const finalSlug = existingSlugs.length > 0 ? `${rawSlug}-${Date.now()}` : rawSlug
 
   try {
     const result = await db
@@ -232,10 +232,12 @@ export async function updateService(id: number, formData: FormData) {
   }
 
   try {
+    const newSlug = formData.get("slug") as string | null
     await db
       .update(servicePages)
       .set({
         title,
+        ...(newSlug ? { slug: newSlug } : {}),
         description,
         content,
         icon,

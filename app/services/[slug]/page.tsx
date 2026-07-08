@@ -8,6 +8,7 @@ import { Navigation } from "@/components/navigation"
 import { db } from "@/lib/db"
 import { servicePages, serviceFaqs, serviceTestimonials, serviceProjects } from "@/lib/db/schema"
 import { eq, and, asc } from "drizzle-orm"
+import Markdown from "react-markdown"
 import type { Metadata } from "next"
 
 export const revalidate = 86400 // 24 hours
@@ -183,9 +184,7 @@ export default async function ServicePage({ params }: PageProps) {
         <section className="relative border-t border-border">
           <div className="mx-auto max-w-3xl px-6 py-16 md:py-20">
             <article className="prose prose-invert prose-lg max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-h2:mt-12 prose-h2:text-2xl prose-h2:md:text-3xl prose-h3:text-xl prose-p:text-muted-foreground prose-p:leading-relaxed prose-a:text-[#84cc16] prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-code:text-[#84cc16] prose-pre:bg-card prose-pre:border prose-pre:border-border">
-              {service.content.split("\n\n").map((paragraph, index) => (
-                <p key={index}>{paragraph}</p>
-              ))}
+              <Markdown>{service.content}</Markdown>
             </article>
           </div>
         </section>

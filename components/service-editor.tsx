@@ -285,6 +285,7 @@ export function ServiceEditor({ service }: ServiceEditorProps) {
     formData.append("ctaDescription", ctaDescription)
     formData.append("ctaButtonText", ctaButtonText)
     formData.append("ctaButtonLink", ctaButtonLink)
+    formData.append("slug", slug || generateSlug(title))
     formData.append("projectLink", projectLink)
     formData.append("faqs", JSON.stringify(faqs.filter((f) => f.question && f.answer)))
     formData.append("testimonials", JSON.stringify(testimonials.filter((t) => t.name && t.content)))

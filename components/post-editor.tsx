@@ -19,6 +19,10 @@ import {
 } from "lucide-react"
 import { createPost, updatePost } from "@/app/actions/blog"
 
+function generateSlug(title: string): string {
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
+}
+
 interface Post {
   id: number
   title: string
@@ -171,6 +175,7 @@ export function PostEditor({ post }: PostEditorProps) {
       formData.append("content", content)
       formData.append("metaTitle", metaTitle || title)
       formData.append("metaDescription", metaDescription || excerpt)
+      formData.append("slug", generateSlug(title))
       formData.append("published", String(publish))
 
       try {

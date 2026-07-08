@@ -4,6 +4,7 @@ import { ArrowLeft, Calendar, Clock, Share2, Twitter, Facebook, Linkedin } from 
 import { db } from "@/lib/db"
 import { blogPosts } from "@/lib/db/schema"
 import { eq, and, ne, desc } from "drizzle-orm"
+import Markdown from "react-markdown"
 import type { Metadata } from "next"
 
 export const revalidate = 86400 // 24 hours
@@ -182,9 +183,7 @@ export default async function BlogPostPage({ params }: PageProps) {
           {/* Article Content */}
           <article className="prose prose-invert mx-auto max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-h2:text-2xl prose-h3:text-xl prose-p:text-muted-foreground prose-p:leading-relaxed prose-a:text-[#84cc16] prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-code:text-[#84cc16] prose-pre:bg-card prose-pre:border prose-pre:border-border">
             {/* Render content - for now just paragraphs, can enhance with markdown parser later */}
-            {post.content.split("\n\n").map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))}
+            <Markdown>{post.content}</Markdown>
           </article>
 
           {/* Share */}
