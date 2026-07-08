@@ -11,6 +11,7 @@ import {
   Activity,
   ShieldCheck,
   Plus,
+  FolderOpen,
 } from "lucide-react"
 import { SignOutButton } from "@/components/sign-out-button"
 
@@ -21,6 +22,7 @@ interface Props {
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/about", label: "About Section", icon: Users },
+  { href: "/admin/projects", label: "Projects", icon: FolderOpen },
   { href: "/admin/services", label: "Services", icon: Briefcase },
   { href: "/admin/enquiries", label: "Enquiries", icon: MessageSquare },
   { href: "/admin/settings", label: "Site Settings", icon: Settings },

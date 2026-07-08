@@ -1,6 +1,6 @@
-import { Sparkles, MessageSquare } from "lucide-react"
+import { Sparkles } from "lucide-react"
 import { AdminAboutForm } from "@/components/admin-about-form"
-import { getAboutSettings, getValues, getTeam, getProjects, getTestimonials } from "@/app/actions/about"
+import { getAboutSettings, getValues, getTeam, getTestimonials } from "@/app/actions/about"
 
 export const metadata = {
   title: "Manage About Section | DrillThru",
@@ -8,11 +8,10 @@ export const metadata = {
 }
 
 export default async function AdminAboutPage() {
-  const [settings, values, team, projects, testimonials] = await Promise.all([
+  const [settings, values, team, testimonials] = await Promise.all([
     getAboutSettings(),
     getValues(),
     getTeam(),
-    getProjects(),
     getTestimonials(),
   ])
 
@@ -24,9 +23,9 @@ export default async function AdminAboutPage() {
           <span className="text-xs font-semibold uppercase tracking-widest text-[#65a30d]">Admin</span>
         </div>
         <h1 className="admin-heading text-3xl">About Section</h1>
-        <p className="admin-muted mt-1">Manage your about page content — text, values, and team members</p>
+        <p className="admin-muted mt-1">Manage your about page content — text, values, team members, and testimonials</p>
       </div>
-      <AdminAboutForm settings={settings} values={values} team={team} projects={projects} testimonials={testimonials} />
+      <AdminAboutForm settings={settings} values={values} team={team} testimonials={testimonials} />
     </>
   )
 }
