@@ -2,7 +2,7 @@ import Link from "next/link"
 import { db } from "@/lib/db"
 import { servicePages } from "@/lib/db/schema"
 import { asc } from "drizzle-orm"
-import { Plus, FileText, Eye, EyeOff, Sparkles, Briefcase, Calendar } from "lucide-react"
+import { Plus, FileText, Eye, EyeOff, Sparkles, Briefcase, Calendar, PenTool } from "lucide-react"
 import { AdminServiceActions } from "@/components/admin-service-actions"
 
 export const metadata = {
@@ -39,10 +39,16 @@ export default async function AdminServicesPage() {
           <h1 className="admin-heading text-3xl">Service Pages</h1>
           <p className="admin-muted mt-1">Manage dynamic service pages with SEO optimization</p>
         </div>
-        <Link href="/admin/services/new" className="admin-btn-primary flex items-center gap-2 px-5 py-2.5 text-sm">
-          <Plus className="h-4 w-4" />
-          New Service
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/admin/services/content" className="flex items-center gap-2 rounded-lg border border-[#e2edcf] bg-white px-4 py-2.5 text-sm font-medium text-[#1a2e0a] hover:bg-[#f7faf3] transition-colors">
+            <PenTool className="h-4 w-4" />
+            Edit Page Content
+          </Link>
+          <Link href="/admin/services/new" className="admin-btn-primary flex items-center gap-2 px-5 py-2.5 text-sm">
+            <Plus className="h-4 w-4" />
+            New Service
+          </Link>
+        </div>
       </div>
 
       <div className="mb-8 grid gap-4 sm:grid-cols-3">

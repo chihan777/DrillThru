@@ -17,4 +17,5 @@ export const DEFAULT_SITE_SETTINGS: Record<string, string> = {
   linkedinUrl: "https://linkedin.com/company/drillthru",
   instagramUrl: "https://instagram.com/drillthru",
   footerDescription: "Nepal's leading web design, web development, and digital marketing agency. We offer professional website design, SEO services, Google Ads, Meta Ads, and creative digital marketing solutions for businesses in Kathmandu and across Nepal.",
+  globalWordReplacements: "[]",
 }

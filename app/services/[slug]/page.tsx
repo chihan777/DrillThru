@@ -6,10 +6,11 @@ import {
 } from "lucide-react"
 import { Navigation } from "@/components/navigation"
 import { db } from "@/lib/db"
-import { servicePages, serviceFaqs, serviceTestimonials, serviceProjects } from "@/lib/db/schema"
+import { servicePages, serviceFaqs, serviceTestimonials, serviceProjects, siteSettings, serviceContent } from "@/lib/db/schema"
 import { eq, and, asc } from "drizzle-orm"
-import Markdown from "react-markdown"
 import type { Metadata } from "next"
+import { applyWordReplacements } from "@/lib/word-replacements"
+import { SanitizedHTML } from "@/components/editor/sanitized-html"
 
 export const revalidate = 86400 // 24 hours
 export const dynamic = "force-dynamic" // prevent build-time DB reads
@@ -35,13 +36,32 @@ async function getService(slug: string) {
       .limit(1)
     if (!rows[0]) return null
 
-    const [faqs, testimonials, projects] = await Promise.all([
+    const [faqs, testimonials, projects, settingsRows, pageContentRows] = await Promise.all([
       db.select().from(serviceFaqs).where(eq(serviceFaqs.serviceId, rows[0].id)).orderBy(asc(serviceFaqs.order)),
       db.select().from(serviceTestimonials).where(eq(serviceTestimonials.serviceId, rows[0].id)).orderBy(asc(serviceTestimonials.order)),
       db.select().from(serviceProjects).where(eq(serviceProjects.serviceId, rows[0].id)).orderBy(asc(serviceProjects.order)),
+      db.select().from(siteSettings).where(eq(siteSettings.key, "globalWordReplacements")),
+      db.select().from(serviceContent).where(eq(serviceContent.page, "services")).limit(1),
     ])
 
-    return { ...rows[0], faqs, testimonials, projects }
+    const replacementsJson = settingsRows[0]?.value || "[]"
+
+    const apply = (text: string) => applyWordReplacements(text, replacementsJson)
+
+    const pageContent = pageContentRows[0]?.content || null
+
+    return {
+      ...rows[0],
+      title: apply(rows[0].title),
+      description: apply(rows[0].description),
+      content: apply(rows[0].content),
+      pageContent,
+      ctaHeading: rows[0].ctaHeading ? apply(rows[0].ctaHeading) : null,
+      ctaDescription: rows[0].ctaDescription ? apply(rows[0].ctaDescription) : null,
+      faqs: faqs.map(f => ({ ...f, question: apply(f.question), answer: apply(f.answer) })),
+      testimonials: testimonials.map(t => ({ ...t, content: apply(t.content) })),
+      projects,
+    }
   } catch (error) {
     console.warn("Failed to fetch service:", error)
     return null
@@ -183,9 +203,13 @@ export default async function ServicePage({ params }: PageProps) {
         {/* ── Content Section ── */}
         <section className="relative border-t border-border">
           <div className="mx-auto max-w-3xl px-6 py-16 md:py-20">
-            <article className="prose prose-invert prose-lg max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-h2:mt-12 prose-h2:text-2xl prose-h2:md:text-3xl prose-h3:text-xl prose-p:text-muted-foreground prose-p:leading-relaxed prose-a:text-[#84cc16] prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-code:text-[#84cc16] prose-pre:bg-card prose-pre:border prose-pre:border-border">
-              <Markdown>{service.content}</Markdown>
-            </article>
+            {service.pageContent ? (
+              <SanitizedHTML html={service.pageContent} />
+            ) : (
+              <article className="prose prose-invert prose-lg max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-h2:mt-12 prose-h2:text-2xl prose-h2:md:text-3xl prose-h3:text-xl prose-p:text-muted-foreground prose-p:leading-relaxed prose-a:text-[#84cc16] prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-code:text-[#84cc16] prose-pre:bg-card prose-pre:border prose-pre:border-border">
+                {service.content}
+              </article>
+            )}
           </div>
         </section>
 

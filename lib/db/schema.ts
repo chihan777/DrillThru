@@ -233,6 +233,18 @@ export const serviceProjects = pgTable("service_projects", {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Service Content (CMS-style editable page content)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const serviceContent = pgTable("service_content", {
+  id: serial("id").primaryKey(),
+  page: text("page").notNull().unique(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Activity Log (tracks all admin changes)
 // ─────────────────────────────────────────────────────────────────────────────
 

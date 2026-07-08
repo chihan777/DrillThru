@@ -4,13 +4,19 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Mail, Phone, MapPin, Clock, MessageCircle, Facebook, Twitter, Linkedin, Instagram,
-  Save, Loader2, ChevronDown, ChevronUp, Type, FileText,
+  Save, Loader2, ChevronDown, ChevronUp, Type, FileText, RefreshCw, Plus, Trash2,
 } from 'lucide-react'
 import { saveSiteSettings } from '@/app/actions/settings'
 import { DEFAULT_SITE_SETTINGS } from '@/lib/default-settings'
 
 interface Props {
   settings: Record<string, string>
+}
+
+interface WordReplacement {
+  find: string
+  replace: string
+  enabled: boolean
 }
 
 /* ── Collapsible Section ─────────────────────────────────────────────────── */
@@ -46,15 +52,42 @@ export function AdminSettingsForm({ settings: initialSettings }: Props) {
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Word replacements state
+  const [wordReplacements, setWordReplacements] = useState<WordReplacement[]>(() => {
+    try {
+      const parsed = JSON.parse(settings.globalWordReplacements || "[]")
+      return Array.isArray(parsed) ? parsed : []
+    } catch {
+      return []
+    }
+  })
+
   function update(key: string, value: string) {
     setSettings(prev => ({ ...prev, [key]: value }))
+  }
+
+  function addReplacement() {
+    setWordReplacements([...wordReplacements, { find: "", replace: "", enabled: true }])
+  }
+
+  function removeReplacement(i: number) {
+    setWordReplacements(wordReplacements.filter((_, idx) => idx !== i))
+  }
+
+  function updateReplacement(i: number, field: keyof WordReplacement, value: string | boolean) {
+    const copy = [...wordReplacements]
+    copy[i] = { ...copy[i], [field]: value }
+    setWordReplacements(copy)
   }
 
   async function handleSave() {
     setSaving(true)
     setError(null)
     try {
-      const result = await saveSiteSettings(settings)
+      const result = await saveSiteSettings({
+        ...settings,
+        globalWordReplacements: JSON.stringify(wordReplacements),
+      })
       if (result.success) {
         setSaved(true)
         setTimeout(() => setSaved(false), 2500)
@@ -181,6 +214,62 @@ export function AdminSettingsForm({ settings: initialSettings }: Props) {
         <div>
           <label className="admin-label mb-1 block text-[11px]">Description</label>
           <textarea className="admin-textarea !min-h-[5rem]" value={settings.footerDescription} onChange={(e) => update('footerDescription', e.target.value)} placeholder="Company description..." rows={4} />
+        </div>
+      </Section>
+
+      {/* ── Global Word Replacements ── */}
+      <Section icon={RefreshCw} title="Global Word Replacements" subtitle="Replace words across all service pages automatically" defaultOpen={wordReplacements.length > 0}>
+        <div>
+          <p className="mb-4 text-xs text-[#6b7f5e]">
+            Define words or phrases to automatically replace across all service page content on the frontend.
+            For example, change &quot;integrate&quot; to &quot;integrate&quot; everywhere.
+          </p>
+          <div className="space-y-3">
+            {wordReplacements.map((r, i) => (
+              <div key={i} className="group flex items-start gap-3 rounded-xl border border-[#e2edcf] bg-white/70 p-4 transition-all hover:border-[#c5e091]">
+                <label className="mt-2 flex cursor-pointer items-center gap-1.5">
+                  <input
+                    type="checkbox"
+                    checked={r.enabled}
+                    onChange={(e) => updateReplacement(i, "enabled", e.target.checked)}
+                    className="h-4 w-4 accent-[#84cc16]"
+                  />
+                </label>
+                <div className="flex-1 grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="admin-label mb-1 block text-[11px]">Find</label>
+                    <input
+                      className="admin-input text-sm"
+                      placeholder="e.g. integrate"
+                      value={r.find}
+                      onChange={(e) => updateReplacement(i, "find", e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="admin-label mb-1 block text-[11px]">Replace with</label>
+                    <input
+                      className="admin-input text-sm"
+                      placeholder="e.g. integrate"
+                      value={r.replace}
+                      onChange={(e) => updateReplacement(i, "replace", e.target.value)}
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={() => removeReplacement(i)}
+                  className="mt-2 rounded-md p-1 text-[#6b7f5e] opacity-0 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+            <button
+              onClick={addReplacement}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#c5e091] py-3 text-sm font-medium text-[#65a30d] transition-all hover:border-[#84cc16] hover:bg-[#84cc16]/5"
+            >
+              <Plus className="h-4 w-4" /> Add Word Replacement
+            </button>
+          </div>
         </div>
       </Section>
 
