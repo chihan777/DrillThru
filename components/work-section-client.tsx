@@ -88,7 +88,7 @@ export function WorkSectionClient({ projects, settings: dbSettings }: Props) {
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
               {/* Project Number */}
-              <div className="pointer-events-none absolute top-6 left-6 font-mono text-6xl font-bold text-white/10">
+              <div className="pointer-events-none absolute top-3 left-3 font-mono text-4xl font-bold text-white/10 md:top-4 md:left-5 md:text-5xl">
                 0{index + 1}
               </div>
 
@@ -99,13 +99,13 @@ export function WorkSectionClient({ projects, settings: dbSettings }: Props) {
                   opacity: hoveredIndex === index ? 1 : 0.9,
                 }}
                 transition={{ duration: 0.3 }}
-                className="relative z-10 flex h-full flex-col justify-end p-6"
+                className="relative z-10 flex h-full flex-col justify-end p-3 md:p-5"
               >
-                <span className="mb-2 text-xs font-medium uppercase tracking-wider text-[#84cc16]">
+                <span className="mb-1 text-[10px] font-medium uppercase tracking-wider text-[#84cc16] md:text-[11px]">
                   {project.category}
                 </span>
-                <h3 className="mb-2 text-2xl font-bold text-white">{project.title}</h3>
-                <p className="text-sm text-white/80 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <h3 className="mb-1 text-base font-bold text-white md:text-lg">{project.title}</h3>
+                <p className="hidden text-xs text-white/70 md:block">
                   {project.description}
                 </p>
 
@@ -115,14 +115,14 @@ export function WorkSectionClient({ projects, settings: dbSettings }: Props) {
                     href={project.link.startsWith("http") ? project.link : `https://${project.link}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-4 inline-flex w-fit items-center gap-2 rounded-lg bg-[#84cc16] px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:bg-[#65a30d] hover:shadow-lg"
+                    className="mt-2 inline-flex w-fit items-center gap-1 rounded-md bg-[#84cc16] px-3 py-1.5 text-xs font-semibold text-white shadow-md transition-all hover:bg-[#65a30d] hover:shadow-lg md:mt-3 md:gap-1.5 md:px-4 md:py-2"
                     onClick={(e) => e.stopPropagation()}
                   >
                     View Project
-                    <ExternalLink className="h-4 w-4" />
+                    <ExternalLink className="h-3 w-3 md:h-3.5 md:w-3.5" />
                   </a>
                 ) : (
-                  <div className="mt-4 text-sm font-medium text-white/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <div className="mt-2 text-xs font-medium text-white/50 md:mt-3">
                     View Case Study
                   </div>
                 )}
