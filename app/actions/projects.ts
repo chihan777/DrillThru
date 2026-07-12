@@ -5,7 +5,7 @@ import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { projects } from "@/lib/db/schema"
-import { eq, asc } from "drizzle-orm"
+import { eq, asc, sql } from "drizzle-orm"
 import { logActivity } from "@/app/actions/audit"
 
 async function requireAuth() {
@@ -109,5 +109,44 @@ export async function deleteProject(id: number) {
   } catch (error) {
     console.error("Delete project error:", error)
     return { success: false, error: "Failed to delete project." }
+  }
+}
+
+export async function reorderProject(id: number, direction: "up" | "down") {
+  const u = await requireAuth()
+
+  try {
+    const all = await db
+      .select({ id: projects.id, order: projects.order })
+      .from(projects)
+      .orderBy(asc(projects.order))
+
+    const idx = all.findIndex((p) => p.id === id)
+    if (idx === -1) return { success: false, error: "Project not found." }
+    if (direction === "up" && idx === 0) return { success: true }
+    if (direction === "down" && idx === all.length - 1) return { success: true }
+
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1
+    const current = all[idx]
+    const target = all[swapIdx]
+
+    await db.transaction(async (tx) => {
+      await tx
+        .update(projects)
+        .set({ order: target.order })
+        .where(eq(projects.id, current.id))
+      await tx
+        .update(projects)
+        .set({ order: current.order })
+        .where(eq(projects.id, target.id))
+    })
+
+    await logActivity({ userId: u.userId, userName: u.userName, userEmail: u.userEmail, action: "Reordered", target: "Project", details: `Moved project #${id} ${direction}` })
+    revalidatePath("/admin/projects")
+    revalidatePath("/", "page")
+    return { success: true }
+  } catch (error) {
+    console.error("Reorder project error:", error)
+    return { success: false, error: "Failed to reorder project." }
   }
 }
