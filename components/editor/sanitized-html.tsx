@@ -66,6 +66,7 @@ export function SanitizedHTML({ html, className = "" }: Props) {
         "start", "type", "checked", "disabled", "placeholder",
         "data-*", "draggable",
       ],
+      ADD_ATTR: ["style"],
       ALLOW_DATA_ATTR: true,
     }))
   }, [html])
