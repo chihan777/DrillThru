@@ -2,7 +2,7 @@
 
 import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
-import { Users, Target, Award, Rocket, Mail, Linkedin, Github } from "lucide-react"
+import { Users, Target, Award, Rocket } from "lucide-react"
 
 const ICON_MAP: Record<string, React.ElementType> = {
   Target, Users, Award, Rocket,
@@ -132,24 +132,7 @@ export function AboutSectionClient({ settings: dbSettings, values, team }: Props
                         }
                       }}
                     />
-                    {/* Social overlay on hover */}
-                    <div className="absolute inset-0 flex items-center justify-center gap-3 bg-black/60 opacity-0 transition-opacity group-hover:opacity-100">
-                      {member.email && (
-                        <a href={`mailto:${member.email}`} className="rounded-full bg-white/20 p-2 text-white transition-colors hover:bg-[#84cc16]" onClick={(e) => e.stopPropagation()}>
-                          <Mail className="h-4 w-4" />
-                        </a>
-                      )}
-                      {member.linkedin && (
-                        <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="rounded-full bg-white/20 p-2 text-white transition-colors hover:bg-[#84cc16]" onClick={(e) => e.stopPropagation()}>
-                          <Linkedin className="h-4 w-4" />
-                        </a>
-                      )}
-                      {member.github && (
-                        <a href={member.github} target="_blank" rel="noopener noreferrer" className="rounded-full bg-white/20 p-2 text-white transition-colors hover:bg-[#84cc16]" onClick={(e) => e.stopPropagation()}>
-                          <Github className="h-4 w-4" />
-                        </a>
-                      )}
-                    </div>
+
                   </div>
                   <h4 className="font-semibold">{member.name}</h4>
                   <p className="text-sm text-muted-foreground">{member.role}</p>
