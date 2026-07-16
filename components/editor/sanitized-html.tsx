@@ -46,7 +46,7 @@ export function SanitizedHTML({ html, className = "" }: Props) {
 
   useEffect(() => {
     const cleanedHtml = cleanHtmlMarkdownArtifacts(html)
-    setClean(DOMPurify.sanitize(cleanedHtml, {
+    const sanitized = DOMPurify.sanitize(cleanedHtml, {
       ALLOWED_TAGS: [
         "h1", "h2", "h3", "h4", "h5", "h6", "p", "br", "hr",
         "strong", "em", "u", "s", "del", "ins", "mark", "sub", "sup",
@@ -68,7 +68,9 @@ export function SanitizedHTML({ html, className = "" }: Props) {
       ],
       ADD_ATTR: ["style"],
       ALLOW_DATA_ATTR: true,
-    }))
+    })
+    // Strip nofollow from all links so link juice passes naturally
+    setClean(sanitized.replace(/rel="nofollow"/gi, '').replace(/rel='nofollow'/gi, ''))
   }, [html])
 
   return (

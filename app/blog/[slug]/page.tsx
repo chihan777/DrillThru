@@ -58,13 +58,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: "Post Not Found" }
   }
 
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.drillthru.tech"
+
   return {
     title: post.metaTitle || post.title,
     description: post.metaDescription || post.excerpt,
+    alternates: {
+      canonical: `${SITE_URL}/blog/${post.slug}`,
+    },
     openGraph: {
       title: post.metaTitle || post.title,
       description: post.metaDescription || post.excerpt,
       type: "article",
+      url: `${SITE_URL}/blog/${post.slug}`,
       publishedTime: post.createdAt.toISOString(),
       modifiedTime: post.updatedAt.toISOString(),
     },
@@ -182,8 +188,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
           {/* Article Content */}
           <article className="prose prose-invert mx-auto max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-h2:text-2xl prose-h3:text-xl prose-p:text-muted-foreground prose-p:leading-relaxed prose-a:text-[#84cc16] prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-code:text-[#84cc16] prose-pre:bg-card prose-pre:border prose-pre:border-border">
-            {/* Render content - for now just paragraphs, can enhance with markdown parser later */}
-            <Markdown>{post.content}</Markdown>
+            <Markdown>{post.content.replace(/rel="nofollow"/gi, '').replace(/rel='nofollow'/gi, '')}</Markdown>
           </article>
 
           {/* Share */}
@@ -194,7 +199,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             </span>
             <div className="flex gap-2">
               <a
-                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`https://drillthru.tech/blog/${post.slug}`)}`}
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`https://www.drillthru.tech/blog/${post.slug}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-lg bg-secondary p-2 text-muted-foreground transition-colors hover:bg-[#84cc16] hover:text-white"
@@ -203,7 +208,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                 <Twitter className="h-4 w-4" />
               </a>
               <a
-                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://drillthru.tech/blog/${post.slug}`)}`}
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://www.drillthru.tech/blog/${post.slug}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-lg bg-secondary p-2 text-muted-foreground transition-colors hover:bg-[#84cc16] hover:text-white"
@@ -212,7 +217,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                 <Facebook className="h-4 w-4" />
               </a>
               <a
-                href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(`https://drillthru.tech/blog/${post.slug}`)}&title=${encodeURIComponent(post.title)}`}
+                href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(`https://www.drillthru.tech/blog/${post.slug}`)}&title=${encodeURIComponent(post.title)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-lg bg-secondary p-2 text-muted-foreground transition-colors hover:bg-[#84cc16] hover:text-white"

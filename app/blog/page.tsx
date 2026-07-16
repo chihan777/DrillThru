@@ -10,9 +10,13 @@ export const revalidate = 86400 // 24 hours
 export const metadata: Metadata = {
   title: "Blog | DrillThru",
   description: "Insights, tips, and strategies on web development, SEO, and digital marketing for businesses in Nepal.",
+  alternates: {
+    canonical: "https://www.drillthru.tech/blog",
+  },
   openGraph: {
     title: "Blog | DrillThru",
     description: "Insights, tips, and strategies on web development, SEO, and digital marketing for businesses in Nepal.",
+    url: "https://www.drillthru.tech/blog",
   },
 }
 

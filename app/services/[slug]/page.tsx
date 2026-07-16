@@ -35,7 +35,7 @@ interface PageProps {
   params: Promise<{ slug: string }>
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://drillthru.tech"
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.drillthru.tech"
 
 async function getService(slug: string) {
   try {
@@ -282,7 +282,7 @@ export default async function ServicePage({ params }: PageProps) {
               {service.content.trim().startsWith("<") ? (
                 <SanitizedHTML html={service.content} />
               ) : (
-                <ReactMarkdown>{service.content}</ReactMarkdown>
+                <ReactMarkdown>{service.content.replace(/rel="nofollow"/gi, '').replace(/rel='nofollow'/gi, '')}</ReactMarkdown>
               )}
             </div>
           </div>

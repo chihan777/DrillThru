@@ -5,6 +5,9 @@ import type { Metadata } from "next"
 export const metadata: Metadata = {
   title: "Terms of Service | DrillThru",
   description: "Read the terms and conditions governing the use of DrillThru's website and services.",
+  alternates: {
+    canonical: "https://www.drillthru.tech/terms",
+  },
 }
 
 export default function TermsPage() {
@@ -43,8 +46,8 @@ export default function TermsPage() {
           <section>
             <p>
               Welcome to DrillThru. By accessing or using{" "}
-              <a href="https://drillthru.tech" className="text-[#84cc16] hover:underline">
-                drillthru.tech
+              <a href="https://www.drillthru.tech" className="text-[#84cc16] hover:underline">
+                www.drillthru.tech
               </a>{" "}
               (the &quot;Site&quot;) or engaging our services, you agree to be bound by these Terms of Service
               (&quot;Terms&quot;). Please read them carefully. If you do not agree, do not use our Site or services.
@@ -208,8 +211,8 @@ export default function TermsPage() {
                 </a>
               </p>
               <p className="mt-1">
-                <a href="https://drillthru.tech" className="text-[#84cc16] hover:underline">
-                  drillthru.tech
+                <a href="https://www.drillthru.tech" className="text-[#84cc16] hover:underline">
+                  www.drillthru.tech
                 </a>
               </p>
             </div>

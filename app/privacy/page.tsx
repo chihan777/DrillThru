@@ -5,6 +5,9 @@ import type { Metadata } from "next"
 export const metadata: Metadata = {
   title: "Privacy Policy | DrillThru",
   description: "Learn how DrillThru collects, uses, and protects your personal information.",
+  alternates: {
+    canonical: "https://www.drillthru.tech/privacy",
+  },
 }
 
 export default function PrivacyPage() {
@@ -43,8 +46,8 @@ export default function PrivacyPage() {
           <section>
             <p>
               DrillThru (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) operates{" "}
-              <a href="https://drillthru.tech" className="text-[#84cc16] hover:underline">
-                drillthru.tech
+              <a href="https://www.drillthru.tech" className="text-[#84cc16] hover:underline">
+                www.drillthru.tech
               </a>{" "}
               (the &quot;Site&quot;). This Privacy Policy explains what information we collect, how we use it, and your
               rights in relation to it. By using our Site or services, you agree to the practices described here.
@@ -225,8 +228,8 @@ export default function PrivacyPage() {
                 </a>
               </p>
               <p className="mt-1">
-                <a href="https://drillthru.tech" className="text-[#84cc16] hover:underline">
-                  drillthru.tech
+                <a href="https://www.drillthru.tech" className="text-[#84cc16] hover:underline">
+                  www.drillthru.tech
                 </a>
               </p>
             </div>

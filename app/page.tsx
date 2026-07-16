@@ -7,8 +7,15 @@ import { AboutSection } from "@/components/about-section"
 import { TestimonialsSection } from "@/components/testimonials-section"
 import { ContactSection } from "@/components/contact-section"
 import { Footer } from "@/components/footer"
+import type { Metadata } from "next"
 
 export const revalidate = 86400 // 24 hours
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "https://www.drillthru.tech",
+  },
+}
 
 export default function HomePage() {
   return (
