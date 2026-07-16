@@ -1,0 +1,72 @@
+# DrillThru - Web Design, Development & Digital Marketing Agency in Nepal
+
+> DrillThru is Nepal's leading web design, web development, and digital marketing agency based in Kathmandu. We build fast, modern websites and drive measurable growth through SEO, Google Ads, Meta Ads, and full-service digital marketing for businesses across Nepal.
+
+## Services
+
+### Web Design & Development
+Custom responsive websites, e-commerce stores, booking systems, and web applications built with Next.js and React. Mobile-first design optimized for Nepal's market.
+- URL: https://www.drillthru.tech/services/web-design-development
+- Features: Responsive Design, E-commerce Stores, Custom Web Apps, WordPress & CMS
+
+### SEO Services
+Data-driven SEO strategies including technical audits, local SEO for Kathmandu/Nepal, content strategy, and link building to improve Google rankings.
+- URL: https://www.drillthru.tech/services/seo-services
+- Features: Technical SEO Audits, Local SEO Nepal, Content Strategy, Link Building
+
+### Digital Marketing
+Full-service campaigns across social media, content marketing, and email channels to grow brand awareness and generate leads.
+- URL: https://www.drillthru.tech/services/digital-marketing
+- Features: Social Media Marketing, Content Marketing, Email Campaigns, Influencer Marketing
+
+### Google Ads Management
+Expert PPC campaign management including search ads, display network, shopping ads, and conversion tracking optimized for Nepal market.
+- URL: https://www.drillthru.tech/services/google-ads-management
+- Features: Search Ads, Display Network, Shopping Ads, Conversion Tracking
+
+### Meta Ads (Facebook & Instagram)
+Targeted Facebook and Instagram advertising campaigns for brand awareness, engagement, lead generation, and retargeting.
+- URL: https://www.drillthru.tech/services/meta-ads-facebook-instagram
+- Features: Facebook Ads, Instagram Ads, Retargeting, Lead Generation
+
+### Brand Identity Design
+Professional logo design, visual identity systems, brand guidelines, and rebranding services for startups and established businesses.
+- URL: https://www.drillthru.tech/services/brand-identity-design
+- Features: Logo Design, Visual Identity, Brand Guidelines, Rebranding
+
+### Growth Strategy
+Data-driven market research, competitor analysis, growth planning, and KPI tracking to accelerate business expansion.
+- URL: https://www.drillthru.tech/services/growth-strategy
+- Features: Market Research, Competitor Analysis, Growth Hacking, KPI Tracking
+
+### Website Performance
+Page speed optimization, Core Web Vitals improvement, UX design, and A/B testing to reduce bounce rates and increase conversions.
+- URL: https://www.drillthru.tech/services/website-performance
+- Features: Speed Optimization, Core Web Vitals, UX Design, A/B Testing
+
+## Key Pages
+
+- Home: https://www.drillthru.tech
+- Services: https://www.drillthru.tech/#services
+- Blog: https://www.drillthru.tech/blog
+- Contact: https://www.drillthru.tech/#contact
+- Privacy Policy: https://www.drillthru.tech/privacy
+- Terms of Service: https://www.drillthru.tech/terms
+
+## Contact
+
+- Email: hello@drillthru.tech
+- WhatsApp: https://wa.me/9840814142
+- Location: Thamel, Kathmandu, Nepal
+- Business Hours: Sunday-Friday, 9:00 AM - 6:00 PM (NPT)
+
+## About
+
+DrillThru helps Nepali businesses grow online through modern web technology and data-driven marketing. We specialize in Next.js/React development, local SEO for Nepal, and performance-focused ad campaigns. With over 50 successful projects, we understand both the technical and business sides of digital growth in Nepal.
+
+## Social
+
+- Facebook: https://facebook.com/drillthru
+- Twitter: https://twitter.com/drillthru
+- LinkedIn: https://linkedin.com/company/drillthru
+- Instagram: https://instagram.com/drillthru

@@ -798,7 +798,7 @@ export function ServiceEditor({ service }: ServiceEditorProps) {
 
                 <div>
                   <label className="admin-label mb-1 block text-[11px]">Canonical URL</label>
-                  <input className="admin-input" placeholder="https://drillthru.tech/services/..." value={canonicalUrl} onChange={(e) => setCanonicalUrl(e.target.value)} />
+                  <input className="admin-input" placeholder="https://www.drillthru.tech/services/..." value={canonicalUrl} onChange={(e) => setCanonicalUrl(e.target.value)} />
                 </div>
 
                 <div>
@@ -833,7 +833,7 @@ export function ServiceEditor({ service }: ServiceEditorProps) {
                 </p>
                 <div className="rounded-lg border border-[#e2edcf] bg-white p-3">
                   <p className="truncate text-[13px] text-[#1a0dab]">{seoTitle || title || "Page Title"}</p>
-                  <p className="truncate text-[11px] text-green-700">drillthru.tech/services/{slug || "your-service-slug"}</p>
+                  <p className="truncate text-[11px] text-green-700">www.drillthru.tech/services/{slug || "your-service-slug"}</p>
                   <p className="line-clamp-2 text-[11px] text-[#4d5156]">{seoDescription || description || "Your meta description will appear here..."}</p>
                 </div>
               </div>

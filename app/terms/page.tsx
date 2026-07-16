@@ -8,6 +8,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://www.drillthru.tech/terms",
   },
+  openGraph: {
+    title: "Terms of Service | DrillThru",
+    description: "Read the terms and conditions governing the use of DrillThru's website and services.",
+    url: "https://www.drillthru.tech/terms",
+  },
 }
 
 export default function TermsPage() {

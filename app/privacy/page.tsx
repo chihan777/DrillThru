@@ -8,6 +8,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://www.drillthru.tech/privacy",
   },
+  openGraph: {
+    title: "Privacy Policy | DrillThru",
+    description: "Learn how DrillThru collects, uses, and protects your personal information.",
+    url: "https://www.drillthru.tech/privacy",
+  },
 }
 
 export default function PrivacyPage() {

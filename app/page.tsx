@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://www.drillthru.tech",
   },
+  openGraph: {
+    url: "https://www.drillthru.tech",
+  },
 }
 
 export default function HomePage() {
