@@ -70,7 +70,11 @@ export function SanitizedHTML({ html, className = "" }: Props) {
       ALLOW_DATA_ATTR: true,
     })
     // Strip nofollow from all links so link juice passes naturally
-    setClean(sanitized.replace(/rel="nofollow"/gi, '').replace(/rel='nofollow'/gi, ''))
+    setClean(sanitized
+      .replace(/\bnofollow\b\s*/gi, '')
+      .replace(/\s+/g, ' ')
+      .replace(/rel="\s*"/gi, '')
+    )
   }, [html])
 
   return (

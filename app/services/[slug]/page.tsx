@@ -282,7 +282,7 @@ export default async function ServicePage({ params }: PageProps) {
               {service.content.trim().startsWith("<") ? (
                 <SanitizedHTML html={service.content} />
               ) : (
-                <ReactMarkdown>{service.content.replace(/rel="nofollow"/gi, '').replace(/rel='nofollow'/gi, '')}</ReactMarkdown>
+                <ReactMarkdown>{service.content.replace(/\bnofollow\b\s*/gi, '').replace(/\s+/g, ' ')}</ReactMarkdown>
               )}
             </div>
           </div>
