@@ -29,12 +29,21 @@ const ICON_MAP: Record<string, React.ElementType> = {
 
 export const revalidate = 86400
 
-async function getPublishedServices() {
-  return await db
-    .select({ id: servicePages.id, title: servicePages.title, description: servicePages.description, slug: servicePages.slug, icon: servicePages.icon })
-    .from(servicePages)
-    .where(eq(servicePages.published, true))
-    .orderBy(asc(servicePages.order))
+type ServiceRow = { id: number; title: string; description: string; slug: string; icon: string }
+
+const FALLBACK_SERVICES: ServiceRow[] = []
+
+async function getPublishedServices(): Promise<ServiceRow[]> {
+  try {
+    return await db
+      .select({ id: servicePages.id, title: servicePages.title, description: servicePages.description, slug: servicePages.slug, icon: servicePages.icon })
+      .from(servicePages)
+      .where(eq(servicePages.published, true))
+      .orderBy(asc(servicePages.order))
+  } catch (error) {
+    console.warn("⚠️  Database unavailable – using fallback services data")
+    return FALLBACK_SERVICES
+  }
 }
 
 export async function ServicesSection() {
