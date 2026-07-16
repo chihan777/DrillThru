@@ -3,6 +3,7 @@ import Script from 'next/script'
 import { Inter, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { QuickContact } from '@/components/quick-contact'
+import { WhatsAppFloat } from '@/components/whatsapp-float'
 import './globals.css'
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -306,6 +307,7 @@ export default function RootLayout({
           }}
         />
         {children}
+        <WhatsAppFloat />
         <QuickContact />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

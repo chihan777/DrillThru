@@ -3,6 +3,7 @@
 import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
 import { Users, Target, Award, Rocket } from "lucide-react"
+import { SectionEyebrow } from "./section-eyebrow"
 
 const ICON_MAP: Record<string, React.ElementType> = {
   Target, Users, Award, Rocket,
@@ -53,16 +54,14 @@ export function AboutSectionClient({ settings: dbSettings, values, team }: Props
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="mb-16 text-center"
+          className="mb-12 text-center sm:mb-16"
         >
-          <span className="mb-4 inline-block text-sm font-medium uppercase tracking-wider text-[#84cc16]">
-            About Us
-          </span>
-          <h2 className="mx-auto max-w-3xl text-balance text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
+          <SectionEyebrow>About Us</SectionEyebrow>
+          <h2 className="mx-auto max-w-3xl text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
             A team that{" "}
             <span className="gradient-text">{s.heading}</span>
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-pretty text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-2xl text-pretty text-sm text-muted-foreground sm:text-base">
             {s.subtitle}
           </p>
         </motion.div>
@@ -74,9 +73,10 @@ export function AboutSectionClient({ settings: dbSettings, values, team }: Props
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mb-20 grid gap-8 lg:grid-cols-2"
         >
-          <div className="rounded-2xl border border-border bg-card p-8">
-            <h3 className="mb-4 text-2xl font-bold">{s.storyHeading}</h3>
-            <div className="space-y-4 text-muted-foreground">
+          <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-b from-white/[0.05] to-white/[0.01] p-8 shadow-[0_1px_0_0_rgba(255,255,255,0.05)_inset,0_10px_30px_-15px_rgba(0,0,0,0.6)]">
+            <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#84cc16]/10 blur-3xl" />
+            <h3 className="relative mb-4 text-2xl font-bold tracking-tight">{s.storyHeading}</h3>
+            <div className="relative space-y-4 leading-relaxed text-muted-foreground/90">
               {s.storyP1 && <p>{s.storyP1}</p>}
               {s.storyP2 && <p>{s.storyP2}</p>}
               {s.storyP3 && <p>{s.storyP3}</p>}
@@ -92,11 +92,13 @@ export function AboutSectionClient({ settings: dbSettings, values, team }: Props
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={isInView ? { opacity: 1, scale: 1 } : {}}
                   transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
-                  className="rounded-xl border border-border bg-card/50 p-4 transition-colors hover:bg-card"
+                  className="group rounded-xl border border-white/[0.08] bg-gradient-to-b from-white/[0.05] to-white/[0.01] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-[#84cc16]/40 hover:shadow-[0_15px_35px_-20px_rgba(132,204,22,0.4)]"
                 >
-                  <Icon className="mb-2 h-6 w-6 text-[#84cc16]" />
+                  <div className="mb-3 inline-flex rounded-lg border border-[#84cc16]/20 bg-[#84cc16]/10 p-2.5 transition-transform duration-300 group-hover:scale-110">
+                    <Icon className="h-5 w-5 text-[#84cc16]" />
+                  </div>
                   <h4 className="mb-1 font-semibold">{value.title}</h4>
-                  <p className="text-xs text-muted-foreground">{value.description}</p>
+                  <p className="text-xs leading-relaxed text-muted-foreground">{value.description}</p>
                 </motion.div>
               )
             })}
@@ -120,11 +122,11 @@ export function AboutSectionClient({ settings: dbSettings, values, team }: Props
                   transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
                   className="group text-center"
                 >
-                  <div className="relative mx-auto mb-4 h-32 w-32 overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-[#84cc16]/20 to-accent/20">
+                  <div className="relative mx-auto mb-4 h-32 w-32 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#84cc16]/20 to-accent/20 shadow-lg transition-all duration-300 group-hover:-translate-y-1.5 group-hover:border-[#84cc16]/50 group-hover:shadow-[0_20px_40px_-20px_rgba(132,204,22,0.5)]">
                     <img
                       src={normalizeImageSrc(member.image) ?? "/placeholder-user.jpg"}
                       alt={member.name}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       onError={(event) => {
                         const target = event.currentTarget
                         if (target.src !== "/placeholder-user.jpg") {
@@ -132,10 +134,10 @@ export function AboutSectionClient({ settings: dbSettings, values, team }: Props
                         }
                       }}
                     />
-
+                    <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10" />
                   </div>
-                  <h4 className="font-semibold">{member.name}</h4>
-                  <p className="text-sm text-muted-foreground">{member.role}</p>
+                  <h4 className="font-semibold transition-colors duration-300 group-hover:text-[#a3e635]">{member.name}</h4>
+                  <p className="text-sm text-[#84cc16]/80">{member.role}</p>
                   {member.description && (
                     <p className="mt-1 text-xs text-muted-foreground/70">{member.description}</p>
                   )}

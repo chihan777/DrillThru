@@ -3,6 +3,7 @@
 import { motion, useInView } from "framer-motion"
 import { useRef, useState } from "react"
 import { Quote, ChevronLeft, ChevronRight, Star } from "lucide-react"
+import { SectionEyebrow } from "./section-eyebrow"
 
 type Testimonial = {
   id: number
@@ -63,12 +64,10 @@ export function TestimonialsSectionClient({ testimonials: items, settings: dbSet
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="mb-16 text-center"
+          className="mb-12 text-center sm:mb-16"
         >
-          <span className="mb-4 inline-block text-sm font-medium uppercase tracking-wider text-[#84cc16]">
-            Testimonials
-          </span>
-          <h2 className="mx-auto max-w-3xl text-balance text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
+          <SectionEyebrow>Testimonials</SectionEyebrow>
+          <h2 className="mx-auto max-w-3xl text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
             {restWords}{" "}
             <span className="gradient-text">{lastTwoWords}</span>
           </h2>
@@ -82,10 +81,11 @@ export function TestimonialsSectionClient({ testimonials: items, settings: dbSet
           className="relative mx-auto max-w-4xl"
         >
           {/* Quote Icon */}
-          <Quote className="absolute -top-4 left-0 h-16 w-16 text-[#84cc16]/20" />
+          <Quote className="absolute -top-5 left-2 h-16 w-16 fill-[#84cc16]/10 text-[#84cc16]/25" />
 
           {/* Testimonial Content */}
-          <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-8 md:p-12">
+          <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-b from-white/[0.05] to-white/[0.01] p-8 shadow-[0_1px_0_0_rgba(255,255,255,0.05)_inset,0_20px_50px_-25px_rgba(0,0,0,0.7)] md:p-12">
+            <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[#84cc16]/10 blur-3xl" />
             <motion.div
               key={activeIndex}
               initial={{ opacity: 0, x: 50 }}
@@ -131,7 +131,7 @@ export function TestimonialsSectionClient({ testimonials: items, settings: dbSet
           <div className="mt-8 flex items-center justify-center gap-4">
             <button
               onClick={prevTestimonial}
-              className="rounded-full border border-border p-3 transition-colors hover:bg-secondary"
+              className="rounded-full border border-white/10 bg-white/[0.02] p-3 text-muted-foreground transition-all hover:border-[#84cc16]/50 hover:bg-[#84cc16]/10 hover:text-[#a3e635]"
               aria-label="Previous testimonial"
             >
               <ChevronLeft className="h-5 w-5" />
@@ -155,7 +155,7 @@ export function TestimonialsSectionClient({ testimonials: items, settings: dbSet
 
             <button
               onClick={nextTestimonial}
-              className="rounded-full border border-border p-3 transition-colors hover:bg-secondary"
+              className="rounded-full border border-white/10 bg-white/[0.02] p-3 text-muted-foreground transition-all hover:border-[#84cc16]/50 hover:bg-[#84cc16]/10 hover:text-[#a3e635]"
               aria-label="Next testimonial"
             >
               <ChevronRight className="h-5 w-5" />

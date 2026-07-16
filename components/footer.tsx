@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Facebook, Twitter, Linkedin, Instagram } from "lucide-react"
 import { getSiteSettings } from "@/app/actions/settings"
+import { WhatsAppIcon } from "./whatsapp-icon"
 
 const footerLinks = {
   services: [
@@ -32,10 +33,13 @@ export async function Footer() {
     { icon: Twitter, href: settings.twitterUrl, label: "Twitter" },
     { icon: Linkedin, href: settings.linkedinUrl, label: "LinkedIn" },
     { icon: Instagram, href: settings.instagramUrl, label: "Instagram" },
+    { icon: WhatsAppIcon, href: settings.whatsappUrl, label: "WhatsApp" },
   ]
 
   return (
-    <footer className="border-t border-border bg-background">
+    <footer className="relative border-t border-border bg-background">
+      {/* Top accent glow */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#84cc16]/40 to-transparent" />
       <div className="mx-auto max-w-7xl px-6 py-16">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
@@ -55,7 +59,7 @@ export async function Footer() {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-lg bg-secondary p-2 text-muted-foreground transition-colors hover:bg-[#84cc16] hover:text-white"
+                  className="rounded-lg border border-white/[0.08] bg-secondary p-2.5 text-muted-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-[#84cc16] hover:bg-[#84cc16] hover:text-[#0a0a0a] hover:shadow-lg hover:shadow-[#84cc16]/30"
                   aria-label={social.label}
                 >
                   <social.icon className="h-5 w-5" />

@@ -35,7 +35,7 @@ export default async function AdminEnquiriesPage() {
           <Sparkles className="h-5 w-5 text-[#84cc16]" />
           <span className="text-xs font-semibold uppercase tracking-widest text-[#65a30d]">Admin</span>
         </div>
-        <h1 className="admin-heading text-3xl">Enquiries</h1>
+        <h1 className="admin-heading text-2xl sm:text-3xl">Enquiries</h1>
         <p className="admin-muted mt-1">View and manage messages from your website visitors</p>
       </div>
 

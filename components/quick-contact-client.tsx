@@ -59,7 +59,7 @@ export function QuickContactClient({ phone, phoneHref, enquiryNote }: QuickConta
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-[#84cc16] px-5 py-3.5 font-semibold text-white shadow-lg shadow-[#84cc16]/30 transition-all hover:scale-105 hover:bg-[#65a30d] hover:shadow-xl hover:shadow-[#84cc16]/40 active:scale-95"
+            className="fixed bottom-6 left-6 z-50 flex items-center gap-2 rounded-full bg-[#84cc16] px-5 py-3.5 font-semibold text-white shadow-lg shadow-[#84cc16]/30 transition-all hover:scale-105 hover:bg-[#65a30d] hover:shadow-xl hover:shadow-[#84cc16]/40 active:scale-95"
           >
             <MessageCircle className="h-5 w-5" />
             <span className="text-sm">Enquire Now</span>
@@ -86,7 +86,7 @@ export function QuickContactClient({ phone, phoneHref, enquiryNote }: QuickConta
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 100, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="fixed bottom-0 right-0 z-50 w-full max-w-md sm:bottom-6 sm:right-6 sm:rounded-2xl"
+              className="fixed bottom-0 left-0 z-50 w-full max-w-md sm:bottom-6 sm:left-6 sm:rounded-2xl"
             >
               <div className="overflow-hidden rounded-t-2xl border border-border bg-card shadow-2xl sm:rounded-2xl">
                 {/* Header with hotline */}

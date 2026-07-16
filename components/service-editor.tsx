@@ -298,6 +298,7 @@ export function ServiceEditor({ service }: ServiceEditorProps) {
         : await createService(formData)
 
       if (result.success) {
+        setPublished(publish)
         setSuccess(publish ? "Service page published successfully!" : service ? "Service updated!" : "Draft saved!")
         if (!service && "id" in result && result.id) {
           router.push(`/admin/services/${result.id}`)
@@ -312,7 +313,7 @@ export function ServiceEditor({ service }: ServiceEditorProps) {
     } finally {
       setIsSubmitting(false)
     }
-  }, [title, description, content, icon, featuredImage, order, seoTitle, seoDescription, seoKeywords, canonicalUrl, ogImage, twitterCard, robotsMeta, ctaHeading, ctaDescription, ctaButtonText, ctaButtonLink, faqs, testimonials, projects, published, service, router])
+  }, [title, slug, description, content, icon, featuredImage, projectLink, order, seoTitle, seoDescription, seoKeywords, canonicalUrl, ogImage, twitterCard, robotsMeta, ctaHeading, ctaDescription, ctaButtonText, ctaButtonLink, faqs, testimonials, projects, service, router])
 
   return (
     <div className="relative">
@@ -626,18 +627,20 @@ export function ServiceEditor({ service }: ServiceEditorProps) {
               <h3 className="text-sm font-bold text-[#1a2e0a]">Publish Settings</h3>
             </div>
 
-            <label className="mb-4 flex cursor-pointer items-center gap-3 rounded-xl border border-[#e2edcf] bg-gradient-to-r from-[#f7faf3] to-white p-3.5 transition-all hover:border-[#84cc16] hover:shadow-sm">
-              <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} className="h-4 w-4 accent-[#84cc16]" />
+            <div className="mb-4 flex items-center gap-3 rounded-xl border border-[#e2edcf] bg-gradient-to-r from-[#f7faf3] to-white p-3.5">
+              <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${published ? "bg-[#84cc16]/15 text-[#65a30d]" : "bg-amber-500/10 text-amber-600"}`}>
+                {published ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              </div>
               <div>
                 <p className="text-sm font-semibold text-[#1a2e0a]">
                   {published ? "Published" : "Draft"}
                 </p>
                 <p className="text-[11px] text-[#6b7f5e]">
-                  {published ? "Visible on the website" : "Only visible to you"}
+                  {published ? "Live on the website" : "Use “Publish” above to go live"}
                 </p>
               </div>
               <div className={`ml-auto h-3 w-3 rounded-full ${published ? "bg-[#84cc16] shadow-[0_0_8px_rgba(132,204,22,0.4)]" : "bg-[#e2edcf]"}`} />
-            </label>
+            </div>
 
             <div className="space-y-3">
               <div>

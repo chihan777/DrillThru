@@ -52,7 +52,7 @@ export default async function AdminUsersPage() {
           <Sparkles className="h-5 w-5 text-[#84cc16]" />
           <span className="text-xs font-semibold uppercase tracking-widest text-[#65a30d]">Admin</span>
         </div>
-        <h1 className="admin-heading text-3xl">Users & Sessions</h1>
+        <h1 className="admin-heading text-2xl sm:text-3xl">Users & Sessions</h1>
         <p className="admin-muted mt-1">View registered users, active sessions, and login history</p>
       </div>
 
@@ -102,25 +102,25 @@ export default async function AdminUsersPage() {
         </div>
         <div className="divide-y divide-[#e2edcf]">
           {users.map((u) => (
-            <div key={u.id} className="flex items-center justify-between px-6 py-3 transition-colors hover:bg-[#84cc16]/[0.04]">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#84cc16]/15 text-xs font-bold text-[#65a30d]">
+            <div key={u.id} className="flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[#84cc16]/[0.04] sm:px-6">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#84cc16]/15 text-xs font-bold text-[#65a30d]">
                   {u.name.charAt(0).toUpperCase()}
                 </div>
-                <div>
+                <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-[#1a2e0a]">{u.name}</p>
+                    <p className="truncate text-sm font-medium text-[#1a2e0a]">{u.name}</p>
                     {activeUserIds.has(u.id) && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                         Online
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-[#6b7f5e]">{u.email}</p>
+                  <p className="truncate text-xs text-[#6b7f5e]">{u.email}</p>
                 </div>
               </div>
-              <div className="text-right">
+              <div className="shrink-0 text-right">
                 <div className="flex items-center gap-1 text-xs text-[#8fa37d]">
                   {u.emailVerified ? (
                     <><CheckCircle2 className="h-3 w-3 text-emerald-500" /> Verified</>
@@ -156,23 +156,23 @@ export default async function AdminUsersPage() {
             {loginHistoryData.map((login) => {
               const { browser, device } = parseUserAgent(login.userAgent)
               return (
-                <div key={login.id} className="flex items-center justify-between px-6 py-3 transition-colors hover:bg-[#84cc16]/[0.04]">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500/10 text-blue-600">
+                <div key={login.id} className="flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[#84cc16]/[0.04] sm:px-6">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-600">
                       {device === "Mobile" ? <Smartphone className="h-4 w-4" /> : <Monitor className="h-4 w-4" />}
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-[#1a2e0a]">{login.userName}</p>
-                      <div className="mt-0.5 flex items-center gap-3 text-xs text-[#6b7f5e]">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-[#1a2e0a]">{login.userName}</p>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-[#6b7f5e]">
                         <span className="flex items-center gap-1"><Globe className="h-3 w-3" />{browser}</span>
                         <span>{device}</span>
                         {login.ipAddress && login.ipAddress !== "unknown" && <span>{login.ipAddress}</span>}
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="shrink-0 text-right">
                     <p className="text-xs text-[#8fa37d]">{timeAgo(login.loginTime)}</p>
-                    <p className="text-[11px] text-[#8fa37d]">{login.userEmail}</p>
+                    <p className="max-w-[120px] truncate text-[11px] text-[#8fa37d]">{login.userEmail}</p>
                   </div>
                 </div>
               )

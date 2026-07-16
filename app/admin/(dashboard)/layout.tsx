@@ -21,8 +21,8 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
 
         <AdminSidebar user={{ name: session.user.name, email: session.user.email }} />
 
-        <main className="relative z-10 pl-64">
-          <div className="p-8">{children}</div>
+        <main className="relative z-10 pt-16 lg:pt-0 lg:pl-64">
+          <div className="p-4 sm:p-6 lg:p-8">{children}</div>
         </main>
       </div>
     </AuthGuard>

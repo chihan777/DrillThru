@@ -22,7 +22,7 @@ export default async function AdminAboutPage() {
           <Sparkles className="h-5 w-5 text-[#84cc16]" />
           <span className="text-xs font-semibold uppercase tracking-widest text-[#65a30d]">Admin</span>
         </div>
-        <h1 className="admin-heading text-3xl">About Section</h1>
+        <h1 className="admin-heading text-2xl sm:text-3xl">About Section</h1>
         <p className="admin-muted mt-1">Manage your about page content — text, values, team members, and testimonials</p>
       </div>
       <AdminAboutForm settings={settings} values={values} team={team} testimonials={testimonials} />

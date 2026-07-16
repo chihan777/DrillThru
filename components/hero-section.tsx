@@ -84,7 +84,7 @@ export function HeroSection() {
           <Button
             asChild
             size="lg"
-            className="group bg-[#1a1a1a] px-8 text-white hover:bg-black hover:shadow-lg hover:shadow-[#84cc16]/20"
+            className="group bg-[#84cc16] px-8 font-semibold text-[#0a0a0a] shadow-lg shadow-[#84cc16]/25 transition-all hover:bg-[#a3e635] hover:shadow-xl hover:shadow-[#84cc16]/40"
           >
             <Link href="#contact">
               Start Your Project
@@ -95,7 +95,7 @@ export function HeroSection() {
             asChild
             variant="outline"
             size="lg"
-            className="border-border px-8 hover:border-[#84cc16] hover:bg-[#84cc16]/5"
+            className="border-white/15 bg-white/[0.02] px-8 backdrop-blur-sm transition-all hover:border-[#84cc16]/60 hover:bg-[#84cc16]/10"
           >
             <Link href="#work">View Our Work</Link>
           </Button>
@@ -106,7 +106,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.7 }}
-          className="mt-20 grid grid-cols-2 gap-8 sm:grid-cols-4"
+          className="mt-16 grid w-full max-w-3xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm sm:mt-20 sm:grid-cols-4"
         >
           {[
             { value: "50+", label: "Projects Delivered" },
@@ -114,11 +114,11 @@ export function HeroSection() {
             { value: "3x", label: "Average ROI" },
             { value: "24/7", label: "Support" },
           ].map((stat, index) => (
-            <div key={index} className="text-center">
+            <div key={index} className="bg-background/40 px-4 py-5 text-center transition-colors hover:bg-[#84cc16]/[0.06]">
               <div className="text-3xl font-bold text-[#84cc16] md:text-4xl">
                 {stat.value}
               </div>
-              <div className="mt-1 text-sm text-muted-foreground">
+              <div className="mt-1 text-xs text-muted-foreground sm:text-sm">
                 {stat.label}
               </div>
             </div>

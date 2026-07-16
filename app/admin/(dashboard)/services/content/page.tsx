@@ -74,7 +74,7 @@ export default function ServiceContentEditor() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <button onClick={() => router.back()} className="mb-2 flex items-center gap-1 text-sm text-[#6b7f5e] hover:text-[#84cc16] transition-colors">
             <ArrowLeft className="h-4 w-4" /> Back
@@ -82,7 +82,7 @@ export default function ServiceContentEditor() {
           <h1 className="text-2xl font-bold text-[#1a2e0a]">Page Content Editor</h1>
           <p className="mt-1 text-sm text-[#6b7f5e]">Edit the main body content of the Services page</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {lastSaved && (
             <span className="flex items-center gap-1.5 text-xs text-[#6b7f5e]">
               <Clock className="h-3.5 w-3.5" /> Last saved: {lastSaved}

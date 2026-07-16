@@ -17,7 +17,7 @@ export default async function AdminSettingsPage() {
           <Sparkles className="h-5 w-5 text-[#84cc16]" />
           <span className="text-xs font-semibold uppercase tracking-widest text-[#65a30d]">Admin</span>
         </div>
-        <h1 className="admin-heading text-3xl">Site Settings</h1>
+        <h1 className="admin-heading text-2xl sm:text-3xl">Site Settings</h1>
         <p className="admin-muted mt-1">Manage contact information, footer content, and quick enquiry settings</p>
       </div>
       <AdminSettingsForm settings={settings} />

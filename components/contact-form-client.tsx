@@ -40,7 +40,7 @@ export function ContactFormClient() {
       initial={{ opacity: 0, x: -50 }}
       animate={isInView ? { opacity: 1, x: 0 } : {}}
       transition={{ duration: 0.6, delay: 0.2 }}
-      className="rounded-2xl border border-border bg-card p-8"
+      className="rounded-2xl border border-white/[0.08] bg-gradient-to-b from-white/[0.05] to-white/[0.01] p-6 shadow-[0_1px_0_0_rgba(255,255,255,0.05)_inset,0_20px_50px_-25px_rgba(0,0,0,0.7)] sm:p-8"
     >
       {isSubmitted ? (
         <div className="flex min-h-[400px] flex-col items-center justify-center text-center">
@@ -105,7 +105,7 @@ export function ContactFormClient() {
           <Button
             type="submit"
             size="lg"
-            className="w-full bg-[#84cc16] text-[#84cc16]-foreground hover:bg-[#84cc16]/90"
+            className="group w-full bg-[#84cc16] font-semibold text-[#0a0a0a] shadow-lg shadow-[#84cc16]/20 transition-all hover:bg-[#a3e635] hover:shadow-[#84cc16]/40"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
@@ -113,7 +113,7 @@ export function ContactFormClient() {
             ) : (
               <>
                 Send Message
-                <Send className="ml-2 h-4 w-4" />
+                <Send className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </>
             )}
           </Button>

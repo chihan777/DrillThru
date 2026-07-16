@@ -1,6 +1,7 @@
 import { Mail, Phone, MapPin } from "lucide-react"
 import { getSiteSettings } from "@/app/actions/settings"
 import { ContactFormClient } from "./contact-form-client"
+import { SectionEyebrow } from "./section-eyebrow"
 
 export async function ContactSection() {
   const settings = await getSiteSettings()
@@ -13,16 +14,14 @@ export async function ContactSection() {
 
       <div className="relative mx-auto max-w-7xl px-6">
         {/* Section Header */}
-        <div className="mb-16 text-center">
-          <span className="mb-4 inline-block text-sm font-medium uppercase tracking-wider text-[#84cc16]">
-            Get in Touch
-          </span>
-          <h2 className="mx-auto max-w-3xl text-balance text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
+        <div className="mb-12 text-center sm:mb-16">
+          <SectionEyebrow>Get in Touch</SectionEyebrow>
+          <h2 className="mx-auto max-w-3xl text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
             Ready to{" "}
             <span className="gradient-text">drill through</span>?
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-pretty text-muted-foreground">
-            Let&apos;s discuss how we can help transform your digital presence. 
+          <p className="mx-auto mt-4 max-w-2xl text-pretty text-sm text-muted-foreground sm:text-base">
+            Let&apos;s discuss how we can help transform your digital presence.
             Drop us a message and we&apos;ll get back to you within 24 hours.
           </p>
         </div>
@@ -37,7 +36,7 @@ export async function ContactSection() {
               <h3 className="mb-6 text-2xl font-bold">Contact Information</h3>
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
-                  <div className="rounded-lg bg-[#84cc16]/10 p-3">
+                  <div className="rounded-xl border border-[#84cc16]/20 bg-[#84cc16]/10 p-3">
                     <Mail className="h-5 w-5 text-[#84cc16]" />
                   </div>
                   <div>
@@ -52,7 +51,7 @@ export async function ContactSection() {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="rounded-lg bg-[#84cc16]/10 p-3">
+                  <div className="rounded-xl border border-[#84cc16]/20 bg-[#84cc16]/10 p-3">
                     <Phone className="h-5 w-5 text-[#84cc16]" />
                   </div>
                   <div>
@@ -67,7 +66,7 @@ export async function ContactSection() {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="rounded-lg bg-[#84cc16]/10 p-3">
+                  <div className="rounded-xl border border-[#84cc16]/20 bg-[#84cc16]/10 p-3">
                     <MapPin className="h-5 w-5 text-[#84cc16]" />
                   </div>
                   <div>
@@ -82,7 +81,7 @@ export async function ContactSection() {
             </div>
 
             {/* Business Hours */}
-            <div className="rounded-xl border border-border bg-card/50 p-6">
+            <div className="rounded-xl border border-white/[0.08] bg-gradient-to-b from-white/[0.05] to-white/[0.01] p-6 shadow-[0_1px_0_0_rgba(255,255,255,0.05)_inset]">
               <h4 className="mb-4 font-semibold">Business Hours</h4>
               <div className="space-y-2 text-sm text-muted-foreground">
                 <div className="flex justify-between">

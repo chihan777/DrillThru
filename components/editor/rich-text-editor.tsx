@@ -535,10 +535,10 @@ export function RichTextEditor({ content, onChange, onSave, saving }: Props) {
           />
         </div>
       ) : (
-        <div className="border border-[#374151] border-t-0 rounded-b-xl overflow-auto bg-[#111827] text-white">
+        <div className="border border-[#e2edcf] border-t-0 rounded-b-xl overflow-auto bg-white">
           <EditorContent
             editor={editor}
-            className="text-white prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-white prose-p:text-white prose-a:text-[#84cc16] prose-strong:text-white prose-code:text-[#86efac] prose-pre:bg-[#1f2937] prose-pre:border prose-pre:border-[#4b5563]"
+            className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-[#1a2e0a] prose-p:text-[#334155] prose-li:text-[#334155] prose-a:text-[#65a30d] prose-strong:text-[#1a2e0a] prose-code:text-[#65a30d] prose-blockquote:border-l-[#84cc16] prose-blockquote:text-[#4a5a3c] prose-pre:bg-[#0f172a] prose-pre:text-[#e5e7eb]"
           />
         </div>
       )}

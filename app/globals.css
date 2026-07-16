@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -11,19 +12,19 @@
   --card-foreground: oklch(0.98 0 0);
   --popover: oklch(0.12 0.01 260);
   --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.65 0.22 250);
-  --primary-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.77 0.19 130);
+  --primary-foreground: oklch(0.22 0.03 130);
   --secondary: oklch(0.18 0.02 260);
   --secondary-foreground: oklch(0.98 0 0);
   --muted: oklch(0.18 0.02 260);
   --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.65 0.22 250);
-  --accent-foreground: oklch(0.98 0 0);
+  --accent: oklch(0.77 0.19 130);
+  --accent-foreground: oklch(0.22 0.03 130);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.98 0 0);
   --border: oklch(0.25 0.02 260);
   --input: oklch(0.18 0.02 260);
-  --ring: oklch(0.65 0.22 250);
+  --ring: oklch(0.77 0.19 130);
   --chart-1: oklch(0.65 0.22 250);
   --chart-2: oklch(0.6 0.18 200);
   --chart-3: oklch(0.55 0.15 280);
@@ -32,12 +33,12 @@
   --radius: 0.5rem;
   --sidebar: oklch(0.1 0.01 260);
   --sidebar-foreground: oklch(0.98 0 0);
-  --sidebar-primary: oklch(0.65 0.22 250);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-primary: oklch(0.77 0.19 130);
+  --sidebar-primary-foreground: oklch(0.22 0.03 130);
   --sidebar-accent: oklch(0.18 0.02 260);
   --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(0.25 0.02 260);
-  --sidebar-ring: oklch(0.65 0.22 250);
+  --sidebar-ring: oklch(0.77 0.19 130);
   /* Admin green accent */
   --admin-green: #84cc16;
   --admin-green-light: #a3e635;
@@ -55,19 +56,19 @@
   --card-foreground: oklch(0.98 0 0);
   --popover: oklch(0.12 0.01 260);
   --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.65 0.22 250);
-  --primary-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.77 0.19 130);
+  --primary-foreground: oklch(0.22 0.03 130);
   --secondary: oklch(0.18 0.02 260);
   --secondary-foreground: oklch(0.98 0 0);
   --muted: oklch(0.18 0.02 260);
   --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.65 0.22 250);
-  --accent-foreground: oklch(0.98 0 0);
+  --accent: oklch(0.77 0.19 130);
+  --accent-foreground: oklch(0.22 0.03 130);
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
   --border: oklch(0.25 0.02 260);
   --input: oklch(0.18 0.02 260);
-  --ring: oklch(0.65 0.22 250);
+  --ring: oklch(0.77 0.19 130);
   --chart-1: oklch(0.65 0.22 250);
   --chart-2: oklch(0.6 0.18 200);
   --chart-3: oklch(0.55 0.15 280);
@@ -75,12 +76,12 @@
   --chart-5: oklch(0.5 0.18 300);
   --sidebar: oklch(0.1 0.01 260);
   --sidebar-foreground: oklch(0.98 0 0);
-  --sidebar-primary: oklch(0.65 0.22 250);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-primary: oklch(0.77 0.19 130);
+  --sidebar-primary-foreground: oklch(0.22 0.03 130);
   --sidebar-accent: oklch(0.18 0.02 260);
   --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(0.25 0.02 260);
-  --sidebar-ring: oklch(0.65 0.22 250);
+  --sidebar-ring: oklch(0.77 0.19 130);
 }
 
 @theme inline {
@@ -386,6 +387,86 @@
   background: radial-gradient(circle, rgba(163, 230, 53, 0.2) 0%, transparent 70%);
   pointer-events: none;
   filter: blur(60px);
+}
+
+/* ── Service article content ─────────────────────────────────────────── */
+/* Accent-barred headings */
+.service-article h2 {
+  position: relative;
+  padding-left: 1.1rem;
+}
+.service-article h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.28em;
+  bottom: 0.18em;
+  width: 4px;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #a3e635 0%, #65a30d 100%);
+  box-shadow: 0 0 12px rgba(132, 204, 22, 0.4);
+}
+
+/* Bullet lists become stacked item cards */
+.service-article ul {
+  list-style: none;
+  padding-left: 0;
+}
+.service-article ul > li {
+  position: relative;
+  margin: 0 0 0.75rem;
+  padding: 0.8rem 1.1rem 0.8rem 2.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 0.85rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.008));
+  transition: border-color 0.25s, transform 0.25s;
+}
+.service-article ul > li:hover {
+  border-color: rgba(132, 204, 22, 0.35);
+  transform: translateX(4px);
+}
+.service-article ul > li::before {
+  content: '';
+  position: absolute;
+  left: 1.05rem;
+  top: 1.35rem;
+  height: 0.45rem;
+  width: 0.45rem;
+  border-radius: 9999px;
+  background: #84cc16;
+  box-shadow: 0 0 8px rgba(132, 204, 22, 0.6);
+}
+.service-article ul > li::marker {
+  content: '';
+}
+
+/* Ordered lists get numbered chips */
+.service-article ol {
+  list-style: none;
+  padding-left: 0;
+  counter-reset: svc-ol;
+}
+.service-article ol > li {
+  position: relative;
+  counter-increment: svc-ol;
+  margin: 0 0 0.75rem;
+  padding: 0.8rem 1.1rem 0.8rem 3.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 0.85rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.008));
+}
+.service-article ol > li::before {
+  content: counter(svc-ol, decimal-leading-zero);
+  position: absolute;
+  left: 1.05rem;
+  top: 0.95rem;
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #a3e635;
+}
+.service-article ol > li::marker {
+  content: '';
 }
 
 /* Green selection */

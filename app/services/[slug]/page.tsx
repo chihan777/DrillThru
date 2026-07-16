@@ -3,8 +3,16 @@ import { notFound } from "next/navigation"
 import {
   ArrowLeft, ChevronRight, Star, ArrowRight, Home, Quote,
   Sparkles, MessageCircle, HelpCircle, Rocket, CheckCircle2,
+  Globe, Search, Megaphone, Target, Palette, BarChart3, Zap, MousePointerClick,
+  Code, Smartphone, ShoppingCart, Mail, Camera, Video, Pen, TrendingUp,
 } from "lucide-react"
 import { Navigation } from "@/components/navigation"
+import { SectionEyebrow } from "@/components/section-eyebrow"
+
+const ICON_MAP: Record<string, React.ElementType> = {
+  Globe, Search, Megaphone, Target, Palette, BarChart3, Zap, MousePointerClick,
+  Code, Smartphone, ShoppingCart, Mail, Camera, Video, Pen, TrendingUp,
+}
 import { db } from "@/lib/db"
 import { servicePages, serviceFaqs, serviceTestimonials, serviceProjects, siteSettings } from "@/lib/db/schema"
 import { eq, and, asc } from "drizzle-orm"
@@ -160,7 +168,7 @@ export default async function ServicePage({ params }: PageProps) {
             <div className="absolute -bottom-20 -left-20 h-[400px] w-[400px] rounded-full bg-[#84cc16]/3 blur-[100px]" />
           </div>
 
-          <div className="relative mx-auto max-w-5xl px-6">
+          <div className="relative mx-auto max-w-6xl px-6">
             {/* Breadcrumb */}
             <nav className="mb-8 flex items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">
               <Link href="/" className="flex items-center gap-1 transition-colors hover:text-[#84cc16]">
@@ -169,41 +177,73 @@ export default async function ServicePage({ params }: PageProps) {
               <ChevronRight className="h-3 w-3" />
               <Link href="/#services" className="transition-colors hover:text-[#84cc16]">Services</Link>
               <ChevronRight className="h-3 w-3" />
-              <span className="text-foreground">{service.title}</span>
+              <span className="max-w-[50vw] truncate text-foreground sm:max-w-none">{service.title}</span>
             </nav>
 
-            {/* Badge */}
-            <div className="mb-6 flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#84cc16]/10">
-                <Sparkles className="h-4 w-4 text-[#84cc16]" />
+            <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+              {/* Text column */}
+              <div>
+                <SectionEyebrow>Our Service</SectionEyebrow>
+
+                <h1 className="mb-5 text-balance text-4xl font-bold leading-[1.05] tracking-tight md:text-5xl lg:text-6xl">
+                  <span className="gradient-text">{service.title}</span>
+                </h1>
+
+                <p className="max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground md:text-xl">
+                  {service.description}
+                </p>
+
+                <div className="mt-8 flex flex-wrap items-center gap-3">
+                  <Link
+                    href="#contact"
+                    className="group inline-flex items-center gap-2 rounded-xl bg-[#84cc16] px-6 py-3 font-semibold text-[#0a0a0a] shadow-lg shadow-[#84cc16]/20 transition-all hover:bg-[#a3e635] hover:shadow-xl hover:shadow-[#84cc16]/30"
+                  >
+                    Get a Free Quote
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                  <Link
+                    href="/#services"
+                    className="group inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/[0.02] px-5 py-3 text-sm text-muted-foreground transition-all hover:border-[#84cc16]/50 hover:text-foreground"
+                  >
+                    <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                    All Services
+                  </Link>
+                </div>
               </div>
-              <span className="text-xs font-semibold uppercase tracking-widest text-[#84cc16]">Our Service</span>
-            </div>
 
-            {/* Title */}
-            <h1 className="mb-6 text-balance text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-              <span className="gradient-text">{service.title}</span>
-            </h1>
-
-            {/* Description */}
-            <p className="mx-auto max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground md:text-xl">
-              {service.description}
-            </p>
-
-            {/* Back link */}
-            <div className="mt-8">
-              <Link href="/#services" className="group inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground transition-all hover:border-[#84cc16]/50 hover:text-foreground">
-                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                Back to Services
-              </Link>
+              {/* Visual column */}
+              <div className="relative mx-auto w-full max-w-md lg:mx-0">
+                <div className="pointer-events-none absolute -inset-4 rounded-[2rem] bg-[#84cc16]/10 blur-3xl" />
+                <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#84cc16]/15 via-card to-[#84cc16]/[0.03] shadow-2xl">
+                  <div className="grid-pattern absolute inset-0 opacity-20" aria-hidden />
+                  {service.featuredImage ? (
+                    <img
+                      src={service.featuredImage.startsWith("http") || service.featuredImage.startsWith("data:") || service.featuredImage.startsWith("/") ? service.featuredImage : `/${service.featuredImage}`}
+                      alt={service.title}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      {(() => {
+                        const Icon = ICON_MAP[service.icon] || Sparkles
+                        return (
+                          <div className="flex h-28 w-28 items-center justify-center rounded-3xl border border-[#84cc16]/20 bg-[#84cc16]/10 text-[#84cc16] shadow-lg shadow-[#84cc16]/10 backdrop-blur-sm">
+                            <Icon className="h-14 w-14" />
+                          </div>
+                        )
+                      })()}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
         {/* ── Content Section ── */}
         <section className="relative border-t border-border">
-          <div className="mx-auto max-w-4xl px-6 py-12 md:py-16">
-            <div className="prose prose-invert prose-lg mx-auto max-w-none text-left prose-headings:font-bold prose-headings:tracking-tight prose-h2:mt-16 prose-h2:text-2xl prose-h2:md:text-3xl prose-h3:text-xl prose-p:text-muted-foreground prose-p:leading-8 prose-ul:pl-6 prose-li:mb-4 prose-a:text-[#84cc16] prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-code:text-[#84cc16] prose-pre:bg-card prose-pre:border prose-pre:border-border prose-blockquote:border-l prose-blockquote:border-[#84cc16]/30 prose-blockquote:bg-[#111827]/80 prose-blockquote:px-6 prose-blockquote:py-4">
+          <div className="mx-auto max-w-3xl px-6 py-14 md:py-20">
+            <div className="service-article prose prose-invert prose-lg mx-auto max-w-none text-left prose-headings:font-bold prose-headings:tracking-tight prose-h2:mt-14 prose-h2:mb-5 prose-h2:text-2xl prose-h2:md:text-3xl prose-h3:mt-10 prose-h3:text-xl prose-p:text-[15px] prose-p:leading-8 prose-p:text-muted-foreground md:prose-p:text-base prose-a:text-[#84cc16] prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-code:text-[#84cc16] prose-pre:bg-card prose-pre:border prose-pre:border-border prose-blockquote:border-l-2 prose-blockquote:border-[#84cc16]/40 prose-blockquote:bg-[#111827]/80 prose-blockquote:px-6 prose-blockquote:py-4 prose-img:rounded-2xl prose-img:border prose-img:border-border">
               {service.content.trim().startsWith("<") ? (
                 <SanitizedHTML html={service.content} />
               ) : (
@@ -213,31 +253,7 @@ export default async function ServicePage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* ── Service Highlights Section ── */}
-        {service.features && service.features.length > 0 && (
-          <section className="relative border-t border-border py-14 md:py-16">
-            <div className="mx-auto max-w-5xl px-6">
-              <div className="mb-12 text-center">
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#84cc16]/20 bg-[#84cc16]/5 px-4 py-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-[#84cc16]" />
-                  <span className="text-xs font-semibold uppercase tracking-widest text-[#84cc16]">Service Benefits</span>
-                </div>
-                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">What You Get</h2>
-                <p className="mt-3 text-muted-foreground">The core advantages included with this service.</p>
-              </div>
-              <div className="grid gap-6 sm:grid-cols-2">
-                {service.features.map((feature, idx) => (
-                  <div key={idx} className="rounded-3xl border border-[#84cc16]/10 bg-[#111827] p-6 shadow-sm shadow-[#84cc16]/5">
-                    <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[#84cc16]/10 text-[#84cc16]">
-                      <CheckCircle2 className="h-5 w-5" />
-                    </div>
-                    <p className="text-lg font-semibold">{feature}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
+
 
         {/* ── FAQs Section ── */}
         {service.faqs.length > 0 && (
