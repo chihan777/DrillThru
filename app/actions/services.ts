@@ -5,7 +5,7 @@ import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { servicePages, serviceFaqs, serviceTestimonials, serviceProjects } from "@/lib/db/schema"
-import { eq, asc, desc } from "drizzle-orm"
+import { eq, and, asc, desc } from "drizzle-orm"
 import { logActivity } from "@/app/actions/audit"
 
 async function getUserId() {
@@ -233,11 +233,27 @@ export async function updateService(id: number, formData: FormData) {
 
   try {
     const newSlug = formData.get("slug") as string | null
+    let slugToSet: string | undefined
+    if (newSlug) {
+      const existingSlugs = await db
+        .select({ slug: servicePages.slug })
+        .from(servicePages)
+        .where(and(eq(servicePages.slug, newSlug), eq(servicePages.id, id)))
+      if (existingSlugs.length === 0) {
+        const conflict = await db
+          .select({ slug: servicePages.slug })
+          .from(servicePages)
+          .where(eq(servicePages.slug, newSlug))
+        slugToSet = conflict.length > 0 ? `${newSlug}-${Date.now()}` : newSlug
+      } else {
+        slugToSet = newSlug
+      }
+    }
     await db
       .update(servicePages)
       .set({
         title,
-        ...(newSlug ? { slug: newSlug } : {}),
+        ...(slugToSet ? { slug: slugToSet } : {}),
         description,
         content,
         icon,
@@ -325,8 +341,8 @@ export async function updateService(id: number, formData: FormData) {
 
     return { success: true }
   } catch (error) {
-    console.error("Update service error:", error)
-    return { success: false, error: "Failed to update service." }
+    console.error("Update service error:", error instanceof Error ? error.message : error)
+    return { success: false, error: `Failed to update service: ${error instanceof Error ? error.message : "Unknown error"}` }
   }
 }
 
