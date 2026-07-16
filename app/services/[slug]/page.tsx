@@ -20,6 +20,7 @@ import type { Metadata } from "next"
 import { applyWordReplacements } from "@/lib/word-replacements"
 import ReactMarkdown from "react-markdown"
 import { SanitizedHTML } from "@/components/editor/sanitized-html"
+import { findStaticServiceBySlug, serviceCards } from "@/lib/service-data"
 
 export const revalidate = 86400 // 24 hours
 export const dynamic = "force-dynamic" // prevent build-time DB reads
@@ -27,7 +28,7 @@ export const dynamicParams = true // allow on-demand generation for newly publis
 
 // Avoid querying the DB during `next build` when DATABASE_URL is not configured.
 export async function generateStaticParams() {
-  return []
+  return serviceCards.map((s) => ({ slug: s.slug }))
 }
 
 interface PageProps {
@@ -44,7 +45,41 @@ async function getService(slug: string) {
       .where(and(eq(servicePages.slug, slug), eq(servicePages.published, true)))
       .limit(1)
 
-    if (!rows[0]) return null
+    if (!rows[0]) {
+      // Fallback to static service data
+      const staticService = findStaticServiceBySlug(slug)
+      if (!staticService) return null
+
+      return {
+        id: 0,
+        userId: "",
+        title: staticService.title,
+        slug: staticService.slug,
+        description: staticService.description,
+        featuredImage: null,
+        projectLink: null,
+        content: staticService.pageContent,
+        icon: "Globe",
+        seoTitle: null,
+        seoDescription: null,
+        seoKeywords: null,
+        canonicalUrl: null,
+        ogImage: null,
+        twitterCard: "summary_large_image",
+        robotsMeta: "index,follow",
+        ctaHeading: staticService.ctaHeading || null,
+        ctaDescription: staticService.ctaDescription || null,
+        ctaButtonText: staticService.ctaButtonText || "Get Started",
+        ctaButtonLink: staticService.ctaButtonLink || "#contact",
+        published: true,
+        order: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        faqs: (staticService.faqs || []).map((f, i) => ({ id: i, serviceId: 0, question: f.question, answer: f.answer, order: i })),
+        testimonials: (staticService.testimonials || []).map((t, i) => ({ id: i, serviceId: 0, name: t.name, role: t.role, company: t.company || null, content: t.content, rating: t.rating, order: i })),
+        projects: (staticService.projects || []).map((p, i) => ({ id: i, serviceId: 0, title: p.title, description: p.description || null, image: p.image || null, link: p.link || null, order: i })),
+      }
+    }
 
     const [faqs, testimonials, projects, settingsRows] = await Promise.all([
       db.select().from(serviceFaqs).where(eq(serviceFaqs.serviceId, rows[0].id)).orderBy(asc(serviceFaqs.order)),
