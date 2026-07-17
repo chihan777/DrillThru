@@ -1,19 +1,7 @@
-import { redirect } from "next/navigation"
-import { headers } from "next/headers"
-import { auth } from "@/lib/auth"
-import { AuthForm } from "@/components/auth-form"
+import { notFound } from "next/navigation"
 
-export const metadata = {
-  title: "Create Admin Account | DrillThru",
-  description: "Create an admin account for the DrillThru blog",
-}
-
-export default async function AdminSignUpPage() {
-  const session = await auth.api.getSession({ headers: await headers() })
-  
-  if (session?.user) {
-    redirect("/admin")
-  }
-
-  return <AuthForm mode="sign-up" />
+// Public registration is disabled (see lib/auth.ts disableSignUp) and the
+// login moved to a non-obvious path. This URL intentionally 404s.
+export default function OldAdminSignUpPage() {
+  notFound()
 }

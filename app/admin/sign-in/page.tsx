@@ -1,19 +1,7 @@
-import { redirect } from "next/navigation"
-import { headers } from "next/headers"
-import { auth } from "@/lib/auth"
-import { AuthForm } from "@/components/auth-form"
+import { notFound } from "next/navigation"
 
-export const metadata = {
-  title: "Admin Sign In | DrillThru",
-  description: "Sign in to the DrillThru admin panel",
-}
-
-export default async function AdminSignInPage() {
-  const session = await auth.api.getSession({ headers: await headers() })
-  
-  if (session?.user) {
-    redirect("/admin")
-  }
-
-  return <AuthForm mode="sign-in" />
+// The admin login moved to a non-obvious path (/louda/sign-in).
+// This old URL 404s so it doesn't leak the new location.
+export default function OldAdminSignInPage() {
+  notFound()
 }

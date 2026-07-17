@@ -19,10 +19,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
+    // Only allow real image types — the extension comes from the MIME type,
+    // never from the user-supplied filename (blocks .html/.svg/etc. uploads).
+    const ALLOWED: Record<string, string> = {
+      "image/jpeg": "jpg",
+      "image/png": "png",
+      "image/webp": "webp",
+      "image/gif": "gif",
+      "image/avif": "avif",
+    }
+    const ext = ALLOWED[file.type]
+    if (!ext) {
+      return NextResponse.json({ error: "Only JPEG, PNG, WebP, GIF, or AVIF images are allowed" }, { status: 415 })
+    }
+
+    const MAX_BYTES = 8 * 1024 * 1024 // 8 MB
+    if (file.size > MAX_BYTES) {
+      return NextResponse.json({ error: "File too large (max 8 MB)" }, { status: 413 })
+    }
+
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    const ext = file.name.split(".").pop() || "jpg"
     const filename = `${randomUUID()}.${ext}`
     const uploadDir = join(process.cwd(), "public", "uploads")
     await mkdir(uploadDir, { recursive: true })

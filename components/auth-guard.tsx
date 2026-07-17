@@ -10,7 +10,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     authClient.getSession().then((session) => {
       if (!session.data) {
-        router.replace("/admin/sign-in")
+        router.replace("/louda/sign-in")
       }
     })
   }, [router])

@@ -128,15 +128,6 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            {isSignUp ? 'Already have an account? ' : "Don't have an account? "}
-            <Link
-              href={isSignUp ? '/admin/sign-in' : '/admin/sign-up'}
-              className="font-medium text-primary hover:underline"
-            >
-              {isSignUp ? 'Sign in' : 'Sign up'}
-            </Link>
-          </p>
         </div>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">

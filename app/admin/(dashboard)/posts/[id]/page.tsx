@@ -1,4 +1,4 @@
-import { redirect, notFound } from "next/navigation"
+import { notFound } from "next/navigation"
 import { headers } from "next/headers"
 import Link from "next/link"
 import { auth } from "@/lib/auth"
@@ -38,7 +38,7 @@ export default async function EditPostPage({ params }: PageProps) {
   const session = await auth.api.getSession({ headers: await headers() })
 
   if (!session?.user) {
-    redirect("/admin/sign-in")
+    notFound()
   }
 
   const { id } = await params

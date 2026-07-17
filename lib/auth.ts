@@ -9,10 +9,9 @@ const getAuthSecret = (): string => {
   }
 
   if (process.env.NODE_ENV === 'production') {
-    console.warn(
-      '⚠️ Missing BETTER_AUTH_SECRET in production. Using a fallback secret to allow deployment. Set BETTER_AUTH_SECRET in your Vercel environment for a secure production build.'
-    )
-    return 'fallback-production-better-auth-secret-do-not-use-in-production'
+    // Never fall back to a hardcoded secret in production — sessions signed
+    // with a known secret can be forged by anyone who reads the repo.
+    throw new Error('BETTER_AUTH_SECRET must be set in production.')
   }
 
   const generated = randomBytes(32).toString('base64')
@@ -35,6 +34,9 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
+    // Registration is closed — the admin panel is invite-only. Re-enable
+    // temporarily (or insert via DB) when a new admin account is needed.
+    disableSignUp: true,
   },
   trustedOrigins: [
     'http://localhost:3000',
