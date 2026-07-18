@@ -19,8 +19,9 @@ const isLocal = (connStr: string): boolean => {
 
 // Create pool with graceful fallback if DATABASE_URL is missing
 const poolConfig: import('pg').PoolConfig = {
-  connectionTimeoutMillis: 5000,
-  idleTimeoutMillis: 5000,
+  connectionTimeoutMillis: 15000,
+  idleTimeoutMillis: 10000,
+  max: 5,
 }
 
 if (connectionString) {
