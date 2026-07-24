@@ -17,13 +17,16 @@ export async function WorkSection() {
   let settingsRows: { key: string; value: string }[] = []
 
   try {
-    ;[projectRows, settingsRows] = await Promise.all([
-      db.select().from(projects).orderBy(asc(projects.order)),
-      db.select().from(aboutSettings),
-    ])
+    projectRows = await db.select().from(projects).orderBy(asc(projects.order))
   } catch (error) {
-    console.warn("⚠️  Database unavailable – using fallback project data")
+    console.error("⚠️  Projects DB query failed:", error instanceof Error ? error.message : error)
     projectRows = FALLBACK_PROJECTS
+  }
+
+  try {
+    settingsRows = await db.select().from(aboutSettings)
+  } catch (error) {
+    console.error("⚠️  AboutSettings DB query failed:", error instanceof Error ? error.message : error)
   }
 
   const settings: Record<string, string> = {}
